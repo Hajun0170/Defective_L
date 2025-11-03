@@ -608,8 +608,8 @@ MonoBehaviour:
   fAcceleration: 60
   fDeceleration: 80
   fRunStartGrace: 0.08
-  fJumpPower: 12
-  fGravity: 3.5
+  fJumpPower: 13
+  fGravity: 3.2
   fFallGravity: 4.5
   fDashSpeed: 16
   fDashTime: 0.18
