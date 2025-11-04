@@ -241,12 +241,12 @@ MonoBehaviour:
   vLocalScale: {x: 1, y: 1, z: 1}
   ePreferredSlot: 0
   bKeepPrefabScale: 1
-  iDamage: 4
-  fSwingTime: 0.15
+  iDamage: 1
+  fSwingTime: 0.1
   cHitbox: {fileID: 8297571001269737916}
   bShowHitboxWhileSwing: 1
   srHitboxVisual: {fileID: 1930269323070084410}
-  bDrawGizmos: 1
+  bDrawGizmos: 0
   bLog: 1
 --- !u!50 &654708072844289401
 Rigidbody2D:
