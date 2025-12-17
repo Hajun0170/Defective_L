@@ -82,12 +82,18 @@ public class PlayerStats : MonoBehaviour
             accumulatedGauge %= gaugeForTicket;
         }
         Debug.Log($"[자원] 게이지: {currentGauge}, 누적: {accumulatedGauge}");
+
+        // [추가] UI 갱신 요청
+        UIManager.Instance.UpdateGauge(currentGauge, maxGauge);
     }
 
     private void AddTicket(int amount)
     {
         currentTickets = Mathf.Clamp(currentTickets + amount, 0, maxTickets);
         Debug.Log($"[자원] 🎟️ 교환권 획득! 현재: {currentTickets}장");
+
+        // [추가] UI 갱신 요청
+        UIManager.Instance.UpdateTickets(currentTickets);
     }
 
     public bool UseGauge(int amount)
@@ -95,6 +101,10 @@ public class PlayerStats : MonoBehaviour
         if (currentGauge >= amount)
         {
             currentGauge -= amount;
+
+            // [추가] 소모 후 즉시 갱신
+            UIManager.Instance.UpdateGauge(currentGauge, maxGauge);
+
             Debug.Log($"[자원] 게이지 소모: -{amount}");
             return true;
         }
@@ -106,6 +116,10 @@ public class PlayerStats : MonoBehaviour
         if (currentTickets > 0)
         {
             currentTickets--;
+
+            // [추가] 소모 후 즉시 갱신
+            UIManager.Instance.UpdateTickets(currentTickets);
+            
             Debug.Log($"[자원] 🎟️ 교환권 사용! 남은 수: {currentTickets}");
             return true;
         }

@@ -39,10 +39,10 @@ public class PlayerMovement : MonoBehaviour
         if (isDashing) return; 
 
         // 1. 입력 감지
-        horizontalInput = Input.GetAxisRaw("Horizontal"); 
+        horizontalInput = Input.GetAxisRaw("Horizontal"); //wasd 입력 방지 필요.
         
-        // 2. 점프 (Z키)
-        if (Input.GetKeyDown(KeyCode.Z) && isGrounded)
+        // 2. 점프 (스페이스바)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             Jump();
         }

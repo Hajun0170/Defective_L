@@ -8,7 +8,6 @@ public class WeaponManager : MonoBehaviour
     public List<Weapon> rangedWeapons = new List<Weapon>(); // 원거리 무기 리스트
 
     [Header("UI Reference")]
-    public GameObject swapUIPanel; // 교체 중 띄울 UI
 
     private int meleeIndex = 0;
     private int rangedIndex = 0;
@@ -35,7 +34,11 @@ public class WeaponManager : MonoBehaviour
         {
             isSwapping = true;
             Time.timeScale = 0f; // 시간 정지
-            if (swapUIPanel) swapUIPanel.SetActive(true);
+            
+            // [수정] UIManager를 통해 UI 열기
+            UIManager.Instance.ToggleSwapUI(true);
+            UpdateUI(); // 현재 무기 이름 띄우기
+
             Debug.Log("무기 교체 모드 진입");
         }
 
@@ -44,7 +47,8 @@ public class WeaponManager : MonoBehaviour
         {
             isSwapping = false;
             Time.timeScale = 1f; // 시간 재개
-            if (swapUIPanel) swapUIPanel.SetActive(false);
+
+            UIManager.Instance.ToggleSwapUI(false); // [수정]
 
             // 교환권을 소모하여 무기 교체 및 버프 발동
             if (playerStats.UseTicket())
@@ -84,4 +88,14 @@ public class WeaponManager : MonoBehaviour
         
         Debug.Log($"장착 완료: 근접[{playerAttack.meleeWeapon.weaponName}] / 원거리[{playerAttack.rangedWeapon.weaponName}]");
     }
+
+    // [추가] 현재 선택된 무기 정보를 UI에 보내는 헬퍼 함수
+    private void UpdateUI()
+    {
+        string mName = meleeWeapons.Count > 0 ? meleeWeapons[meleeIndex].weaponName : "없음";
+        string rName = rangedWeapons.Count > 0 ? rangedWeapons[rangedIndex].weaponName : "없음";
+        
+        UIManager.Instance.UpdateWeaponNames(mName, rName);
+    }
+    
 }

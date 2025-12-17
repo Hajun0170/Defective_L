@@ -26,22 +26,20 @@ public class PlayerAttack : MonoBehaviour
     {
         if (Time.timeScale == 0) return; // 일시정지(무기 교체) 중에는 공격 불가
 
-        bool isRangedMode = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+       // bool isRangedMode = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
 
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            if (isRangedMode)
-            {
-                // 원거리 공격 (Shift + X)
-                if (rangedWeapon != null)
-                    rangedWeapon.PerformAttack(attackPoint, playerStats);
-            }
-            else
-            {
-                // 기본 공격 (X)
+        if (Input.GetKeyDown(KeyCode.Z))
+        {           
+                // 기본 공격 (Z)
                 if (meleeWeapon != null)
                     meleeWeapon.PerformAttack(attackPoint, playerStats);
-            }
+        }
+        
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+             // 원거리 공격 (X)
+                if (rangedWeapon != null)
+                    rangedWeapon.PerformAttack(attackPoint, playerStats);
         }
     }
 }
