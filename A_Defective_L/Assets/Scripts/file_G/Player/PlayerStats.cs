@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    [Header("Health")]
+    [Header("HP")]
     [SerializeField] private int maxHealth = 5;
+    [SerializeField] private float hitInvincibilityTime = 1.0f; // 피격 후 무적 시간 (1초)
     private int currentHealth;
 
     [Header("Cylinder Gauge")]
@@ -22,27 +23,38 @@ public class PlayerStats : MonoBehaviour
 
     // 무적 상태 확인
     private bool isInvincible = false;
+    private SpriteRenderer spriteRenderer; // 깜빡임 효과를 위해 필요
 
     // 외부 확인용 프로퍼티
     public int CurrentGauge => currentGauge;
     public int CurrentTickets => currentTickets;
+
+    private void Awake()
+    {
+        // 플레이어의 그래픽(스프라이트)을 제어하기 위해 가져옴
+        // 만약 스프라이트가 자식 오브젝트에 있다면 GetComponentInChildren<SpriteRenderer>() 사용
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+    }
 
     private void Start()
     {
         currentHealth = maxHealth;
         currentGauge = 0;
         currentTickets = 0;
+
+        // 시작 시 UI 초기화
+        UIManager.Instance.UpdateHealth(currentHealth);
+        UIManager.Instance.UpdateGauge(currentGauge, maxGauge);
+        UIManager.Instance.UpdateTickets(currentTickets);
     }
 
     // --- 데미지 처리 ---
     public void TakeDamage(int amount)
     {
-        if (isInvincible)
-        {
-            Debug.Log("무적 상태라 데미지를 입지 않습니다!");
-            return;
-        }
+        // 1. 무적 상태면 데미지 무시
+        if (isInvincible) return;
 
+        // 2. 체력 감소
         currentHealth -= amount;
         Debug.Log($"플레이어 피격! 남은 체력: {currentHealth}");
 
@@ -51,6 +63,13 @@ public class PlayerStats : MonoBehaviour
             Debug.Log("플레이어 사망!");
             // 게임 오버 로직 추가
         }
+    }
+
+    private void Die()
+    {
+        Debug.Log("플레이어 사망... (게임 오버)");
+        // 여기에 게임 오버 UI 호출이나 캐릭터 파괴 로직 추가
+        gameObject.SetActive(false); 
     }
 
     // --- 무적 설정 (이동 스크립트에서 호출) ---
