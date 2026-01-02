@@ -7,6 +7,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement Stats")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 12f;
+    [SerializeField] private float knockbackForce = 10f; // 넉백 파워
+    [SerializeField] private float knockbackDuration = 0.2f; // 밀려나는 시간
 
     [Header("Dash (Evasion) Settings")]
     [SerializeField] private float dashSpeed = 20f;      
@@ -25,6 +27,9 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private bool isDashing;
     private bool canDash = true;
+
+    // [추가] 넉백 중인지 확인하는 변수
+    private bool isKnockback = false;
     private float horizontalInput;
     private bool isFacingRight = true;
 
@@ -36,6 +41,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        // [추가] 컷신 중이거나 시간이 멈췄으면 조작 불가
+        if (GameManager.Instance != null && GameManager.Instance.IsCutscene) return;
+        if (Time.timeScale == 0) return;
+
+        // [수정] 대시 중이거나 "넉백 중"이면 입력 무시
+        if (isDashing || isKnockback) return;
+
         if (isDashing) return; 
 
         // 1. 입력 감지
@@ -59,7 +71,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (isDashing) return; 
+        // [수정] 대시 중이거나 "넉백 중"이면 이동 로직 실행 안 함 (물리 힘 보존)
+        if (isDashing || isKnockback) return;
 
         CheckGround();
         Move();
@@ -133,5 +146,37 @@ public class PlayerMovement : MonoBehaviour
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
+    }
+
+    // [신규 기능] 외부에서 호출할 넉백 함수
+    public void ApplyKnockback(Transform damageSource)
+    {
+        if (isKnockback) return; // 이미 밀려나는 중이면 무시
+
+        StartCoroutine(KnockbackRoutine(damageSource));
+    }
+
+    private IEnumerator KnockbackRoutine(Transform damageSource)
+    {
+        isKnockback = true;
+
+        // 1. 현재 이동 속도 초기화 (관성 제거)
+        rb.linearVelocity = Vector2.zero;
+
+        // 2. 밀려날 방향 계산: (내 위치 - 적 위치).normalized = 적 반대 방향
+        Vector2 direction = (transform.position - damageSource.position).normalized;
+        
+        // 3. 위로 살짝 뜨면서 뒤로 밀리게 (x축 + y축 약간)
+        // y축을 조금 섞어줘야 바닥 마찰력 때문에 안 밀리는 현상을 막을 수 있습니다.
+        Vector2 knockbackDir = new Vector2(direction.x, 0.5f).normalized; 
+
+        // 4. 힘 가하기 (Impulse)
+        rb.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
+        Debug.Log("으악! 넉백!");
+
+        // 5. 제어 불능 시간 대기
+        yield return new WaitForSeconds(knockbackDuration);
+
+        isKnockback = false;
     }
 }

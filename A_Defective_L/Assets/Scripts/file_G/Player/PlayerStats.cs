@@ -29,8 +29,24 @@ public class PlayerStats : MonoBehaviour
     public int CurrentGauge => currentGauge;
     public int CurrentTickets => currentTickets;
 
+    public static PlayerStats Instance; // 어디서든 접근 가능하게
+
     private void Awake()
     {
+        // 싱글톤 패턴 적용
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // 씬이 바뀌어도 나(플레이어)를 파괴하지 마!
+        }
+        else
+        {
+            // 만약 이미 '진짜' 플레이어가 있는데, 
+            // 다음 스테이지 씬에 테스트용으로 넣어둔 '가짜' 플레이어가 또 있다면?
+            // 가짜를 파괴한다.
+            Destroy(gameObject);
+        }
+        
         // 플레이어의 그래픽(스프라이트)을 제어하기 위해 가져옴
         // 만약 스프라이트가 자식 오브젝트에 있다면 GetComponentInChildren<SpriteRenderer>() 사용
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -49,20 +65,30 @@ public class PlayerStats : MonoBehaviour
     }
 
     // --- 데미지 처리 ---
-    public void TakeDamage(int amount)
+    public void TakeDamage(int amount, Transform attacker)
     {
         // 1. 무적 상태면 데미지 무시
         if (isInvincible) return;
 
         // 2. 체력 감소
-        currentHealth -= amount;
+        currentHealth -= 1;
         Debug.Log($"플레이어 피격! 남은 체력: {currentHealth}");
+
+        // 3. UI 갱신
+        UIManager.Instance.UpdateHealth(currentHealth);
 
         if (currentHealth <= 0)
         {
-            Debug.Log("플레이어 사망!");
-            // 게임 오버 로직 추가
+            Die();
+            return;
         }
+        // [추가] PlayerMovement에게 넉백 요청
+        // GetComponent는 무거우니 Awake에서 캐싱해두는 게 좋지만, 편의상 여기서 호출
+        GetComponent<PlayerMovement>()?.ApplyKnockback(attacker);
+
+        // 5. 무적 시간 부여 (깜빡임 효과 포함)
+        StartCoroutine(HitInvincibilityRoutine());
+
     }
 
     private void Die()
@@ -70,6 +96,48 @@ public class PlayerStats : MonoBehaviour
         Debug.Log("플레이어 사망... (게임 오버)");
         // 여기에 게임 오버 UI 호출이나 캐릭터 파괴 로직 추가
         gameObject.SetActive(false); 
+    }
+
+    // 피격 후 무적 및 깜빡임 효과 코루틴
+    private IEnumerator HitInvincibilityRoutine()
+    {
+        isInvincible = true;
+        
+        // 깜빡임 효과 (0.1초 간격으로 투명도 조절)
+        float elapsed = 0f;
+        while (elapsed < hitInvincibilityTime)
+        {
+            if (spriteRenderer != null)
+            {
+                // 투명하게 만들었다가
+                Color c = spriteRenderer.color;
+                c.a = 0.5f; 
+                spriteRenderer.color = c;
+                yield return new WaitForSeconds(0.1f);
+                
+                // 다시 불투명하게
+                c.a = 1f;
+                spriteRenderer.color = c;
+                yield return new WaitForSeconds(0.1f);
+            }
+            else
+            {
+                // 렌더러가 없으면 그냥 시간만 보냄
+                yield return null; 
+            }
+            elapsed += 0.2f;
+        }
+
+        // 복구
+        if (spriteRenderer != null)
+        {
+            Color c = spriteRenderer.color;
+            c.a = 1f;
+            spriteRenderer.color = c;
+        }
+
+        isInvincible = false;
+        Debug.Log("무적 상태 해제");
     }
 
     // --- 무적 설정 (이동 스크립트에서 호출) ---

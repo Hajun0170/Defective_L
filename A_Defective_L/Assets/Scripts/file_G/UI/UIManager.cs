@@ -27,8 +27,15 @@ public class UIManager : MonoBehaviour
     private void Awake()
     {
         // 싱글톤 설정
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // UI(Canvas)도 파괴되지 않음
+        }
+        else
+        {
+            Destroy(gameObject); // 중복 UI 파괴
+        }
     }
 
     // 1. 실린더 게이지 업데이트 (스택형)

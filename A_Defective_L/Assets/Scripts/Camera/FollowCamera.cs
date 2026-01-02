@@ -14,4 +14,12 @@ public class FollowCamera : MonoBehaviour
         Vector3 vSmoothedPos = Vector3.Lerp(transform.position, vTargetPos, fSmoothSpeed * Time.deltaTime);
         transform.position = vSmoothedPos;
     }
+
+    // 외부(GameManager)에서 타겟을 설정해주는 함수
+    public void SetTarget(Transform newTarget)
+    {
+        tTarget = newTarget;
+        // 씬 이동 직후에는 텔레포트하듯이 즉시 이동 (부드러운 이동 X)
+        transform.position = tTarget.position + vOffset;
+    }
 }

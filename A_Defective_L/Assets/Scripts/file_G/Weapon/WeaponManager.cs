@@ -32,6 +32,10 @@ public class WeaponManager : MonoBehaviour
         // 1. Alt 키 누름 (진입)
         if (Input.GetKeyDown(KeyCode.LeftAlt))
         {
+            // [추가] 컷신 중이거나 시간이 멈췄으면 조작 불가
+            if (GameManager.Instance != null && GameManager.Instance.IsCutscene) return;
+            if (Time.timeScale == 0) return;
+
             isSwapping = true;
             Time.timeScale = 0f; // 시간 정지
             

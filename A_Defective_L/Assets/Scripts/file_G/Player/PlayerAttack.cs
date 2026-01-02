@@ -20,6 +20,10 @@ public class PlayerAttack : MonoBehaviour
     private void Update()
     {
         HandleAttackInput();
+
+        // [추가] 컷신 중이거나 시간이 멈췄으면 조작 불가
+    if (GameManager.Instance != null && GameManager.Instance.IsCutscene) return;
+    if (Time.timeScale == 0) return;
     }
 
     private void HandleAttackInput()
