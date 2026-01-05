@@ -20,6 +20,11 @@ public class DialogueBubble : MonoBehaviour
             transform.position = Camera.main.WorldToScreenPoint(target.position);
         }
     }
+    public void Hide()
+    {
+        StopAllCoroutines(); // 진행 중인 타이머 정지
+        bubbleObj.SetActive(false); // 화면에서 숨김
+    }
 
     public void Show(string text, Transform newTarget, float duration)
     {

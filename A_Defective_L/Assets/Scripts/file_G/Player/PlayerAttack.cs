@@ -12,6 +12,15 @@ public class PlayerAttack : MonoBehaviour
 
     private PlayerStats playerStats;
 
+    private Rigidbody2D rb;
+    private Animator anim;  // 애니메이터 변수
+
+     void Start()
+    {
+        anim = GetComponent<Animator>(); // 내 몸에 붙은 애니메이터 가져오기
+        rb = GetComponent<Rigidbody2D>();
+    }
+
     private void Awake()
     {
         playerStats = GetComponent<PlayerStats>();
@@ -42,8 +51,11 @@ public class PlayerAttack : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
         {
              // 원거리 공격 (X)
+             anim.SetTrigger("R_Skill_1");
                 if (rangedWeapon != null)
                     rangedWeapon.PerformAttack(attackPoint, playerStats);
+                    
         }
+
     }
 }

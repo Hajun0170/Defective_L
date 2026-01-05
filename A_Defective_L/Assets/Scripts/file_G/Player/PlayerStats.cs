@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
@@ -31,6 +32,10 @@ public class PlayerStats : MonoBehaviour
 
     public static PlayerStats Instance; // 어디서든 접근 가능하게
 
+    private Rigidbody2D rb;
+     private Animator anim;  // 애니메이터 변수
+
+
     private void Awake()
     {
         // 싱글톤 패턴 적용
@@ -54,6 +59,9 @@ public class PlayerStats : MonoBehaviour
 
     private void Start()
     {
+        anim = GetComponent<Animator>(); // 내 몸에 붙은 애니메이터 가져오기
+        rb = GetComponent<Rigidbody2D>();
+
         currentHealth = maxHealth;
         currentGauge = 0;
         currentTickets = 0;
@@ -69,7 +77,7 @@ public class PlayerStats : MonoBehaviour
     {
         // 1. 무적 상태면 데미지 무시
         if (isInvincible) return;
-
+        anim.SetTrigger("Hit");
         // 2. 체력 감소
         currentHealth -= 1;
         Debug.Log($"플레이어 피격! 남은 체력: {currentHealth}");
@@ -85,7 +93,7 @@ public class PlayerStats : MonoBehaviour
         // [추가] PlayerMovement에게 넉백 요청
         // GetComponent는 무거우니 Awake에서 캐싱해두는 게 좋지만, 편의상 여기서 호출
         GetComponent<PlayerMovement>()?.ApplyKnockback(attacker);
-
+    
         // 5. 무적 시간 부여 (깜빡임 효과 포함)
         StartCoroutine(HitInvincibilityRoutine());
 
@@ -127,6 +135,7 @@ public class PlayerStats : MonoBehaviour
             }
             elapsed += 0.2f;
         }
+        
 
         // 복구
         if (spriteRenderer != null)

@@ -8,6 +8,12 @@ public class CutsceneDirector : MonoBehaviour
     [SerializeField] private bool playOnStart = true; // 시작하자마자 재생할지?
     [SerializeField] private float defaultDuration = 2.5f; // 대사 기본 지속 시간
 
+    // [추가] 스킵할 키 설정
+    [SerializeField] private KeyCode skipKey = KeyCode.Z;
+
+    [Header("UI 연결")]
+    [SerializeField] private DialogueBubble dialogueBubble;
+
     [Header("대사 순서 (ID 입력)")]
     [SerializeField] private string[] dialogueSequence; // S1_01, S1_02, ...
 
@@ -36,6 +42,7 @@ public class CutsceneDirector : MonoBehaviour
         StartCoroutine(PlaySequence());
     }
     
+    /*
     private IEnumerator PlaySequence()
     {
         // 1. 조작 차단 (GameManager 연동)
@@ -52,7 +59,7 @@ public class CutsceneDirector : MonoBehaviour
                 // 화자 이름으로 실제 오브젝트 찾기
                 Transform speakerTransform = GetActorTransform(data.Speaker);
 
-                if (speakerTransform != null)
+                if (speakerTransform != null )
                 {
                     // 말풍선 띄우기
                     // [기존] 꺼져 있으면 못 찾아서 에러 남
@@ -72,6 +79,51 @@ public class CutsceneDirector : MonoBehaviour
         }
 
         // 3. 조작 해제
+        if (GameManager.Instance != null) GameManager.Instance.EndCutscene();
+        Debug.Log("컷신 종료");
+    }
+    */
+    private IEnumerator PlaySequence()
+    {
+        if (GameManager.Instance != null) GameManager.Instance.StartCutscene();
+
+        foreach (string id in dialogueSequence)
+        {
+            DialogueEntry data = DialogueManager.Instance.GetDialogue(id);
+
+            // ... (대사 출력 부분 동일) ...
+            if (data != null)
+            {
+                Transform speakerTransform = GetActorTransform(data.Speaker);
+                if (speakerTransform != null && dialogueBubble != null)
+                {
+                    dialogueBubble.Show(data.Text, speakerTransform, defaultDuration);
+                }
+            }
+
+            float timer = 0f;
+            float waitTime = defaultDuration + 0.5f; 
+
+            while (timer < waitTime)
+            {
+                timer += Time.deltaTime;
+
+                // [수정 1] GetKey -> GetKeyDown 으로 변경 (누르는 순간 딱 한 번만 인식)
+                if (Input.GetKeyDown(skipKey)) 
+                {
+                    break; 
+                }
+
+                yield return null;
+            }
+            
+            // [수정 2] (중요) 스킵 직후, 아주 잠깐 대기해서 '같은 프레임'에 다음 키 입력이 먹히는 걸 방지
+            yield return null; 
+        }
+
+        // [마무리] 컷신이 끝나면 마지막 말풍선을 끄고 조작 해제
+        if (dialogueBubble != null) dialogueBubble.Hide(); // 아까 만든 함수 호출
+        
         if (GameManager.Instance != null) GameManager.Instance.EndCutscene();
         Debug.Log("컷신 종료");
     }

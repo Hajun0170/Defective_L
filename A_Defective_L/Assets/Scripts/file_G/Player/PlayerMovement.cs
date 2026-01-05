@@ -33,6 +33,14 @@ public class PlayerMovement : MonoBehaviour
     private float horizontalInput;
     private bool isFacingRight = true;
 
+    private Animator anim;  // 애니메이터 변수
+
+    void Start()
+    {
+        anim = GetComponent<Animator>(); // 내 몸에 붙은 애니메이터 가져오기
+        rb = GetComponent<Rigidbody2D>();
+    }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -57,16 +65,49 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             Jump();
+            anim.SetBool("IsJump", true);
+        }
+        else
+        {
+            anim.SetBool("IsJump", false);
         }
 
         // 3. 회피 돌진 (C키)
         if (Input.GetKeyDown(KeyCode.C) && canDash)
         {
             StartCoroutine(DashProcess());
+
+            if(anim.GetBool("IsRun") == true)
+            {
+                anim.SetBool("Dash_R", true);
+            }
+            else
+            {
+                anim.SetBool("Dash_I", true);
+            }
+        }
+        else if (anim.GetBool("Dash_R") == true)
+        {
+            anim.SetBool("Dash_R", false);
+        }
+        else
+        {
+            anim.SetBool("Dash_I", false);
         }
 
-        // 4. 캐릭터 좌우 반전
-        FlipCharacter();
+
+        // 3. 애니메이션 제어
+        if (horizontalInput == 0) 
+        {
+            // 멈춤 상태
+            anim.SetBool("IsRun", false);
+        }
+        else
+        {
+            // 이동 중 -> IsRun 켜기
+            anim.SetBool("IsRun", true);
+            FlipCharacter();
+        }
     }
 
     private void FixedUpdate()
@@ -79,7 +120,7 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private void Move()
-    {
+    {     
         // Unity 6 최신 버전: velocity 대신 linearVelocity 사용
         rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
     }
