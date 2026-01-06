@@ -14,6 +14,7 @@ public class PlayerAttack : MonoBehaviour
 
     private Rigidbody2D rb;
     private Animator anim;  // 애니메이터 변수
+    //public int skillCost = 5;
 
      void Start()
     {
@@ -51,7 +52,14 @@ public class PlayerAttack : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
         {
              // 원거리 공격 (X)
+
+               /*      
+            if (playerStats.UseGauge(skillCost)) 
+               {
              anim.SetTrigger("R_Skill_1");
+                }
+                */
+
                 if (rangedWeapon != null)
                     rangedWeapon.PerformAttack(attackPoint, playerStats);
                     

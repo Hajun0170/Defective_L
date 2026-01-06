@@ -197,12 +197,17 @@ public class PlayerStats : MonoBehaviour
         if (currentGauge >= amount)
         {
             currentGauge -= amount;
+            anim.SetTrigger("R_Skill_1");
 
             // [추가] 소모 후 즉시 갱신
             UIManager.Instance.UpdateGauge(currentGauge, maxGauge);
 
             Debug.Log($"[자원] 게이지 소모: -{amount}");
             return true;
+        }
+        else
+        {
+           Debug.Log("게이지 부족!");
         }
         return false;
     }
@@ -212,7 +217,7 @@ public class PlayerStats : MonoBehaviour
         if (currentTickets > 0)
         {
             currentTickets--;
-
+            
             // [추가] 소모 후 즉시 갱신
             UIManager.Instance.UpdateTickets(currentTickets);
             

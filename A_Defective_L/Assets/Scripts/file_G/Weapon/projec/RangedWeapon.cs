@@ -5,7 +5,7 @@ public class RangedWeapon : Weapon
 {
     [SerializeField] protected GameObject projectilePrefab;
     [SerializeField] protected int gaugeCost = 5; // 소모량 5
-
+  
     public override void PerformAttack(Transform firePoint, PlayerStats playerStats)
     {
         if (Time.time < nextAttackTime) return;
@@ -14,10 +14,6 @@ public class RangedWeapon : Weapon
         {
             SpawnProjectile(firePoint, playerStats);
             nextAttackTime = Time.time + attackRate;
-        }
-        else
-        {
-            Debug.Log("게이지 부족!");
         }
     }
 
