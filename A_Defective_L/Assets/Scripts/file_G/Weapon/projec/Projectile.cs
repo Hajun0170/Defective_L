@@ -3,8 +3,8 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     [Header("Settings")]
-    public float speed = 10f;
-    public float lifeTime = 3f; // 3초 뒤 자동 삭제
+    public float speed = 15f; 
+    public float lifeTime = 3f;
 
     private int damage;
     private Rigidbody2D rb;
@@ -12,43 +12,36 @@ public class Projectile : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        // 날아가야 하니 중력 0으로 설정 권장
-        if(rb != null) rb.gravityScale = 0; 
     }
 
-    // Weapon이 생성하자마자 호출해주는 초기화 함수
-    public void Initialize(int damageAmount, Vector2 direction)
+    // ★ [핵심 수정] 매개변수에서 'Vector2 direction'을 지웠습니다!
+    // 이제 데미지 하나만 받습니다.
+    
+    public void Initialize(int damageAmount) 
     {
         this.damage = damageAmount;
-        
-        // 방향으로 속도 주기
+
+        // 방향은 입력받는 게 아니라, 
+        // "이미 회전된 내 몸의 앞쪽(transform.right)"으로 날아가게 합니다.
         if (rb != null)
         {
-            rb.linearVelocity = direction * speed; // Unity 6 (구버전은 velocity)
+            // Unity 6버전은 linearVelocity, 구버전(2022이하)은 velocity
+            rb.linearVelocity = transform.right * speed; 
         }
-        
-        // 일정 시간 뒤 삭제 (메모리 관리)
+
         Destroy(gameObject, lifeTime);
     }
 
-    // 적과 부딪혔을 때
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // 적을 찾아서 데미지 주기
-        EnemyHealth enemy = collision.GetComponent<EnemyHealth>();
-        if (enemy != null)
+        // 충돌 로직 (태그 확인 등)
+        if (collision.CompareTag("Ground") || collision.CompareTag("Wall"))
         {
-            enemy.TakeDamage(damage);
-            
-            // (선택) 타격 이펙트 생성
-            // Instantiate(hitEffect, transform.position, Quaternion.identity);
-            
-            // 나 자신(총알)은 삭제
             Destroy(gameObject);
         }
-        else if (collision.CompareTag("Ground") || collision.CompareTag("Wall"))
+        else if (collision.GetComponent<EnemyHealth>() != null)
         {
-            // 벽에 맞아도 삭제
+            collision.GetComponent<EnemyHealth>().TakeDamage(damage);
             Destroy(gameObject);
         }
     }

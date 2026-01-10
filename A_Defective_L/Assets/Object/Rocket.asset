@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Rocket
   damage: 10
-  attackRate: 1
+  attackRate: 0
   icon: {fileID: 7482667652216324306, guid: 7345e7f828ebf504d8cd6af2617880db, type: 3}
   type: 1
   projectilePrefab: {fileID: 1366710626536539476, guid: d2c694b2fe8e315478b10276dcbd5d10, type: 3}
