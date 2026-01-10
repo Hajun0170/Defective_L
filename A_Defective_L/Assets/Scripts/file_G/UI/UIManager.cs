@@ -1,103 +1,106 @@
 using UnityEngine;
-using UnityEngine.UI; // UI 기능을 위해 필수
-using TMPro;          // TextMeshPro (글자) 사용 시 필요
+using UnityEngine.UI; 
 
 public class UIManager : MonoBehaviour
 {
-    public static UIManager Instance; // 싱글톤 인스턴스
+    public static UIManager Instance; 
 
-    [Header("Health UI")]
-    [SerializeField] private Image[] hpCells; // 체력 칸 배열 (하트 5개)
-    [SerializeField] private Color hpFullColor = Color.red; // 꽉 찼을 때 (빨강)
-    [SerializeField] private Color hpEmptyColor = new Color(0.2f, 0.2f, 0.2f, 0.5f); // 비었을 때 (반투명 회색)
+    [Header("1. Health UI")]
+    [SerializeField] private Image[] hpCells; // 하트 이미지 배열
+    [SerializeField] private Color hpFullColor = Color.red; 
+    [SerializeField] private Color hpEmptyColor = new Color(0.2f, 0.2f, 0.2f, 0.5f); 
 
-    [Header("HUD References")]
-    // [수정] 하나의 이미지 대신, 여러 개의 게이지 칸(Cell)을 담을 배열로 변경
-    // 기존: [SerializeField] private Image cylinderGaugeFill; 
-    [SerializeField] private GameObject[] gaugeCells;
+    [Header("2. Resource UI")]
+    [SerializeField] private GameObject[] gaugeCells; // 게이지 칸 배열
+    [SerializeField] private GameObject[] ticketIcons; // 티켓 오브젝트 배열
 
-    [SerializeField] private GameObject[] ticketIcons; // 교환권 아이콘 3개 (켜고 끄기)
-    [SerializeField] private TextMeshProUGUI hpText;   // (선택) 체력 표시용
+    [Header("3. Weapon UI - Parents (켜고 끄기용)")]
+    // 무기가 없을 때 통째로 숨길 부모 오브젝트 (배경 + 아이콘 + 키 설명)
+    public GameObject meleeSlotGroup;   
+    public GameObject rangedSlotGroup;  
+    public GameObject ticketInfoGroup;  
 
-    [Header("Swap UI References")]
-    [SerializeField] private GameObject swapPanel;     // 교체 메뉴 전체 패널
-    [SerializeField] private TextMeshProUGUI currentMeleeName;  // 현재 선택된 근접 무기 이름
-    [SerializeField] private TextMeshProUGUI currentRangedName; // 현재 선택된 원거리 무기 이름
+    [Header("4. Weapon UI - Children (이미지 교체용)")]
+    // 실제 스프라이트(그림)를 갈아 끼울 자식 Image 컴포넌트
+    public Image meleeIcon;
+    public Image rangedIcon;
 
     private void Awake()
     {
-        // 싱글톤 설정
-        if (Instance == null)
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); // UI(Canvas)도 파괴되지 않음
+            Destroy(gameObject);
+            return;
         }
-        else
-        {
-            Destroy(gameObject); // 중복 UI 파괴
-        }
+        Instance = this;
     }
 
-    // 1. 실린더 게이지 업데이트 (스택형)
-    public void UpdateGauge(int current, int max)
-    {
-       // 배열에 들어있는 모든 칸을 순회하며 검사
-        for (int i = 0; i < gaugeCells.Length; i++)
-        {
-            // 현재 게이지 수치보다 인덱스가 작으면 켜기 (Active True)
-            // 예: current가 3이면, 인덱스 0, 1, 2가 켜짐
-            if (i < current)
-            {
-                gaugeCells[i].SetActive(true);
-            }
-            else
-            {
-                // 나머지는 끄기 (Active False)
-                gaugeCells[i].SetActive(false);
-            }
-        }
-    }
+    // --- 기능 함수들 ---
 
-    // 2. 교환권 아이콘 업데이트 (활성화/비활성화)
-    public void UpdateTickets(int count)
-    {
-        for (int i = 0; i < ticketIcons.Length; i++)
-        {
-            // 현재 개수만큼만 아이콘을 켬
-            if (i < count) ticketIcons[i].SetActive(true); 
-            else ticketIcons[i].SetActive(false);
-        }
-    }
-
-    // 3. 교체 UI 열기/닫기
-    public void ToggleSwapUI(bool isOpen)
-    {
-        if (swapPanel != null) swapPanel.SetActive(isOpen);
-    }
-
-    // 4. 선택된 무기 이름 갱신
-    public void UpdateWeaponNames(string meleeName, string rangedName)
-    {
-        if (currentMeleeName != null) currentMeleeName.text = $"근거리: {meleeName}";
-        if (currentRangedName != null) currentRangedName.text = $"원거리: {rangedName}";
-    }
-
-    // [신규 기능] 체력 UI 업데이트
+    // 1. 체력 업데이트 (색상 변경 방식)
     public void UpdateHealth(int currentHealth)
     {
         for (int i = 0; i < hpCells.Length; i++)
         {
-            // 오브젝트는 끄지 않고 색상만 변경 (레이아웃 고정)
+            // 인덱스가 현재 체력보다 작으면 '채워진 색', 아니면 '빈 색'
+            hpCells[i].color = (i < currentHealth) ? hpFullColor : hpEmptyColor;
             hpCells[i].gameObject.SetActive(true);
+        }
+    }
 
-            if (i < currentHealth)
-            {
-                hpCells[i].color = hpFullColor; // 남은 체력
-            }
-            else
-            {
-                hpCells[i].color = hpEmptyColor; // 닳은 체력
-            }
+    // 2. 게이지 업데이트 (스택형)
+    public void UpdateGauge(int current, int max)
+    {
+        for (int i = 0; i < gaugeCells.Length; i++)
+        {
+            // 현재 수치만큼 켜고, 나머지는 끔
+            gaugeCells[i].SetActive(i < current);
+        }
+    }
+
+    // 3. 교환권 업데이트
+    public void UpdateTickets(int count)
+    {
+        for (int i = 0; i < ticketIcons.Length; i++)
+        {
+            ticketIcons[i].SetActive(i < count);
+        }
+    }
+
+    // 4. 무기 슬롯 전체 보이기/숨기기 (무기 획득 시 사용)
+    public void SetSlotVisibility(bool showMelee, bool showRanged)
+    {
+        if (meleeSlotGroup != null) meleeSlotGroup.SetActive(showMelee);
+        if (rangedSlotGroup != null) rangedSlotGroup.SetActive(showRanged);
+        
+        // 근접이나 원거리 중 하나라도 있으면 티켓 정보창도 보여줌
+        if (ticketInfoGroup != null)
+            ticketInfoGroup.SetActive(showMelee || showRanged);
+    }
+
+    // 5. 무기 아이콘 그림 바꾸기 (무기 교체 시 사용)
+    public void UpdateWeaponSlots(Weapon melee, Weapon ranged)
+    {
+        // 안전장치: 연결 안 되어 있으면 에러 로그 출력
+        if (meleeIcon == null || rangedIcon == null)
+        {
+            Debug.LogError("❌ UIManager에 아이콘 이미지가 연결되지 않았습니다!");
+            return;
+        }
+
+        // 근접 무기 아이콘 갱신
+        if (melee != null)
+        {
+            meleeIcon.sprite = melee.icon;
+            // 혹시 모르니 켜주기
+            meleeIcon.gameObject.SetActive(true);
+        }
+        
+        // 원거리 무기 아이콘 갱신
+        if (ranged != null)
+        {
+            rangedIcon.sprite = ranged.icon;
+            rangedIcon.gameObject.SetActive(true);
         }
     }
 }

@@ -1,35 +1,50 @@
 using UnityEngine;
+using System; // Action 사용
 
-// --- 일반 원거리 (로켓 펀치) ---
+[CreateAssetMenu(fileName = "New Ranged", menuName = "Weapon/Ranged Weapon")]
 public class RangedWeapon : Weapon
 {
-    [SerializeField] protected GameObject projectilePrefab;
-    [SerializeField] protected int gaugeCost = 5; // 소모량 5
-  
-    public override void PerformAttack(Transform firePoint, PlayerStats playerStats)
-    {
-        if (Time.time < nextAttackTime) return;
+    // [SerializeField] protected GameObject projectilePrefab; // <-- 부모(Weapon)에 있으니 삭제!
+    
+    [Header("Ranged Settings")]
+    [SerializeField] protected int gaugeCost = 5; // 소모량
 
+    public override void PerformAttack(Transform firePoint, PlayerStats playerStats, Action onComplete)
+    {
+        // 1. 게이지 사용 시도
         if (playerStats.UseGauge(gaugeCost))
         {
+            // 성공 시 투사체 발사
             SpawnProjectile(firePoint, playerStats);
-            nextAttackTime = Time.time + attackRate;
+            Debug.Log($"[{weaponName}] 발사!");
         }
+        else
+        {
+            Debug.Log($"[{weaponName}] 게이지 부족! 발사 실패.");
+            // 실패했을 때 별도의 '찰칵' 소리나 UI 피드백을 넣을 수 있음
+        }
+
+        // 2. ★ 성공하든 실패하든, 행동이 끝났음을 보고해야 함!
+        // (이게 없으면 게이지 부족할 때 플레이어가 굳어버림)
+        onComplete?.Invoke();
     }
 
-    // 자식이 오버라이드할 수 있도록 virtual 선언
+    // 투사체 생성 로직
     protected virtual void SpawnProjectile(Transform firePoint, PlayerStats stats)
     {
-        // 1. 발사 위치(FirePoint)의 월드 스케일이 음수인지 확인 (캐릭터가 뒤집혔는지)
-        // FirePoint는 Player의 자식이므로, Player가 뒤집히면 lossyScale.x도 음수가 됩니다.
-        bool isFlipped = firePoint.lossyScale.x < 0;
+        // 캐릭터가 바라보는 방향(왼쪽/오른쪽) 체크
+        bool isFlipped = firePoint.lossyScale.x < 0; // 혹은 PlayerMovement의 flip 상태 참조
 
-        // 2. 뒤집혔다면 180도 회전(왼쪽), 아니면 0도(오른쪽)
+        // 회전값 설정 (왼쪽이면 180도, 오른쪽이면 0도)
         Quaternion rotation = isFlipped ? Quaternion.Euler(0, 0, 180) : Quaternion.identity;
         
-        // 3. 투사체 생성   
-        GameObject proj = Instantiate(projectilePrefab, firePoint.position, rotation);
-        // 생성된 투사체에 데미지 주입
-        proj.GetComponent<Projectile>().Initialize(GetFinalDamage(stats));
+        // 투사체 생성 (부모 클래스의 projectilePrefab 사용)
+        if (projectilePrefab != null)
+        {
+            GameObject proj = Instantiate(projectilePrefab, firePoint.position, rotation);
+            
+            // 생성된 투사체에 데미지 주입 (Projectile 스크립트가 있다고 가정)
+            // proj.GetComponent<Projectile>()?.Initialize(GetFinalDamage(stats));
+        }
     }
 }

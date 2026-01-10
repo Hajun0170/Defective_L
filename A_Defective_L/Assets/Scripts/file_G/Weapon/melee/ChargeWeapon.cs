@@ -1,55 +1,55 @@
 using System.Collections;
 using UnityEngine;
+using System; // Action 사용
 
+[CreateAssetMenu(fileName = "ChargeWeapon", menuName = "Weapon/Charge Weapon")]
 public class ChargeWeapon : Weapon
 {
     [Header("Charge Settings")]
-    [SerializeField] private float chargeTime = 0.8f; // 차징 시간
-    [SerializeField] private float attackRange = 1.0f;
-    [SerializeField] private LayerMask enemyLayer;
-    
-    private bool isCharging = false;
+    public float chargeTime = 0.8f;   // 기 모으는 시간
+    public float attackRange = 1.5f;  // 공격 범위
+    public LayerMask enemyLayer;      // 적 레이어
 
-    public override void PerformAttack(Transform firePoint, PlayerStats playerStats)
+    // 부모 함수 오버라이드 (Action onComplete 포함)
+    public override void PerformAttack(Transform attackPoint, PlayerStats playerStats, Action onComplete)
     {
-        // 이미 차징 중이거나 쿨타임 중이면 무시
-        if (isCharging || Time.time < nextAttackTime) return;
-
-        // 차징 코루틴 시작
-        StartCoroutine(ProcessCharge(firePoint, playerStats));
+        // PlayerStats(MonoBehaviour)를 통해 코루틴 실행
+        playerStats.StartCoroutine(ProcessCharge(attackPoint, playerStats, onComplete));
     }
 
-    private IEnumerator ProcessCharge(Transform firePoint, PlayerStats playerStats)
+    private IEnumerator ProcessCharge(Transform attackPoint, PlayerStats playerStats, Action onComplete)
     {
-        isCharging = true;
-        Debug.Log($"[{weaponName}] 차징 시작... (움직이지 마세요)");
-        
-        // (선택 사항) 차징 중 이펙트나 사운드 재생
-        
-        // 설정한 시간만큼 대기
+        Debug.Log($"[{weaponName}] 기 모으는 중... ({chargeTime}초)");
+
+        // (옵션) 플레이어 정지 로직이 필요하면 여기서 호출
+        // playerStats.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+
+        // 1. 차징 대기
         yield return new WaitForSeconds(chargeTime);
 
-        // 공격 판정 실행
-        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(firePoint.position, attackRange, enemyLayer);
+        // 2. 공격 판정
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
         int finalDamage = GetFinalDamage(playerStats);
 
+        bool hitSuccess = false;
         foreach (Collider2D enemy in hitEnemies)
         {
             enemy.GetComponent<EnemyHealth>()?.TakeDamage(finalDamage);
-            
-            // 차징 공격도 적중 시 게이지 충전
-            playerStats.AddGauge(1); 
+            hitSuccess = true;
+            // 이펙트 생성: Instantiate(hitEffect, enemy.transform.position, ...);
         }
-        Debug.Log($"[{weaponName}] 발사! 데미지: {finalDamage}");
 
-        // 상태 초기화 및 쿨타임 적용
-        isCharging = false;
-        nextAttackTime = Time.time + attackRate;
-    }
-    
-    private void OnDrawGizmosSelected() 
-    { 
-        Gizmos.color = Color.yellow; 
-        Gizmos.DrawWireSphere(transform.position, attackRange); 
+        if (hitSuccess)
+        {
+            playerStats.AddGauge(1); // 게이지 충전
+            Debug.Log($"[{weaponName}] 쾅! {hitEnemies.Length}명 타격.");
+        }
+        else
+        {
+            Debug.Log($"[{weaponName}] 허공을 갈랐다...");
+        }
+
+        // 3. ★ "공격 끝!" 보고
+        onComplete?.Invoke();
     }
 }

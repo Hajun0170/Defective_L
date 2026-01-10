@@ -4,18 +4,37 @@ using UnityEngine.SceneManagement;
 public class Portal : MonoBehaviour
 {
     [Header("Settings")]
-    public string sceneName; // 이동할 씬 이름 (예: Stage2)
-    public Vector2 spawnPoint; // 이동 후 캐릭터가 서있을 좌표
+    public string sceneName; 
+    public Vector2 spawnPoint; 
+
+    private bool isTriggered = false; // 중복 진입 방지
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        // 이미 작동했거나 플레이어가 아니면 무시
+        if (isTriggered || !collision.CompareTag("Player")) return;
+
+        isTriggered = true; // 문 잠그기
+
+        PlayerStats stats = collision.GetComponent<PlayerStats>();
+        
+        // 데이터 저장
+        if (GameManager.Instance != null && stats != null)
         {
-            // 플레이어에게 "다음 씬에서의 위치"를 미리 저장해둠
-            GameManager.Instance.NextSpawnPoint = spawnPoint;
+            GameManager.Instance.SaveCurrentStatus(
+                stats.CurrentHealth, 
+                stats.CurrentGauge, 
+                stats.CurrentTickets
+            );
             
-            // 씬 로드
-            SceneManager.LoadScene(sceneName);
+            // 다음 위치 저장
+            GameManager.Instance.NextSpawnPoint = spawnPoint;
         }
+
+        // [팁] 로딩되는 동안 플레이어가 움직이거나 공격하지 못하게 막기
+        // collision.GetComponent<PlayerMovement>().enabled = false; 
+
+        // 씬 로드
+        SceneManager.LoadScene(sceneName);
     }
 }
