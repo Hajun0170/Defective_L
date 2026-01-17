@@ -22,11 +22,20 @@ public class EnemyAI : MonoBehaviour
     private float nextAttackTime = 0f;
     private float attackRate = 1.5f; // 공격 속도 (초)
 
+    // 1. 변수 추가
+private Vector3 originalScale;
+
+    // ★ 추가: 경직 상태인지 확인하는 변수
+    private bool isHit = false;
+
     private void Awake()
     {
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // 2. 시작할 때 에디터에서 설정한 크기를 기억함!
+    originalScale = transform.localScale;
     }
 
     private void Start()
@@ -38,7 +47,7 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
-        if (isDead || player == null) return;
+        if (isDead || player == null || isHit) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
@@ -57,6 +66,9 @@ public class EnemyAI : MonoBehaviour
         {
             StopMoving();
         }
+
+        // ★ 추가: 죽었거나, 타겟이 없거나, "맞는 중(isHit)"이면 AI 정지
+        if (isDead || player == null || isHit) return;
     }
 
     private void ChasePlayer()
@@ -68,17 +80,25 @@ public class EnemyAI : MonoBehaviour
         rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
 
         // 애니메이션: 걷기
-        anim.SetBool("IsRunning", true);
+      //  anim.SetBool("IsRunning", true);
 
-        // 방향 전환 (Flip)
-        if (direction.x > 0) transform.localScale = new Vector3(1, 1, 1); // 오른쪽
-        else if (direction.x < 0) transform.localScale = new Vector3(-1, 1, 1); // 왼쪽
+        // 3. 방향 전환 시 '기억해둔 크기'를 사용
+    if (direction.x > 0) 
+    {
+        // 오른쪽 볼 때는 원본 크기 그대로 (X를 양수로)
+        transform.localScale = new Vector3(Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
+    }
+    else if (direction.x < 0) 
+    {
+        // 왼쪽 볼 때는 X만 뒤집음 (X를 음수로)
+        transform.localScale = new Vector3(-Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
+    }
     }
 
     private void StopMoving()
     {
         rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-        anim.SetBool("IsRunning", false);
+       // anim.SetBool("IsRunning", false);
     }
 
     private void AttackPlayer()
@@ -90,16 +110,30 @@ public class EnemyAI : MonoBehaviour
         {
             isAttacking = true;
             nextAttackTime = Time.time + attackRate;
-
+    
             // 공격 애니메이션 실행
-            anim.SetTrigger("Attack");
+            //  anim.SetTrigger("Attack"); //현재 애니메이터 없으니 일단 보류
             
-            // 실제 데미지는 애니메이션 이벤트나 코루틴으로 타이밍 맞춰서 주는 게 좋음
-            // 여기서는 간단하게 즉시 데미지 예시
-            // StartCoroutine(AttackRoutine());
+    
+             StartCoroutine(AttackRoutine()); //공격 모션 만큼의 딜레이 계산 필요
         }
     }
     
+    private IEnumerator AttackRoutine()
+    {
+        // 예: 칼을 휘두르는 타이밍이 0.4초 뒤라면?
+        yield return new WaitForSeconds(0.4f); 
+
+        // 3. 0.4초 뒤에 데미지 판정 실행
+        DealDamage();
+        
+        // (선택) 공격 후딜레이: 공격이 완전히 끝나고 다시 추적하게 하려면 여기서 잠시 더 대기
+        yield return new WaitForSeconds(0.5f);
+        
+        // 공격 끝남 (다시 추적 가능)
+        isAttacking = false; 
+    }
+
     // 공격 애니메이션의 특정 프레임에서 이 함수를 호출하거나, 코루틴으로 처리
     public void DealDamage()
     {
@@ -110,8 +144,10 @@ public class EnemyAI : MonoBehaviour
         {
             // 플레이어에게 데미지 전달
             player.GetComponent<PlayerStats>()?.TakeDamage(damage, transform);
+  
         }
-        isAttacking = false;
+       // isAttacking = false;
+        // 주의: 여기서 isAttacking = false를 하면 안 됨 (코루틴에서 제어)
     }
 
     // 사망 처리 (외부 EnemyHealth에서 호출)
@@ -120,7 +156,7 @@ public class EnemyAI : MonoBehaviour
         isDead = true;
         StopMoving();
         rb.simulated = false; // 물리 충돌 끄기
-        anim.SetTrigger("Die");
+      //  anim.SetTrigger("Die");
         Destroy(gameObject, 2.0f); // 2초 뒤 삭제
     }
 
@@ -131,5 +167,26 @@ public class EnemyAI : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, detectRange);
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+    }
+
+    // ★ 추가: 외부(Health)에서 호출할 경직 함수
+    public void HitStun(float duration)
+    {
+        // 이미 맞고 있는 중이라면 기존 코루틴을 끄고 새로 시작 (연타 맞을 때 경직 갱신)
+        StopCoroutine(nameof(StunCoroutine));
+        StartCoroutine(StunCoroutine(duration));
+    }
+
+    private IEnumerator StunCoroutine(float duration)
+    {
+        isHit = true; // 1. AI 생각 정지 (Update 로직 차단)
+        //anim.SetTrigger("Hit"); // 2. 피격 애니메이션 (있다면)
+        
+        // 주의: 여기서 rb.linearVelocity = zero를 하지 않습니다. 
+        // 왜냐하면 넉백 힘(AddForce)에 의해 밀려나야 하니까요!
+
+        yield return new WaitForSeconds(duration); // 3. 경직 시간 대기
+
+        isHit = false; // 4. AI 다시 작동
     }
 }

@@ -1,45 +1,44 @@
 using UnityEngine;
-using System; // Action 사용
+using System;
 
 [CreateAssetMenu(fileName = "New Melee", menuName = "Weapon/Melee Weapon")]
 public class MeleeWeapon : Weapon
 {
     [Header("Melee Settings")]
-    public float attackRange = 0.8f; // ★ Public으로 변경 (PlayerAttack에서 기즈모 그릴 때 필요)
-    public LayerMask enemyLayer;
+    [SerializeField] private float attackRange = 0.8f; // 공격 사거리
+    [SerializeField] private LayerMask enemyLayer;     // 적 레이어
+    [SerializeField] private int gaugeRecovery = 1;    // ★ 적중 시 회복할 게이지 양
 
-    // 부모의 바뀐 형식을 따라 매개변수 수정 (Action onComplete 추가)
     public override void PerformAttack(Transform firePoint, PlayerStats playerStats, Action onComplete)
     {
-        // ★ 쿨타임 체크(Time.time < nextAttackTime)는 제거함!
-        // (PlayerAttack 스크립트에서 이미 체크하고 들어왔기 때문)
-
-        // 1. 공격 범위 내의 적 감지
+        // 1. 범위 내 적 감지 (원형 범위)
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(firePoint.position, attackRange, enemyLayer);
-        
-        // 2. 적이 한 명이라도 맞았는지 확인
+
+        // 2. 적이 한 명이라도 있으면?
         if (hitEnemies.Length > 0)
         {
-            // 데미지 계산 (부모 클래스 함수 사용)
-            int finalDamage = GetFinalDamage(playerStats);
+            // A. 게이지 회복 (공격 1회당 한 번만 회복)
+            // 만약 '맞은 적 수만큼' 회복하고 싶다면 foreach 안으로 옮기면 됩니다.
+            playerStats.AddGauge(gaugeRecovery); 
+            Debug.Log($"[{weaponName}] 적중! 게이지 {gaugeRecovery} 회복");
 
+            // B. 데미지 및 넉백 처리
             foreach (Collider2D enemy in hitEnemies)
             {
-                // 적에게 데미지 전달
-                enemy.GetComponent<EnemyHealth>()?.TakeDamage(finalDamage);
+                // 넉백을 위해 '때린 사람의 위치(playerStats.transform)'를 같이 보냄
+                enemy.GetComponent<EnemyHealth>()?.TakeDamage(GetFinalDamage(playerStats), playerStats.transform);
                 
-                // 타격 성공 시 게이지 1 충전
-                playerStats.AddGauge(1);
+                // (선택) 타격 이펙트 생성
+                // Instantiate(hitEffect, enemy.transform.position, Quaternion.identity);
             }
-            Debug.Log($"[{weaponName}] 타격 성공! {hitEnemies.Length}명");
         }
         else
         {
-            // 허공에 휘두름 (소리 재생 등 가능)
-            // Debug.Log($"[{weaponName}] 허공 가르기");
+            // (선택) 빗나갔을 때 로그
+            // Debug.Log("허공을 갈랐다...");
         }
 
-        // 3. ★ "공격 끝났음" 보고 (일반 공격은 즉시 종료)
+        // 3. 공격 완료 보고
         onComplete?.Invoke();
     }
 }

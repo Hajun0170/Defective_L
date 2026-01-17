@@ -34,7 +34,7 @@ public class ChargeWeapon : Weapon
         bool hitSuccess = false;
         foreach (Collider2D enemy in hitEnemies)
         {
-            enemy.GetComponent<EnemyHealth>()?.TakeDamage(finalDamage);
+            enemy.GetComponent<EnemyHealth>()?.TakeDamage(finalDamage, playerStats.transform);
             hitSuccess = true;
             // 이펙트 생성: Instantiate(hitEffect, enemy.transform.position, ...);
         }
