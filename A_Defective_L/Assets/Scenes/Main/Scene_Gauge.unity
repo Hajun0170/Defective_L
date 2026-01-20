@@ -408,7 +408,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -191.9, y: -207.9}
+  m_AnchoredPosition: {x: -184.6, y: -212.9}
   m_SizeDelta: {x: 195.2208, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &391823629
@@ -431,7 +431,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: S >
+  m_text: S
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -957,7 +957,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -173.4, y: -207.9}
+  m_AnchoredPosition: {x: -169, y: -213.3}
   m_SizeDelta: {x: 195.2208, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &661365068
@@ -980,7 +980,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: A >
+  m_text: A
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1867,12 +1867,6 @@ MonoBehaviour:
   - {fileID: 1963691867}
   - {fileID: 1209724876}
   - {fileID: 1645963882}
-  hpText: {fileID: 0}
-  swapPanel: {fileID: 0}
-  currentMeleeName: {fileID: 0}
-  currentRangedName: {fileID: 0}
-  meleeSlotIcon: {fileID: 1372198966}
-  rangedSlotIcon: {fileID: 1469164414}
   meleeSlotGroup: {fileID: 1196967864}
   rangedSlotGroup: {fileID: 542859831}
   ticketInfoGroup: {fileID: 1430251933}
@@ -2136,14 +2130,14 @@ RectTransform:
   m_GameObject: {fileID: 1372198963}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.41666663, y: 0.41666663, z: 0.41666663}
+  m_LocalScale: {x: 0.43, y: 0.41666663, z: 0.41666663}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1196967865}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -231.1, y: -231.89996}
+  m_AnchoredPosition: {x: -231.1, y: -231.1}
   m_SizeDelta: {x: 92.3672, y: 89.1266}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1372198965
@@ -2167,16 +2161,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6509804, g: 0.2901961, b: 0.3277046, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 7482667652216324306, guid: 7345e7f828ebf504d8cd6af2617880db, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -2351,7 +2345,7 @@ RectTransform:
   m_GameObject: {fileID: 1469164411}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.41666663, y: 0.41666663, z: 0.41666663}
+  m_LocalScale: {x: 0.43, y: 0.41666663, z: 0.41666663}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 542859832}
@@ -2359,7 +2353,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: -244.9, y: -231.9}
-  m_SizeDelta: {x: 92.3672, y: 89.1266}
+  m_SizeDelta: {x: 92.3671, y: 89.1266}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1469164413
 CanvasRenderer:
@@ -2382,16 +2376,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.28946242, g: 0.59597343, b: 0.6528301, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 7482667652216324306, guid: 7345e7f828ebf504d8cd6af2617880db, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1

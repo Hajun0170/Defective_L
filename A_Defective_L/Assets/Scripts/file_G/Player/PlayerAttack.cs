@@ -44,6 +44,7 @@ public class PlayerAttack : MonoBehaviour
         // 1. 근접 공격 (Z)
         if (Input.GetKeyDown(KeyCode.Z))
         {
+        
             // 교체 예약 확인
             if (weaponManager != null) weaponManager.TrySwapMeleeOnAttack();
 
@@ -52,6 +53,7 @@ public class PlayerAttack : MonoBehaviour
                 // 쿨타임 체크 (무기별 attackRate 사용)
                 if (Time.time >= lastAttackTime + meleeWeapon.attackRate)
                 {
+                     anim.SetTrigger("A1");
                     StartAttack(meleeWeapon);
                 }
             }

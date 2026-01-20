@@ -41,8 +41,17 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 425817555
+    locked: 0
+  - name: Trap
+    uniqueID: 85883807
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Shadow
+    uniqueID: 363073457
     locked: 0
   m_RenderingLayers:
   - Default

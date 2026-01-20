@@ -89,13 +89,13 @@ public class EnemyHealth : MonoBehaviour
     private IEnumerator HitColorRoutine()
     {
         // 1. 빨간색으로 변경
-        if (spriteRenderer != null) spriteRenderer.color = Color.white;
+        if (spriteRenderer != null) spriteRenderer.color = Color.black;
 
         // 2. 0.1초 대기
         yield return new WaitForSeconds(0.1f);
 
         // 3. 원래 색(흰색)으로 복구
-        if (spriteRenderer != null) spriteRenderer.color = Color.gray;
+        if (spriteRenderer != null) spriteRenderer.color = Color.white;
         
         // 4. 변수 초기화 (끝났음 표시)
         flashRoutine = null;

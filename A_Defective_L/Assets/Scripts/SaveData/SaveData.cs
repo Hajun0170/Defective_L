@@ -16,4 +16,8 @@ public class SaveData
     
     // 3. 게임 진행도 (보스 클리어 여부 등)
     public bool isTutorialCleared;
+
+    // ★ 스킬 해금 여부
+    public bool hasWallCling; // 벽 매달리기 능력 보유 여부
+    
 }

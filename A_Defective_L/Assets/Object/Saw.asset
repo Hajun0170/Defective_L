@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Saw
   damage: 1
-  attackRate: 0.2
-  icon: {fileID: 0}
+  attackRate: 0.3
+  icon: {fileID: 8781108241127489603, guid: bb5f7b0f561505b43b5d355415c756ed, type: 3}
   type: 0
   projectilePrefab: {fileID: 0}
   attackRange: 0.8
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
+  gaugeRecovery: 1
