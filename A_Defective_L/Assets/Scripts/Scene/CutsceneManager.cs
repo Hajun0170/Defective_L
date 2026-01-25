@@ -18,6 +18,6 @@ public class CutsceneManager : MonoBehaviour
   
        // SceneManager.LoadScene("Prologue"); 
 
-        SceneTransitionManager.Instance.LoadScene("Prologue"); //페이드 아웃 적용
+        SceneTransitionManager.Instance.LoadScene("Main_Scene"); //페이드 아웃 적용
     }
 }

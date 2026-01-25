@@ -28,6 +28,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float wallCheckRadius = 0.2f;
     [SerializeField] private float wallSlideSpeed = 2f; // 벽 타고 내려오는 속도
 
+    [Header("Wall Jump Settings")]
+  private bool isWallJumping; // 벽 점프 중인지 확인
+private float wallJumpDirection; // (선택) 튕겨나가는 방향
+private float wallJumpTime = 0.2f; // 방향키 무시할 시간
+private float wallJumpCounter; // 시간 계산용
+[SerializeField] private Vector2 wallJumpPower = new Vector2(8f, 16f); // 점프 파워
+    
     // 내부 변수
     private Rigidbody2D rb;
     private PlayerStats playerStats;
@@ -69,11 +76,22 @@ public class PlayerMovement : MonoBehaviour
 
         // 2. 점프 (땅에 있을 때만)
         // (나중에 벽 점프를 추가하려면 여기에 || isTouchingWall 조건 추가 필요)
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            Jump();
-            anim.SetBool("IsJump", true);
-        }
+        if (Input.GetKeyDown(KeyCode.Space))
+{
+    // 1. 땅에 있으면 -> 일반 점프
+    if (isGrounded)
+    {
+        Jump();
+        anim.SetBool("IsJump", true);
+    }
+    // 2. 땅은 아닌데 벽에 붙어있으면 -> 벽 점프!
+    else if (isTouchingWall)
+    {
+        WallJump(); // 새로 만들 함수
+        anim.SetBool("IsJump", true); // 점프 모션 재생
+    }
+}
+        
         else
         {
             // 땅에 닿으면 점프 애니메이션 해제 (벽 타기 중에도 점프 모션 꺼짐 방지)
@@ -120,6 +138,9 @@ public class PlayerMovement : MonoBehaviour
         CheckGround(); // 땅 체크
         CheckWall();   // ★ 벽 체크 추가
 
+        // ★ [수정] 벽 점프 중이면 아무것도 안 함 (힘 보존)
+    if (isWallJumping) return;
+    
         // ★ 벽 타기 로직이 먼저 계산되어야 함 (중력을 제어하므로)
         if (CheckWallInteraction()) 
         {
@@ -278,4 +299,40 @@ public class PlayerMovement : MonoBehaviour
             Gizmos.DrawWireSphere(wallCheck.position, wallCheckRadius);
         }
     }
+
+   private void WallJump()
+{
+    isWallClinging = false;
+    rb.gravityScale = defaultGravity;
+    
+    // 벽 반대 방향 구하기
+    wallJumpDirection = -transform.localScale.x; 
+
+    // 1. 잠시 조작 불능 상태로 만듦 (Move 함수 차단용)
+    StartCoroutine(WallJumpCoroutine());
+}
+
+// 0.2초 동안 조작을 막고 튕겨나가는 힘을 유지하는 코루틴
+private IEnumerator WallJumpCoroutine()
+{
+    isWallJumping = true; // 이동 막기 시작
+    
+    // 2. 힘 가하기 (기존 속도 리셋 후 적용)
+    rb.linearVelocity = Vector2.zero; 
+    rb.AddForce(new Vector2(wallJumpDirection * wallJumpPower.x, wallJumpPower.y), ForceMode2D.Impulse);
+
+    // 3. 캐릭터 뒤집기
+    if (transform.localScale.x != wallJumpDirection)
+    {
+        isFacingRight = !isFacingRight;
+        Vector3 localScale = transform.localScale;
+        localScale.x *= -1f;
+        transform.localScale = localScale;
+    }
+
+    // 4. 0.2초 대기 (이 시간 동안은 방향키가 안 먹힘 -> 벽에서 멀어질 수 있음)
+    yield return new WaitForSeconds(wallJumpTime);
+
+    isWallJumping = false; // 이동 허용
+}
 }
