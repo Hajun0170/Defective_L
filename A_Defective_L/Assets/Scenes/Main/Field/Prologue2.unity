@@ -7097,7 +7097,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uD68C\uBCF5 + \uAC15\uD654 + \uC800\uC7A5\n"
+  m_text: "\uD68C\uBCF5 + \uAC15\uD654 + \uC800\uC7A5\n\uC758\uC790 \uAE30\uC900\uC73C\uB85C
+    \uB85C\uB4DC \uC52C \uD30C\uC545 + \uBCF4\uC2A4 \uCC98\uCE58 \uC5EC\uBD80 \uAE30\uC900\uC73C\uB85C
+    \uBCF4\uC2A4 \uC788\uACE0 \uC5C6\uACE0 \uD30C\uC545.\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9a78bb1ca5e2d5a4088e3907ecc03d5a, type: 2}
   m_sharedMaterial: {fileID: -4310728312932255727, guid: 9a78bb1ca5e2d5a4088e3907ecc03d5a, type: 2}
@@ -7632,6 +7634,7 @@ MonoBehaviour:
   wallCheck: {fileID: 0}
   wallCheckRadius: 0.2
   wallSlideSpeed: 2
+  wallJumpPower: {x: 8, y: 16}
 --- !u!50 &1026942822
 Rigidbody2D:
   serializedVersion: 5
