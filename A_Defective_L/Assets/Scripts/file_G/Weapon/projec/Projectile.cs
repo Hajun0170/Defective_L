@@ -44,5 +44,11 @@ public class Projectile : MonoBehaviour
             collision.GetComponent<EnemyHealth>().TakeDamage(damage, transform);
             Destroy(gameObject);
         }
+         else if (collision.GetComponent<BossController>() != null)
+        {
+            collision.GetComponent<BossController>().TakeDamage(damage);
+            Destroy(gameObject);
+        }
+        
     }
 }

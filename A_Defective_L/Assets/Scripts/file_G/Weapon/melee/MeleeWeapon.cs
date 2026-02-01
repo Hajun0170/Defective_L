@@ -21,13 +21,29 @@ public class MeleeWeapon : Weapon
             // 만약 '맞은 적 수만큼' 회복하고 싶다면 foreach 안으로 옮기면 됩니다.
             playerStats.AddGauge(gaugeRecovery); 
             Debug.Log($"[{weaponName}] 적중! 게이지 {gaugeRecovery} 회복");
-
+            int finalDamage = GetFinalDamage(playerStats); // 데미지 미리 계산
             // B. 데미지 및 넉백 처리
             foreach (Collider2D enemy in hitEnemies)
             {
                 // 넉백을 위해 '때린 사람의 위치(playerStats.transform)'를 같이 보냄
-                enemy.GetComponent<EnemyHealth>()?.TakeDamage(GetFinalDamage(playerStats), playerStats.transform);
-                
+               // enemy.GetComponent<EnemyHealth>()?.TakeDamage(GetFinalDamage(playerStats), playerStats.transform);
+                // A. 일반 몬스터인지 확인
+                EnemyHealth normalMob = enemy.GetComponent<EnemyHealth>();
+                if (normalMob != null)
+                {
+                    normalMob.TakeDamage(finalDamage, playerStats.transform);
+                }
+                // B. ★ 보스 몬스터인지 확인 (추가된 부분)
+                else
+                {
+                    BossController boss = enemy.GetComponent<BossController>();
+                    if (boss != null)
+                    {
+                        boss.TakeDamage(finalDamage);
+                    }
+                }
+                 
+              
                 // (선택) 타격 이펙트 생성
                 // Instantiate(hitEffect, enemy.transform.position, Quaternion.identity);
             }

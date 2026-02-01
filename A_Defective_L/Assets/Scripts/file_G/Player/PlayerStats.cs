@@ -50,12 +50,36 @@ public class PlayerStats : MonoBehaviour
 
     private void Start()
     {
+        // ★ [핵심 1] 태어나자마자 DataManager(은행)에서 내 스탯 가져오기
+        if (DataManager.Instance != null)
+        {
+            // 데이터 매니저에 저장된 값으로 내 몸 상태를 동기화
+            currentHealth = DataManager.Instance.currentData.currentHealth;
+            currentGauge = DataManager.Instance.currentData.currentGauge;
+            
+            // (티켓도 저장한다면 추가 필요)
+             currentTickets = DataManager.Instance.currentData.currentTickets; 
+
+            // 만약 새 게임이라 데이터가 0이거나 이상하면 최대치로 설정
+            if (currentHealth <= 0 && !DataManager.Instance.currentData.isDead)
+            {
+                currentHealth = maxHealth;
+                currentGauge = 0;
+            }
+        }
+        else
+        {
+            // 테스트용 (매니저 없이 씬만 켰을 때)
+            currentHealth = maxHealth;
+        }
+        /*
         // 1. 데이터 동기화 (GameManager -> 나)
         if (GameManager.Instance != null)
         {
             currentHealth = GameManager.Instance.storedHealth;
             currentGauge = GameManager.Instance.storedGauge;
             currentTickets = GameManager.Instance.storedTickets;
+            
         }
         else
         {
@@ -64,6 +88,7 @@ public class PlayerStats : MonoBehaviour
             currentGauge = 0;
             currentTickets = 0;
         }
+        */
 
         // 2. 초기 UI 갱신
         UpdateAllUI();
@@ -74,14 +99,20 @@ public class PlayerStats : MonoBehaviour
     {
         if (isInvincible) return;
         
-        anim.SetTrigger("Hit");
-        currentHealth -= 1; // 데미지 적용
+        // 2. 체력 감소 (1 대신 들어온 데미지 amount를 쓰는 게 더 유연합니다)
+        currentHealth -= amount;
         
-        Debug.Log($"플레이어 피격! 남은 체력: {currentHealth}");
+        // 3. 피격 애니메이션
+        if(anim != null) anim.SetTrigger("Hit");
 
-        // ★ [수정 2] 주석 해제 (맞을 때마다 UI 갱신해야 함)
-        if (UIManager.Instance != null) 
-            UIManager.Instance.UpdateHealth(currentHealth);
+       // anim.SetTrigger("Hit");
+       // currentHealth -= 1; // 데미지 적용
+       
+
+        // ★ [핵심 2] 스탯이 변할 때마다 즉시 DataManager에 보고!
+        SyncDataToManager();
+
+        UpdateAllUI(); // UI 갱신
 
         if (currentHealth <= 0)
         {
@@ -89,15 +120,36 @@ public class PlayerStats : MonoBehaviour
             return;
         }
         
-        GetComponent<PlayerMovement>()?.ApplyKnockback(attacker);
+        //GetComponent<PlayerMovement>()?.ApplyKnockback(attacker);
+
+        // 5. 넉백 (밀려남) 효과
+        // PlayerMovement 스크립트가 있다면 넉백 실행
+        if (TryGetComponent(out PlayerMovement movement))
+        {
+            movement.ApplyKnockback(attacker);
+        }
+
         StartCoroutine(HitInvincibilityRoutine());
     }
 
-    private void Die()
+    void Die()
+{
+    // 1. 죽는 애니메이션 재생 (있다면)
+    // animator.SetTrigger("Die");
+
+    // 2. 조작 불가능하게 막기 (이동 스크립트 끄기)
+   //  GetComponent<PlayerController>().enabled = false;
+    // GetComponent<Collider2D>().enabled = false; // 무적 상태
+
+    // 3. ★ [핵심] 게임 매니저에게 사망 처리 요청 (슬로우 모션 + 부활)
+    if (GameManager.Instance != null)
     {
-        Debug.Log("플레이어 사망...");
-        gameObject.SetActive(false); 
+        GameManager.Instance.OnPlayerDead();
     }
+    
+    // 주의: 절대 Destroy(gameObject) 하지 마세요! 
+    // 매니저가 위치만 옮겨서 재활용할 겁니다.
+}
 
     // --- 자원 관리 ---
     public void AddGauge(int amount)
@@ -115,22 +167,46 @@ public class PlayerStats : MonoBehaviour
             AddTicket(newTickets);
             accumulatedGauge %= gaugeForTicket;
         }
+
+        // ★ 변할 때마다 보고
+        SyncDataToManager();
+        UpdateAllUI();
+
+        /*
         
         Debug.Log($"[자원] 게이지: {currentGauge}, 누적: {accumulatedGauge}");
 
         // 3. UI 갱신 (주석 해제)
         if (UIManager.Instance != null) 
             UIManager.Instance.UpdateGauge(currentGauge, maxGauge);
+            */
     }
 
     private void AddTicket(int amount)
     {
         currentTickets = Mathf.Clamp(currentTickets + amount, 0, maxTickets);
-        Debug.Log($"[자원] 🎟️ 교환권 획득! 현재: {currentTickets}장");
+   
+   // ★ 변할 때마다 보고
+// ★ 변할 때마다 보고
+        SyncDataToManager();
+        UpdateAllUI();
 
+/*
         // ★ [수정 2] 주석 해제
         if (UIManager.Instance != null) 
             UIManager.Instance.UpdateTickets(currentTickets);
+            */
+    }
+
+    // ★ [가장 중요] 내 현재 상태를 DataManager에 덮어쓰는 함수
+    private void SyncDataToManager()
+    {
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.currentData.currentHealth = currentHealth;
+            DataManager.Instance.currentData.currentGauge = currentGauge;
+            DataManager.Instance.currentData.currentTickets = currentTickets; // 필요시 추가
+        }
     }
 
     public bool UseGauge(int amount)

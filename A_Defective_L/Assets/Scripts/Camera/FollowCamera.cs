@@ -6,9 +6,12 @@ public class FollowCamera : MonoBehaviour
     public Vector3 vOffset = new Vector3(0, 0, -10); // 기본 시야 오프셋
     public float fSmoothSpeed = 5f;       // 따라가는 부드러움 정도
 
+    // ★ 카메라 제어권을 뺏기 위한 변수
+    private bool isCutsceneMode = false;
+
     void LateUpdate()
     {
-        if (tTarget == null) return;
+        if (tTarget == null || isCutsceneMode) return;
 
         Vector3 vTargetPos = tTarget.position + vOffset;
         Vector3 vSmoothedPos = Vector3.Lerp(transform.position, vTargetPos, fSmoothSpeed * Time.deltaTime);
@@ -22,4 +25,11 @@ public class FollowCamera : MonoBehaviour
         // 씬 이동 직후에는 텔레포트하듯이 즉시 이동 (부드러운 이동 X)
         transform.position = tTarget.position + vOffset;
     }
+
+    // ★ 외부에서 "이제부터 내가 조종할게"라고 신호 주는 함수
+    public void SetCutsceneMode(bool isActive)
+    {
+        isCutsceneMode = isActive;
+    }
 }
+  

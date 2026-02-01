@@ -78,12 +78,18 @@ public class EnemyHealth : MonoBehaviour
         if (currentHealth <= 0) Die();
     }
 
-    private void Die()
+     public void Die()
+{
+    // 1. 매니저에게 "나 죽었어" 보고
+    BossBattleManager manager = FindFirstObjectByType<BossBattleManager>();
+    if (manager != null)
     {
-        Debug.Log("몬스터 사망!");
-        if (enemyAI != null) enemyAI.OnDeath();
-        // 필요 시 아이템 드랍 로직 추가
+        manager.OnBossDefeated();
     }
+
+    // ★ [삭제] 이 줄을 지우세요! 매니저가 이펙트 다 보여주고 알아서 끌 겁니다.
+    // Destroy(gameObject);  <-- 이거 때문에 에러 난 겁니다.
+}
 
 
     private IEnumerator HitColorRoutine()

@@ -10,6 +10,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float knockbackForce = 10f;
     [SerializeField] private float knockbackDuration = 0.2f;
 
+    [SerializeField] private float sprintSpeed = 8f; // ★ 달리기 속도 (추가)
+
     [Header("Dash (Evasion) Settings")]
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.15f;
@@ -156,7 +158,26 @@ private float wallJumpCounter; // 시간 계산용
 
     private void Move()
     {
-        rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
+       // rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
+        float currentSpeed = moveSpeed;
+
+        // ★ [질주 로직]
+        // 1. 질주 능력을 배웠고 (hasSprint)
+        // 2. C키를 누르고 있고 (GetKey)
+        // 3. 땅에 있을 때만 (취향에 따라 공중 질주 허용 가능)
+        if (DataManager.Instance.currentData.hasSprint && Input.GetKey(KeyCode.C))
+        {
+            currentSpeed = sprintSpeed;
+            
+            // (선택) 잔상 이펙트를 남기거나 달리기 애니메이션 속도를 올림
+            // anim.SetFloat("RunMultiplier", 1.5f); 
+        }
+
+        // 실제 이동 적용
+        rb.linearVelocity = new Vector2(horizontalInput * currentSpeed, rb.linearVelocity.y);
+        
+        // 애니메이션 (걷기/달리기 구분 없이 IsRun 하나라면 그대로 둠)
+        // 만약 질주 모션을 따로 만들었다면 anim.SetBool("IsSprint", currentSpeed > moveSpeed); 추가
     }
 
     private void Jump()
