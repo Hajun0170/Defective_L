@@ -38254,6 +38254,7 @@ MonoBehaviour:
   jumpForce: 12
   knockbackForce: 10
   knockbackDuration: 0.2
+  sprintSpeed: 8
   dashSpeed: 30
   dashDuration: 0.15
   dashInvincibility: 0.2
@@ -38269,6 +38270,9 @@ MonoBehaviour:
   wallCheck: {fileID: 0}
   wallCheckRadius: 0.2
   wallSlideSpeed: 2
+  wallJumpPower: {x: 8, y: 16}
+  dodgeEffectPrefab: {fileID: 0}
+  dodgeEffectOffset: {x: 0, y: 0}
 --- !u!50 &1026942822
 Rigidbody2D:
   serializedVersion: 5
@@ -39396,6 +39400,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbf73952e88546343a926f60ae8c38a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDebugMode: 0
   currentData:
     sceneName: 
     shelterID: 0
@@ -39404,8 +39409,12 @@ MonoBehaviour:
     currentHealth: 0
     maxHealth: 0
     currentGauge: 0
+    currentTickets: 0
+    isDead: 0
     isTutorialCleared: 0
     hasWallCling: 0
+    hasSprint: 0
+    defeatedBosses: []
   nextSpawnPointID: 0
 --- !u!4 &1895408937
 Transform:

@@ -37,6 +37,10 @@ private float wallJumpTime = 0.2f; // 방향키 무시할 시간
 private float wallJumpCounter; // 시간 계산용
 [SerializeField] private Vector2 wallJumpPower = new Vector2(8f, 16f); // 점프 파워
     
+    [Header("Effects")]
+    public GameObject dodgeEffectPrefab; // ★ 회피 이펙트 프리팹 연결
+    public Vector2 dodgeEffectOffset;    // ★ 위치 미세 조정용 (발밑, 등뒤 등)
+    
     // 내부 변수
     private Rigidbody2D rb;
     private PlayerStats playerStats;
@@ -265,6 +269,28 @@ private float wallJumpCounter; // 시간 계산용
     {
         canDash = false;
         isDashing = true;
+
+        // ★ [추가] 회피 이펙트 생성 로직
+        // ====================================================
+        if (dodgeEffectPrefab != null)
+        {
+            // 1. 위치 설정: 플레이어 위치 + 오프셋
+            // (참고: 발밑 먼지라면 offset y를 조금 내리세요)
+            Vector3 spawnPos = transform.position + (Vector3)dodgeEffectOffset;
+
+            // 2. 생성
+            GameObject effect = Instantiate(dodgeEffectPrefab, spawnPos, Quaternion.identity);
+
+            // 3. 좌우 반전 (플레이어가 보는 방향에 맞춤)
+            // 플레이어의 scale.x가 -1이면 이펙트도 -1로 뒤집기
+            Vector3 playerScale = transform.localScale;
+            Vector3 effectScale = effect.transform.localScale;
+
+            // 방향 맞추기 (오른쪽: 1, 왼쪽: -1)
+            effectScale.x = Mathf.Abs(effectScale.x) * Mathf.Sign(playerScale.x);
+            
+            effect.transform.localScale = effectScale;
+        }
 
         float dashDirection = horizontalInput == 0 ? (isFacingRight ? 1 : -1) : horizontalInput;
 

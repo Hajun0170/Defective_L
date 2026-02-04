@@ -142,6 +142,7 @@ MonoBehaviour:
   jumpForce: 12
   knockbackForce: 10
   knockbackDuration: 0.2
+  sprintSpeed: 8
   dashSpeed: 30
   dashDuration: 0.15
   dashInvincibility: 0.2
@@ -158,6 +159,8 @@ MonoBehaviour:
   wallCheckRadius: 0.2
   wallSlideSpeed: 4
   wallJumpPower: {x: 1, y: 10}
+  dodgeEffectPrefab: {fileID: 5064969817289113816, guid: ad8b018c5f03f994b9638c6781d948c2, type: 3}
+  dodgeEffectOffset: {x: 0, y: 1.2}
 --- !u!114 &1392273341469578745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175,6 +178,9 @@ MonoBehaviour:
   maxGauge: 10
   gaugeForTicket: 5
   maxTickets: 3
+  swapBuffMultiplier: 1.5
+  swapBuffDuration: 3
+  healAmountPerKit: 3
 --- !u!114 &5096341626721657110
 MonoBehaviour:
   m_ObjectHideFlags: 0

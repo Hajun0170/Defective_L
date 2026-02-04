@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f826cadaafeb5c47b750bea6501be26, type: 3}
+  m_Name: Knife
+  m_EditorClassIdentifier: 
+  weaponID: 3
+  weaponName: "\uD22C\uCC99 \uCE7C\uB0A0"
+  attackRate: 0
+  icon: {fileID: 68612112730497049, guid: 3516eeef12bfc694aaed6ae9116a319c, type: 3}
+  type: 1
+  projectilePrefab: {fileID: 1366710626536539476, guid: 433633bc94747644ba5027f97eb54332, type: 3}
+  baseDamage: 4
+  damagePerLevel: 2
+  gaugeCost: 5
+  projectileCount: 3
+  spreadAngle: 15

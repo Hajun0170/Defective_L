@@ -171,10 +171,8 @@ public class BossController : MonoBehaviour
     // 💀 2. 사망 연출
     // ====================================================
     IEnumerator DeathSequence()
-    {
-        // 충돌 끄기
-        if(col != null) col.enabled = false;
-        
+    {     
+
         // 슬로우 모션
         Time.timeScale = 0.2f;
 
@@ -187,6 +185,7 @@ public class BossController : MonoBehaviour
         {
             alpha -= Time.unscaledDeltaTime * 0.5f;
             if (spriteRenderer != null)
+            
             {
                 Color c = spriteRenderer.color;
                 c.a = alpha;
@@ -194,6 +193,8 @@ public class BossController : MonoBehaviour
             }
             yield return null;
         }
+        // 충돌 끄기
+            if(col != null) col.enabled = false;
 
         Time.timeScale = 1f;
 

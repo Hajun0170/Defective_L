@@ -51,6 +51,14 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+           // 1. 만약 강화 패널이 켜져 있다면? -> 일시정지 하지 말고 리턴!
+            // (UpgradeManager가 알아서 닫을 테니까)
+            if (UIManager.Instance != null && UIManager.Instance.IsUpgradePanelActive())
+            {
+                return; 
+            }
+
+            // 2. 패널이 없을 때만 일시정지 토글
             TogglePause();
         }
     }
@@ -163,103 +171,6 @@ public class GameManager : MonoBehaviour
         StartCoroutine(ProcessGameOverSequence());
     }
 
-/*
-    IEnumerator ProcessGameOverSequence()
-    {
-        isGameOverProcessing = true;
-        Debug.Log("💀 플레이어 사망! 연출 시작");
-
-        // 1. 슬로우 모션 발동! (시간이 5배 느려짐)
-        Time.timeScale = 0.2f;
-
-        // 2. 하얀색 빛무리 효과 (페이드 색을 흰색으로 변경)
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.SetFadeColor(Color.white); // 흰색 설정
-            
-            // 페이드 아웃 (화면이 점점 하얗게 변함)
-            // 시간 스케일 무시하고 UI는 제 속도로 움직이게 하려면 별도 처리가 필요하지만,
-            // 여기선 분위기를 위해 페이드도 천천히 되도록 둡니다.
-            yield return StartCoroutine(UIManager.Instance.FadeOut());
-            UIManager.Instance.SetBossHUDActive(false);
-        }
-        else
-        {
-            // UI 없으면 그냥 시간만 끔 (비상용)
-            yield return new WaitForSecondsRealtime(1f);
-        }
-
-        // --- 화면이 완전히 하얘진 상태 (플레이어는 안 보임) ---
-
-        // 3. 시간 정상화 (로딩이나 이동은 제 속도로 해야 하니까)
-        Time.timeScale = 1f;
-
-        // 4. 데이터 로드 (마지막 세이브 지점 정보 가져오기)
-        if (DataManager.Instance.LoadGame())
-        {
-            // 저장된 씬 이름 가져오기
-            string savedScene = DataManager.Instance.currentData.sceneName;
-            
-            // 좌표 예약
-            float x = DataManager.Instance.currentData.playerX;
-            float y = DataManager.Instance.currentData.playerY;
-            NextSpawnPoint = new Vector2(x, y);
-
-            // 5. 저장된 체력으로 복구 (또는 풀피로 부활)
-            // 여기서는 저장된 체력 대신 꽉 채워주는 게 일반적입니다.
-            // (필요하다면 DataManager.Instance.currentData.currentHealth = 5; 등으로 수정)
-        }
-        else
-        {
-            // 세이브 파일이 없으면? 태초의 마을(Title)이나 처음으로
-            Debug.Log("세이브 데이터 없음. 타이틀로...");
-            ChangeStage("Title"); 
-            isGameOverProcessing = false;
-            yield break;
-        }
-
-        // 6. 같은 씬이면 위치만 이동, 다른 씬이면 씬 로드
-        string currentScene = SceneManager.GetActiveScene().name;
-        if (currentScene == DataManager.Instance.currentData.sceneName)
-        {
-            // 같은 맵에서 죽었으면 씬 로드 없이 위치만 텔레포트 (최적화)
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                player.transform.position = NextSpawnPoint;
-                NextSpawnPoint = Vector2.zero;
-                
-                // 플레이어 체력/애니메이션 초기화 (PlayerStats 스크립트가 있다면 함수 호출)
-                // player.GetComponent<PlayerStats>().Revive(); 
-            }
-        }
-        else
-        {
-            // 다른 맵이면 씬 이동 (이미 만든 ChangeStage 함수 활용)
-            // ChangeStage 안에 페이드 아웃/인이 또 있으므로, 여기선 페이드 인을 생략하거나 로직 조절 필요
-            // 하지만 간단하게 씬만 다시 로드하는 게 속편합니다.
-            SceneManager.LoadScene(DataManager.Instance.currentData.sceneName);
-        }
-
-        // 잠시 대기 (안정화)
-        yield return new WaitForSeconds(0.5f);
-
-        // 7. 다시 화면 밝아짐 (페이드 인)
-        if (UIManager.Instance != null)
-        {
-            yield return StartCoroutine(UIManager.Instance.FadeIn());
-            
-            // ★ 중요: 페이드가 끝났으니 다시 검은색으로 돌려놔야 맵 이동 때 자연스러움
-            UIManager.Instance.SetFadeColor(Color.black);
-        }
-
-        // 8. 체력바 UI 갱신 (풀피로 보이기)
-        if(UIManager.Instance != null) UIManager.Instance.UpdateHealth(5); // 임시 5
-
-        isGameOverProcessing = false;
-        Debug.Log("✨ 부활 완료!");
-    }
-    */
 
     IEnumerator ProcessGameOverSequence()
     {

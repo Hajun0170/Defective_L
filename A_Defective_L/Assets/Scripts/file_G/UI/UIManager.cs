@@ -55,7 +55,21 @@ public class UIManager : MonoBehaviour
     public GameObject bossHudGroup;  // 아까 만든 Boss_HUD 연결
     public Slider bossHpSlider;      // 그 안의 Slider 연결
 
+    [Header("Panels")]
+    //public GameObject bossHUDPanel;
+    public GameObject upgradePanel; // ★ 여기에 Scene_Gauge의 강화 패널 연결
+
+    [Header("Potion UI")]
+    public Image[] potionSlots; // 위에서 만든 3개의 이미지(Potion_1, 2, 3) 연결
+
+   [Header("Health UI - Hybrid")]
+    // ★ [수정] 여기에는 '추가로 늘어나는 배경 오브젝트'만 넣으세요! (Slot_06, Slot_07)
+    // 기본 5칸 배경은 그냥 씬에 켜두시면 됩니다. (코드에서 안 건드림)
+    public GameObject[] extraHealthSlots;
     
+   // ★ [유지] 여기에는 빨간 하트 이미지 7개를 전부 순서대로 넣으세요! (Fill_01 ~ Fill_07)
+    // 배경이 묶여있더라도, 체력바 역할을 하는 하트 이미지는 7개가 따로 있어야 합니다.
+    public Image[] healthFills;
 
     // 내부 변수들
     List<Resolution> resolutions = new List<Resolution>();
@@ -70,6 +84,7 @@ public class UIManager : MonoBehaviour
         }
         Instance = this;
     }
+    
 
     private void Start()
     {
@@ -301,6 +316,99 @@ public class UIManager : MonoBehaviour
         {
             bossHpSlider.maxValue = max;
             bossHpSlider.value = current;
+        }
+    }
+
+    // ★ 강화창 열기/닫기 함수 추가
+    public void SetUpgradePanelActive(bool isActive)
+    {
+        if (upgradePanel != null)
+        {
+            upgradePanel.SetActive(isActive);
+            
+            // (선택) 강화창 켰을 때 게임 일시정지 하려면?
+            // Time.timeScale = isActive ? 0 : 1; 
+        }
+    }
+    
+    // 강화창이 지금 켜져 있는지 확인용
+    public bool IsUpgradePanelActive()
+    {
+        return upgradePanel != null && upgradePanel.activeSelf;
+    }
+
+    // ★ [추가] 포션 UI 갱신 함수
+   // current: 현재 남은 개수
+    // max: 해금된 최대 개수 (아이템 먹으면 늘어남)
+   // ★ [수정됨] 포션 UI 갱신 (이미지 교체 X -> 투명도 조절 O)
+    public void UpdatePotionUI(int current, int max)
+    {
+        for (int i = 0; i < potionSlots.Length; i++)
+        {
+            if (i < current)
+            {
+                // [상태: 사용 가능]
+                potionSlots[i].gameObject.SetActive(true);
+                potionSlots[i].color = Color.white; // (혹시 투명도 건드렸을까봐 원상복구)
+            }
+            else
+            {
+                // [상태: 사용함 OR 아직 해금 안 됨]
+                // 썼든 안 배웠든, 당장 못 쓰는 건 눈앞에서 치워버립니다.
+                potionSlots[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void UpdateHealth(int currentHealth, int maxHealth)
+    {
+        // --------------------------------------------------------
+        // 1. 빨간 하트 (Fill) 처리 : 7개 전부 검사
+        // --------------------------------------------------------
+        for (int i = 0; i < healthFills.Length; i++)
+        {
+            // (1) 일단 이 하트를 보여줄지 결정 (최대 체력 범위 안인가?)
+            if (i < maxHealth)
+            {
+                healthFills[i].gameObject.SetActive(true); // 하트 오브젝트 자체를 켬
+
+                // (2) 켜졌다면, 꽉 채울지 비울지 결정 (현재 체력 기준)
+                if (i < currentHealth)
+                {
+                    // 꽉 찬 하트 (투명도 100% or Sprite 교체)
+                    healthFills[i].color = Color.white; 
+                }
+                else
+                {
+                    // 빈 하트 (투명하게 만들어서 배경만 보이게 함)
+                    healthFills[i].color = new Color(1, 1, 1, 0); 
+                }
+            }
+            else
+            {
+                // 최대 체력 밖의 하트는 아예 끕니다.
+                healthFills[i].gameObject.SetActive(false);
+            }
+        }
+
+        // --------------------------------------------------------
+        // 2. 추가 배경 (Slot) 처리 : 추가된 2개만 검사
+        // --------------------------------------------------------
+        // 기본 5칸은 이미 깔려있다고 가정하므로, 6번째(인덱스 0)부터 계산합니다.
+        int baseHealthCount = 5; // 기본으로 깔려있는 배경 개수
+
+        for (int i = 0; i < extraHealthSlots.Length; i++)
+        {
+            // 예: i=0 (Slot_06) -> maxHealth가 6 이상이면 켜짐
+            // 예: i=1 (Slot_07) -> maxHealth가 7 이상이면 켜짐
+            if (baseHealthCount + (i + 1) <= maxHealth)
+            {
+                extraHealthSlots[i].SetActive(true);
+            }
+            else
+            {
+                extraHealthSlots[i].SetActive(false);
+            }
         }
     }
 }

@@ -114,4 +114,13 @@ public class PlayerController : MonoBehaviour
         if (wallCheck != null) Gizmos.DrawWireSphere(wallCheck.position, 0.2f);
         if (groundCheck != null) Gizmos.DrawWireSphere(groundCheck.position, 0.2f);
     }
+
+    void SwapWeapon()
+    {
+        // ... (무기 교체 로직: 1번 -> 2번) ...
+
+        // ★ 교체권(스태미나 등)이 있어서 교체에 성공했다면?
+        // 버프 발동!
+        GetComponent<PlayerStats>().ActivateSwapBuff();
+    }
 }

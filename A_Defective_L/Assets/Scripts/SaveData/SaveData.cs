@@ -12,7 +12,7 @@ public class SaveData
 
     // 2. 플레이어 스탯
     public int currentHealth;
-    public int maxHealth;
+    public int maxHealth = 5;       // 최대 체력
     public int currentGauge;      // 무기 게이지
     
     // ★ [추가] 에러 해결을 위해 꼭 필요한 변수들!
@@ -30,6 +30,15 @@ public class SaveData
     // ★ 2. 처치한 보스들의 이름 목록 (ID 리스트)
     public List<string> defeatedBosses = new List<string>();
 
+    // ▼ 아래 두 줄을 꼭 추가해주세요! ▼
+    public int gold = 0;              // 재화
+    public int[] weaponLevels = new int[6]; // 무기별 레벨 (0~5번)
+
+    // ★ [추가] 캐릭터 성장 요소
+    public int potionCapacity = 1; // 회복 키트 최대 소지량 (기본 1개)
+    public int currentPotions = 1; // 현재 가지고 있는 키트 개수
     
+    // ★ [추가] 먹은 아이템 ID 목록 (중복 획득 방지)
+    public List<string> collectedItems = new List<string>();
     
 }

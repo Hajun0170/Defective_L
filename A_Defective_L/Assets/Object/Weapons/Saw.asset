@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3f4f03c259ce474289ec9b0756c1ec1, type: 3}
+  m_Name: Saw
+  m_EditorClassIdentifier: 
+  weaponID: 0
+  weaponName: "\uB2E8\uAC80"
+  attackRate: 0.3
+  icon: {fileID: 8781108241127489603, guid: e7d5ee0f64b4c1346944d91b1c2f0aa3, type: 3}
+  type: 0
+  projectilePrefab: {fileID: 0}
+  baseDamage: 2
+  damagePerLevel: 1
+  attackRange: 0.8
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  gaugeRecovery: 1
+  hitEffectPrefab: {fileID: 3831914920178570219, guid: 9fca20edd9d7ed043affbdc90b47115d, type: 3}
+  effectOffset: {x: 2, y: 1.5}
+  overrideController: {fileID: 22100000, guid: 305c19bcfd7872448be4998b17e9c300, type: 2}

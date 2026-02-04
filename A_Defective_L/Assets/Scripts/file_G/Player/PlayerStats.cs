@@ -22,6 +22,14 @@ public class PlayerStats : MonoBehaviour
 
     private bool isInvincible = false;
     private SpriteRenderer spriteRenderer;
+
+    [Header("Swap Buff Settings")]
+    public float swapBuffMultiplier = 1.5f; // 공격력 1.5배 증가
+    public float swapBuffDuration = 3.0f;   // 버프 지속 시간 (근접 무기용)
+    
+    private bool isSwapBuffActive = false;
+    private Coroutine buffCoroutine;
+
     
     // 외부 확인용 프로퍼티
     public int CurrentHealth => currentHealth;
@@ -36,6 +44,8 @@ public class PlayerStats : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
 
+    [Header("Potion Settings")]
+    public int healAmountPerKit = 3; // 키트 하나당 회복량
 
     private void Awake()
     {
@@ -59,6 +69,9 @@ public class PlayerStats : MonoBehaviour
             
             // (티켓도 저장한다면 추가 필요)
              currentTickets = DataManager.Instance.currentData.currentTickets; 
+
+             maxHealth = DataManager.Instance.currentData.maxHealth;
+            // 키트 개수도 불러오기
 
             // 만약 새 게임이라 데이터가 0이거나 이상하면 최대치로 설정
             if (currentHealth <= 0 && !DataManager.Instance.currentData.isDead)
@@ -92,6 +105,17 @@ public class PlayerStats : MonoBehaviour
 
         // 2. 초기 UI 갱신
         UpdateAllUI();
+    }
+
+    void Update()
+    {
+        // ... (기존 무적시간 로직 등) ...
+
+        // ★ [추가] C키를 누르면 회복 키트 사용
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            UsePotion();
+        }
     }
 
     // --- 데미지 처리 ---
@@ -251,9 +275,14 @@ public class PlayerStats : MonoBehaviour
     {
         if (UIManager.Instance != null)
         {
-            UIManager.Instance.UpdateHealth(currentHealth);
+            UIManager.Instance.UpdateHealth(currentHealth, maxHealth);
+
             UIManager.Instance.UpdateGauge(currentGauge, maxGauge);
             UIManager.Instance.UpdateTickets(currentTickets);
+            // 포션 UI 갱신
+            UIManager.Instance.UpdatePotionUI(
+                DataManager.Instance.currentData.currentPotions, 
+                DataManager.Instance.currentData.potionCapacity);
         }
     }
     
@@ -271,8 +300,115 @@ public class PlayerStats : MonoBehaviour
     private IEnumerator InvincibilityCoroutine(float duration) {
         isInvincible = true; yield return new WaitForSeconds(duration); isInvincible = false;
     }
+    /*
     public void ActivateSwapBuff() { StartCoroutine(nameof(BuffCoroutine)); }
     private IEnumerator BuffCoroutine() {
         DamageMultiplier = 1.2f; yield return new WaitForSeconds(2.0f); DamageMultiplier = 1.0f;
     }
+    */
+
+    // 1. 버프가 켜져 있는지 확인하는 프로퍼티 (무기가 가져다 씀)
+    public float CurrentBuffMultiplier
+    {
+        get { return isSwapBuffActive ? swapBuffMultiplier : 1.0f; }
+    }
+
+    // 2. 무기 교체 시 호출할 함수 (버프 시작!)
+    public void ActivateSwapBuff()
+    {
+        if (buffCoroutine != null) StopCoroutine(buffCoroutine);
+        buffCoroutine = StartCoroutine(BuffTimer());
+    }
+
+    // 3. (원거리용) 버프 강제 종료 함수
+    public void ConsumeSwapBuff()
+    {
+        isSwapBuffActive = false;
+        if (buffCoroutine != null) StopCoroutine(buffCoroutine);
+        // UI 갱신 등 필요하면 추가
+        Debug.Log("🔥 원거리 공격으로 교체 버프 소모됨!");
+    }
+
+    // 타이머 (근접 무기는 이 시간 동안 계속 셈)
+    IEnumerator BuffTimer()
+    {
+        isSwapBuffActive = true;
+        // (선택) 플레이어 몸 색깔이 붉게 빛나는 이펙트 추가 가능
+        Debug.Log("⚔️ 교체 버프 발동! 공격력 증가");
+
+        yield return new WaitForSeconds(swapBuffDuration);
+
+        isSwapBuffActive = false;
+        Debug.Log("⏳ 교체 버프 종료");
+    }
+
+    public void HealToFull()
+{
+    currentHealth = maxHealth; // 체력 최대치로
+    
+    // UI 갱신 (이미 연결되어 있다면)
+    if (UIManager.Instance != null)
+    {
+      // 최대 용량(potionCapacity)만큼 현재 개수(currentPotions)를 채움
+        DataManager.Instance.currentData.currentPotions = DataManager.Instance.currentData.potionCapacity;
+    }
+
+    // (3) UI 및 데이터 갱신
+    SyncDataToManager(); // 변경된 체력을 데이터 매니저에 즉시 반영
+    UpdateAllUI();       // 체력바, 포션UI 등 모든 UI 갱신
+}
+
+// 1. 회복 키트 사용
+    void UsePotion()
+    {
+        // 체력이 꽉 찼거나, 키트가 없으면 사용 불가
+        if (currentHealth >= maxHealth) return;
+        if (DataManager.Instance.currentData.currentPotions <= 0) 
+        {
+            Debug.Log("회복 키트가 없습니다!");
+            return;
+        }
+
+        // 사용 로직
+        DataManager.Instance.currentData.currentPotions--;
+        Heal(healAmountPerKit); // 체력 회복 함수 호출
+        
+        // 이펙트 생성 (선택)
+        // Instantiate(healEffect, transform.position, Quaternion.identity);
+
+        UpdateAllUI();
+    }
+
+    // 2. 최대 체력 증가 아이템 획득 시 호출
+    public void UpgradeMaxHealth(int amount)
+    {
+        maxHealth += amount;
+        DataManager.Instance.currentData.maxHealth = maxHealth;
+        
+        // 최대 체력이 늘어나면 체력도 꽉 채워주는 게 국룰
+        currentHealth = maxHealth; 
+        
+        UpdateAllUI();
+        Debug.Log($"최대 체력 증가! 현재: {maxHealth}");
+    }
+
+    // 3. 키트 소지 한도 증가 아이템 획득 시 호출
+    public void UpgradePotionCapacity()
+    {
+        DataManager.Instance.currentData.potionCapacity++;
+        // 얻자마자 키트 하나 채워주기
+        DataManager.Instance.currentData.currentPotions++;
+        
+        UpdateAllUI();
+        Debug.Log($"키트 용량 증가! 최대: {DataManager.Instance.currentData.potionCapacity}");
+    }
+
+    // (기존) 힐 함수 수정: 최대 체력 넘지 않게
+    public void Heal(int amount)
+    {
+        currentHealth += amount;
+        if (currentHealth > maxHealth) currentHealth = maxHealth;
+        UpdateAllUI();
+    }
+
 }

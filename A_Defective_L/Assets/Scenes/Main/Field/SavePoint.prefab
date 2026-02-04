@@ -148,3 +148,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shelterID: 0
+  saveEffectPrefab: {fileID: 8690950337773083281, guid: e69b1a3e1635a6d4e934547b75bfc172, type: 3}

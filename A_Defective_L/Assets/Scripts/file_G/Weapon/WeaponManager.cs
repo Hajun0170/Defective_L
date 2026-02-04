@@ -19,10 +19,17 @@ public class WeaponManager : MonoBehaviour
     private PlayerAttack playerAttack;
     private PlayerStats playerStats;
 
+    // ★ [추가] 애니메이터를 제어하기 위해 변수 추가
+    private Animator anim;
+
     private void Awake()
     {
         playerAttack = GetComponent<PlayerAttack>();
         playerStats = GetComponent<PlayerStats>();
+
+        // ★ [추가] 같은 오브젝트(또는 자식)에 있는 애니메이터 가져오기
+        anim = GetComponent<Animator>(); 
+        // 만약 애니메이터가 자식에 있다면: anim = GetComponentInChildren<Animator>();
     }
 
     private void Start()
@@ -102,8 +109,36 @@ public class WeaponManager : MonoBehaviour
 
     private void EquipWeapons()
     {
-        if (equippedMelee.Count > 0) playerAttack.meleeWeapon = equippedMelee[currentMeleeIndex];
+        if (equippedMelee.Count > 0) {
+            playerAttack.meleeWeapon = equippedMelee[currentMeleeIndex];
+            
+            // 2. ★ [추가] 근접 무기에 오버라이드 컨트롤러가 있다면 교체!
+            Weapon currentWeapon = equippedMelee[currentMeleeIndex];
+            UpdateAnimationController(currentWeapon);
+
+            }
         if (equippedRanged.Count > 0) playerAttack.rangedWeapon = equippedRanged[currentRangedIndex];
+    }
+
+    // ★ [새로 만듦] 애니메이터 교체 및 새로고침 함수
+    private void UpdateAnimationController(Weapon weapon)
+    {
+        // 1. 데이터 확인
+        if (anim == null || weapon == null || weapon.overrideController == null) return;
+
+        // 2. 컨트롤러 교체 (런타임에 갈아끼우기)
+        anim.runtimeAnimatorController = weapon.overrideController;
+
+        // 3. ★ [필수] 애니메이터 강제 리셋 (Rebind)
+        // 이게 없으면 유니티가 "어? 같은 Idle 상태네?" 하고 모션을 안 바꿀 수 있음
+        anim.Rebind(); 
+
+        // 4. 상태 재생
+        // "Idle_E"는 님 애니메이터에 있는 기본 상태 이름이어야 합니다!
+        // (Idle_E가 아니라 Idle이라면 "Idle"로 수정하세요)
+        anim.Play("Idle_E", 0, 0f); 
+
+        Debug.Log($"⚔️ 애니메이션 교체 완료: {weapon.overrideController.name}");
     }
 
     private void UpdateUI()

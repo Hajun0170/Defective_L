@@ -16,6 +16,14 @@ public class DataManager : MonoBehaviour
 
     // ★ [추가] 다음 씬에서 태어날 위치 번호 (0: 기본, 1: 왼쪽, 2: 오른쪽...)
     public int nextSpawnPointID = 0;
+
+    // ★ [추가 1] 재화 (몬스터가 떨구는 것)
+    public int gold = 0; 
+
+    // ★ [추가 2] 무기 강화 레벨 (총 6개)
+    // 인덱스 0: 기본검, 1: 총, 2: 창... 이런 식으로 정해두면 편합니다.
+    public int[] weaponLevels = new int[6];
+
     
     private void Awake()
     {

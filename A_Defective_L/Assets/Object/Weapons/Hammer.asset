@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3f4f03c259ce474289ec9b0756c1ec1, type: 3}
+  m_Name: Hammer
+  m_EditorClassIdentifier: 
+  weaponID: 1
+  weaponName: "\uD574\uBA38"
+  attackRate: 0.2
+  icon: {fileID: 2372947517068079288, guid: 2aad2bc469c276744b723100ede7cd93, type: 3}
+  type: 0
+  projectilePrefab: {fileID: 0}
+  baseDamage: 10
+  damagePerLevel: 3
+  attackRange: 1.2
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  gaugeRecovery: 1
+  hitEffectPrefab: {fileID: 0}
+  effectOffset: {x: 0, y: 0}
+  overrideController: {fileID: 22100000, guid: 3ce18e066832f8048bb1a63abbd760af, type: 2}
