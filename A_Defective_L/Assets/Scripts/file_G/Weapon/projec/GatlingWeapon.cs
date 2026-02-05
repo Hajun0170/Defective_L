@@ -8,6 +8,8 @@ public class GatlingWeapon : Weapon // Weapon 상속!
     public int burstCount = 6;          // 발사 횟수 (6발)
     public float timeBetweenShots = 0.1f; // 발사 간격
 
+    
+
     // Weapon의 PerformAttack을 "재정의(Override)" 합니다.
     public override void PerformAttack(Transform firePoint, PlayerStats playerStats, System.Action onComplete)
     {

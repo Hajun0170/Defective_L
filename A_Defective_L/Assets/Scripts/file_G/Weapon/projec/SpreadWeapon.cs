@@ -35,7 +35,14 @@ public class SpreadWeapon : RangedWeapon
                 // 이제 방향(Vector2)을 계산해서 넣어줄 필요가 없습니다.
                 // 투사체 스스로 "내 앞쪽(transform.right)으로 날아가라"고 되어 있으니까요.
                 // 데미지만 쏙 넣어주세요!
-                proj.GetComponent<Projectile>()?.Initialize(damagePerProjectile);
+                //proj.GetComponent<Projectile>()?.Initialize(damagePerProjectile);
+                // ★ [수정 후] 소리(hitSound)와 이펙트(hitEffectPrefab)도 같이 넘겨주세요!
+                // (hitSound와 hitEffectPrefab은 부모인 Weapon 클래스에 이미 있습니다)
+                Projectile p = proj.GetComponent<Projectile>();
+                if (p != null)
+                {
+                    p.Initialize(damagePerProjectile, hitSound, hitEffectPrefab);
+                }
             }
         }
     }

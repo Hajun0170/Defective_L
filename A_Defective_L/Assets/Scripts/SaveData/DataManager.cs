@@ -17,13 +17,6 @@ public class DataManager : MonoBehaviour
     // ★ [추가] 다음 씬에서 태어날 위치 번호 (0: 기본, 1: 왼쪽, 2: 오른쪽...)
     public int nextSpawnPointID = 0;
 
-    // ★ [추가 1] 재화 (몬스터가 떨구는 것)
-    public int gold = 0; 
-
-    // ★ [추가 2] 무기 강화 레벨 (총 6개)
-    // 인덱스 0: 기본검, 1: 총, 2: 창... 이런 식으로 정해두면 편합니다.
-    public int[] weaponLevels = new int[6];
-
     
     private void Awake()
     {
@@ -132,5 +125,22 @@ public class DataManager : MonoBehaviour
         string json = JsonUtility.ToJson(currentData, true);
         System.IO.File.WriteAllText(path, json);
         Debug.Log("데이터 파일 덮어쓰기 완료 (New Game 초기화 등)");
+    }
+
+    // 1. 아이템 먹었을 때 기록하기
+    public void RegisterItem(string itemID)
+    {
+        if (!currentData.collectedItems.Contains(itemID))
+        {
+            currentData.collectedItems.Add(itemID);
+            // (중요) 먹자마자 바로 저장하고 싶으면 아래 주석 해제
+            // SaveDataToDisk(); 
+        }
+    }
+
+    // 2. 이미 먹은 아이템인지 확인하기
+    public bool CheckItemCollected(string itemID)
+    {
+        return currentData.collectedItems.Contains(itemID);
     }
 }

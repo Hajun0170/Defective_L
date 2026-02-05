@@ -205,4 +205,15 @@ public class BossController : MonoBehaviour
         // (선택) 오브젝트 삭제 or 비활성화
         // Destroy(gameObject); // 매니저가 꺼줄 거라 굳이 안 해도 됨
     }
+    // 1. 현재 체력 반환 함수
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
+    // 2. 죽었는지 확인하는 함수
+    public bool IsDead()
+    {
+        return currentHealth <= 0;
+    }
 }

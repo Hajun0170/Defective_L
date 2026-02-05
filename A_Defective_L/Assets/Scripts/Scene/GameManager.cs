@@ -118,8 +118,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void ChangeStage(string nextSceneName)
+   public void ChangeStage(string nextSceneName)
     {
+      
         StartCoroutine(ProcessSceneChange(nextSceneName));
     }
 
@@ -161,6 +162,15 @@ public class GameManager : MonoBehaviour
         storedHealth = hp;
         storedGauge = gauge;
         storedTickets = tickets;
+
+        // ★ [추가] DataManager에게도 최신 정보를 넘겨줌 (PlayerStats가 이걸 읽음!)
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.currentData.currentHealth = hp;
+            DataManager.Instance.currentData.currentGauge = gauge;
+            DataManager.Instance.currentData.currentTickets = tickets;
+        }
+
         Debug.Log($"[GameManager] 상태 저장됨: HP {hp}, Gauge {gauge}");
     }
 
@@ -231,5 +241,34 @@ public class GameManager : MonoBehaviour
         }
 
         isGameOverProcessing = false;
+    }
+
+    // ★ 보상 획득 통합 함수
+    public void GetWeaponReward(Weapon weaponData)
+    {
+        if (weaponData == null) return;
+
+        // 1. 플레이어에게 무기 실지급 (WeaponManager 호출)
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            WeaponManager weaponManager = player.GetComponent<WeaponManager>();
+            if (weaponManager != null)
+            {
+                weaponManager.AddWeapon(weaponData); // ★ 무기 추가!
+                
+                // (중요) 무기 먹었으니 데이터 저장 (다음 스테이지 유지용)
+                // DataManager.Instance.SaveData(); 
+            }
+        }
+
+        // 2. UI 띄우기
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowRewardPanel(weaponData);
+        }
+        
+        // 3. 효과음 재생 (선택)
+        // if (AudioManager.Instance != null) AudioManager.Instance.PlaySFX(getItemSound);
     }
 }

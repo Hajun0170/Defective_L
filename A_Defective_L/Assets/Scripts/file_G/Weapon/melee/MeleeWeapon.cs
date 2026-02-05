@@ -10,8 +10,9 @@ public class MeleeWeapon : Weapon
     [SerializeField] private int gaugeRecovery = 1;    // ★ 적중 시 회복할 게이지 양
 
     [Header("Visual Effects")]
-    public GameObject hitEffectPrefab; // ★ 여기에 이펙트 프리팹을 넣으세요
+    //public GameObject hitEffectPrefab; // ★ 여기에 이펙트 프리팹을 넣으세요
     public Vector2 effectOffset; // ★ [추가] 위치 미세 조정용 (X, Y)
+
 
     public override void PerformAttack(Transform firePoint, PlayerStats playerStats, Action onComplete)
     {
@@ -20,7 +21,14 @@ public class MeleeWeapon : Weapon
 
         // 2. 적이 한 명이라도 있으면?
         if (hitEnemies.Length > 0)
-        {
+        {   
+            // ★ [추가] 여기서 소리를 재생해야 합니다!
+            if (hitSound != null && AudioManager.Instance != null)
+            {
+                 // AudioManager가 있으면 설정된 hitSound 재생
+                AudioManager.Instance.PlaySFX(hitSound);
+            }
+            
             // A. 게이지 회복 (공격 1회당 한 번만 회복)
             // 만약 '맞은 적 수만큼' 회복하고 싶다면 foreach 안으로 옮기면 됩니다.
             playerStats.AddGauge(gaugeRecovery); 
@@ -49,8 +57,13 @@ public class MeleeWeapon : Weapon
                         boss.TakeDamage(finalDamage);
                     }
                 }
+
+                // [탐지기 2] 데미지 로직 통과함?
                 if (hitEffectPrefab != null)
                 {
+
+      
+
                     // 1. 위치 보정: 발밑(position) 대신 몸통 중앙(bounds.center) 사용
                     Vector3 spawnPos = enemy.bounds.center; 
 

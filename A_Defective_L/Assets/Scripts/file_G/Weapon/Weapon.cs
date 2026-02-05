@@ -33,6 +33,10 @@ public abstract class Weapon : ScriptableObject
     [Header("Animation")]
     public AnimatorOverrideController overrideController;
 
+    [Header("Effects & Sound")]
+    public GameObject hitEffectPrefab; // 타격 이펙트
+    public AudioClip hitSound;         // ★ [추가] 타격 사운드 변수
+
     // 데미지 계산 (PlayerStats의 배율 적용)
     /*
     protected int GetFinalDamage(PlayerStats stats)

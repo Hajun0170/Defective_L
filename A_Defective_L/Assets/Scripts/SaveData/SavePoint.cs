@@ -14,7 +14,7 @@ public class SavePoint : MonoBehaviour
     
     [Header("UI 연결")]
     public GameObject interactionUI; // ★ 머리 위에 띄울 화살표 아이콘 (Canvas-WorldSpace 또는 오브젝트)
-
+    public GameObject interactionUI2; 
     private bool hasSaved = false; // ★ 이번 방문에 저장을 했는지 체크하는 변수
 
 void Start()
@@ -58,6 +58,9 @@ void Start()
             {
                 UIManager.Instance.SetUpgradePanelActive(false);
             }
+
+             if (interactionUI != null) interactionUI.SetActive(false);
+              if (interactionUI != null) interactionUI2.SetActive(false);
         }
     }
 
@@ -95,28 +98,31 @@ void Start()
     {
         if (playerStats != null)
         {
-           if (playerStats != null)
-        {
-            // 1. 플레이어에게 "모든 상태를 최상으로 회복해라" 명령
-            // (이 안에서 체력 회복, 포션 리필, 데이터 동기화, UI 갱신이 다 일어납니다)
+            // 1. [회복] 체력과 포션을 가득 채움 + UI 갱신
             playerStats.HealToFull(); 
 
-            // 2. 저장 실행
-            // PlayerStats.HealToFull() 안에서 이미 DataManager 값을 갱신했으므로
-            // 여기서는 바로 파일로 쓰기만 하면 됩니다.
-            DataManager.Instance.SaveGame(playerTransform, SceneManager.GetActiveScene().name, shelterID);
+            // 2. [동기화] ★ 핵심 추가!
+            // 회복된 체력뿐만 아니라, 그동안 모은 돈(Gold), 최대 체력(MaxHP) 등
+            // 모든 정보를 DataManager에 최신 상태로 밀어 넣습니다.
+            playerStats.SaveStatsToManager();
 
-            // 3. 이펙트
+            // 3. [파일 저장]
+            // DataManager에 있는 최신 정보를 하드디스크(파일)에 기록
+            if (DataManager.Instance != null)
+            {
+                DataManager.Instance.SaveGame(playerTransform, SceneManager.GetActiveScene().name, shelterID);
+            }
+
+            // 4. 이펙트 및 피드백
             if (saveEffectPrefab != null)
             {
                 Instantiate(saveEffectPrefab, transform.position, Quaternion.identity);
             }
             
-            Debug.Log($"🌿 쉼터({shelterID}) 저장 및 회복 완료!");
+            Debug.Log($"🌿 쉼터({shelterID}) 저장 완료! (Gold, MaxHP 포함)");
             
-            // 상태 변경
+            // 상태 변경 (한 번 누르면 저장 완료 상태로)
             hasSaved = true; 
-        }
         }
     }
 

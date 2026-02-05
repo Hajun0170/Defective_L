@@ -2595,7 +2595,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &87200591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4244,9 +4244,13 @@ MonoBehaviour:
   knockbackForce: 5
   stunTime: 0.3
   isBoss: 1
+  uniqueID: 
   dropItemPrefab: {fileID: 0}
   deathEffectPrefab: {fileID: 0}
   spawnOffset: {x: 0, y: 0.5}
+  dropWeapon: {fileID: 0}
+  deathSound: {fileID: 0}
+  directRewardPanel: {fileID: 0}
 --- !u!95 &421207656
 Animator:
   serializedVersion: 7
@@ -6595,9 +6599,13 @@ MonoBehaviour:
     defeatedBosses: []
     gold: 0
     weaponLevels: 000000000000000000000000000000000000000000000000
+    potionCapacity: 1
+    currentPotions: 1
+    collectedItems: []
+    equippedMeleeIndex: 0
+    equippedRangedIndex: 0
+    hasWeapons: 0000000000000000000000000000000000000000
   nextSpawnPointID: 0
-  gold: 0
-  weaponLevels: 000000000000000000000000000000000000000000000000
 --- !u!4 &1895408937
 Transform:
   m_ObjectHideFlags: 0
@@ -9294,7 +9302,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1923591142
 RectTransform:
   m_ObjectHideFlags: 0
@@ -24920,75 +24928,6 @@ Transform:
   - {fileID: 105467388}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2088962942
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2088962944}
-  - component: {fileID: 2088962945}
-  - component: {fileID: 2088962946}
-  m_Layer: 0
-  m_Name: GameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2088962944
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2088962942}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.9295216, y: 0.77541494, z: 1.3558037}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2088962945
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2088962942}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 97d228309e4e1384d8f37b61211a6cb7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &2088962946
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2088962942}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74359275ab276ab4d9dd1a27fd81d35a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playOnStart: 1
-  defaultDuration: 4
-  skipKey: 122
-  dialogueBubble: {fileID: 49354888}
-  dialogueSequence:
-  - TUT_05
-  - TUT_06
-  actors:
-  - csvName: L
-    targetObj: {fileID: 0}
-  - csvName: Enemy
-    targetObj: {fileID: 0}
 --- !u!1001 &2090891372
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25192,7 +25131,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 1165551010}
   - {fileID: 331097458}
-  - {fileID: 2088962944}
   - {fileID: 126384066}
   - {fileID: 1591247475}
   - {fileID: 2078203643}

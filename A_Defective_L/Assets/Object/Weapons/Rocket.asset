@@ -19,5 +19,12 @@ MonoBehaviour:
   type: 1
   projectilePrefab: {fileID: 1366710626536539476, guid: d2c694b2fe8e315478b10276dcbd5d10, type: 3}
   baseDamage: 10
-  damagePerLevel: 2
+  damagePerLevel: 5
+  overrideController: {fileID: 0}
+  hitEffectPrefab: {fileID: 0}
+  hitSound: {fileID: 8300000, guid: 6c641842185384646b603322cc7e7559, type: 3}
   gaugeCost: 5
+  skillTriggerName: R_Skill_1
+  burstCount: 1
+  burstRate: 0.1
+  startDelay: 0

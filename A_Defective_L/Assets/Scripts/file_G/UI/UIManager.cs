@@ -71,6 +71,12 @@ public class UIManager : MonoBehaviour
     // 배경이 묶여있더라도, 체력바 역할을 하는 하트 이미지는 7개가 따로 있어야 합니다.
     public Image[] healthFills;
 
+    [Header("Reward UI")]
+    public GameObject rewardPanel;    // 패널 전체
+    public UnityEngine.UI.Image rewardIcon; // 아이콘 이미지
+    public TMPro.TMP_Text rewardName; // 이름 텍스트
+    
+
     // 내부 변수들
     List<Resolution> resolutions = new List<Resolution>();
     FullScreenMode[] screenModes = { FullScreenMode.ExclusiveFullScreen, FullScreenMode.FullScreenWindow, FullScreenMode.Windowed };
@@ -89,6 +95,7 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         InitVideoSettings(); // ★ 시작할 때 해상도 목록 채우기
+        InitAudioUI();       // ★ 슬라이더 위치 초기화
     }
 
     // ====================================================
@@ -209,7 +216,30 @@ public class UIManager : MonoBehaviour
     public void OnClickOptions()
     {
         if(pauseGroup != null) pauseGroup.SetActive(false);
-        if(optionsPopup != null) optionsPopup.SetActive(true);
+        if(optionsPopup != null) 
+        {
+            optionsPopup.SetActive(true);
+
+            // ★ [추가] 옵션창 열 때 슬라이더 위치 재동기화 (Sync)
+            SyncAudioSliders();
+        }
+    }
+
+    // 슬라이더 동기화용 헬퍼 함수
+    void SyncAudioSliders()
+    {
+        // 저장된 값 다시 읽어오기
+        float savedBGM = PlayerPrefs.GetFloat("BGM_Volume", 1.0f);
+        float savedSFX = PlayerPrefs.GetFloat("SFX_Volume", 1.0f);
+
+        // 슬라이더에 반영 (이벤트 트리거 없이 값만 변경하고 싶다면 SetValueWithoutNotify 사용 가능하지만, 
+        // 여기선 그냥 value 대입해도 괜찮습니다. 어차피 같은 값이라 소리 변화 없음)
+        if (bgmSlider != null) bgmSlider.value = savedBGM;
+        if (sfxSlider != null) sfxSlider.value = savedSFX;
+        
+        // 해상도 UI도 같이 동기화하고 싶다면?
+        // if (resolutionDropdown != null) resolutionDropdown.value = PlayerPrefs.GetInt("Resolution_Index", 0);
+        // if (screenModeDropdown != null) screenModeDropdown.value = PlayerPrefs.GetInt("Screen_Mode", 0);
     }
 
     public void OnClickCloseOptions()
@@ -242,41 +272,65 @@ public class UIManager : MonoBehaviour
     }
 
     // 4. 비디오 설정
+   // 4. 비디오 설정 (수정됨: 고정 해상도 사용)
     void InitVideoSettings()
     {
-        // 해상도 초기화
+        // -------------------------------------------------------
+        // A. 해상도 초기화 (1920x1080, 1280x720 고정)
+        // -------------------------------------------------------
         if (resolutionDropdown != null)
         {
             resolutionDropdown.ClearOptions();
             resolutions.Clear();
+
             List<string> options = new List<string>();
-            int currentResIndex = 0;
 
-            Resolution[] allResolutions = Screen.resolutions;
-            for (int i = 0; i < allResolutions.Length; i++)
-            {
-                string option = allResolutions[i].width + " x " + allResolutions[i].height;
-                resolutions.Add(allResolutions[i]);
-                options.Add(option);
+            // 1. FHD (1920 x 1080) 추가
+            Resolution r1 = new Resolution();
+            r1.width = 1920; 
+            r1.height = 1080;
+            resolutions.Add(r1);
+            options.Add("1920 x 1080");
 
-                if (allResolutions[i].width == Screen.width && allResolutions[i].height == Screen.height)
-                    currentResIndex = i;
-            }
+            // 2. HD (1280 x 720) 추가
+            Resolution r2 = new Resolution();
+            r2.width = 1280; 
+            r2.height = 720;
+            resolutions.Add(r2);
+            options.Add("1280 x 720");
+
             resolutionDropdown.AddOptions(options);
-            resolutionDropdown.value = currentResIndex;
+
+            // ★ 저장된 해상도 불러오기 (없으면 0번: 1920x1080 기본)
+            int savedResIdx = PlayerPrefs.GetInt("Resolution_Index", 0);
+            
+            // 인덱스 안전 장치 (혹시 목록보다 큰 값이 저장되어 있을까봐)
+            if (savedResIdx >= resolutions.Count) savedResIdx = 0;
+
+            resolutionDropdown.value = savedResIdx;
             resolutionDropdown.RefreshShownValue();
+
+            // 실제로 적용도 한번 해줍니다 (게임 켜자마자 적용되게)
+            SetResolution(savedResIdx);
         }
 
-        // 화면모드 초기화
+        // -------------------------------------------------------
+        // B. 화면모드 초기화 (전체, 테두리 없음, 창모드)
+        // -------------------------------------------------------
         if (screenModeDropdown != null)
         {
             screenModeDropdown.ClearOptions();
             List<string> modeOptions = new List<string> { "전체 화면", "테두리 없음", "창 모드" };
             screenModeDropdown.AddOptions(modeOptions);
+
+            // ★ 저장된 화면모드 불러오기 (없으면 0번: 전체화면 기본)
+            int savedModeIdx = PlayerPrefs.GetInt("Screen_Mode", 0);
             
-            if (Screen.fullScreenMode == FullScreenMode.ExclusiveFullScreen) screenModeDropdown.value = 0;
-            else if (Screen.fullScreenMode == FullScreenMode.FullScreenWindow) screenModeDropdown.value = 1;
-            else screenModeDropdown.value = 2;
+            screenModeDropdown.value = savedModeIdx;
+            screenModeDropdown.RefreshShownValue();
+
+            // 실제로 적용
+            SetScreenMode(savedModeIdx);
         }
     }
 
@@ -286,6 +340,10 @@ public class UIManager : MonoBehaviour
         {
             Resolution resolution = resolutions[resolutionIndex];
             Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreenMode);
+
+            // ★ 변경 시 저장
+            PlayerPrefs.SetInt("Resolution_Index", resolutionIndex);
+            PlayerPrefs.Save();
         }
     }
 
@@ -411,4 +469,49 @@ public class UIManager : MonoBehaviour
             }
         }
     }
+
+    // 1. 오디오 UI 초기화 (저장된 값으로 슬라이더 맞추기)
+    void InitAudioUI()
+    {
+        float savedBGM = PlayerPrefs.GetFloat("BGM_Volume", 1.0f);
+        float savedSFX = PlayerPrefs.GetFloat("SFX_Volume", 1.0f);
+
+        if (bgmSlider != null) 
+        {
+            bgmSlider.value = savedBGM;
+            // 슬라이더 움직일 때 AudioManager 호출 연결
+            bgmSlider.onValueChanged.AddListener((val) => AudioManager.Instance.SetBGMVolume(val));
+        }
+
+        if (sfxSlider != null)
+        {
+            sfxSlider.value = savedSFX;
+            sfxSlider.onValueChanged.AddListener((val) => AudioManager.Instance.SetSFXVolume(val));
+        }
+    }
+
+    // 보상 패널 띄우기 함수
+    public void ShowRewardPanel(Weapon weapon)
+    {
+        if (rewardPanel != null)
+        {
+            rewardPanel.SetActive(true);
+            
+            // UI 내용 채우기
+            if (rewardIcon != null) rewardIcon.sprite = weapon.icon;
+            if (rewardName != null) rewardName.text = $"{weapon.weaponName} 획득!";
+            
+            // (선택) 보상 받을 때 게임 일시정지
+            Time.timeScale = 0; 
+        }
+    }
+
+    // 확인 버튼에 연결할 함수 (패널 닫기)
+    public void CloseRewardPanel()
+    {
+        if (rewardPanel != null) rewardPanel.SetActive(false);
+        Time.timeScale = 1; // 게임 재개
+    }
+    
+    
 }

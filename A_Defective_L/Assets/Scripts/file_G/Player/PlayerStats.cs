@@ -14,6 +14,7 @@ public class PlayerStats : MonoBehaviour
     private int currentGauge = 0;
     private int accumulatedGauge = 0;
 
+
     [Header("Tickets")]
     [SerializeField] private int maxTickets = 3;
     private int currentTickets = 0;
@@ -30,6 +31,10 @@ public class PlayerStats : MonoBehaviour
     private bool isSwapBuffActive = false;
     private Coroutine buffCoroutine;
 
+    [Header("Sound Effects")]
+    public AudioClip hitSound;   // 맞았을 때
+    public AudioClip healSound;  // 회복했을 때
+    public AudioClip deathSound; // 죽었을 때
     
     // 외부 확인용 프로퍼티
     public int CurrentHealth => currentHealth;
@@ -44,8 +49,13 @@ public class PlayerStats : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
 
-    [Header("Potion Settings")]
+    [Header("2. Potion Settings")]
+    public int potionCapacity = 1; // ★ 키트 주머니 크기 (로컬 변수로 관리 추천)
+    public int currentPotions = 0; // 현재 키트 수
     public int healAmountPerKit = 3; // 키트 하나당 회복량
+
+    [Header("3. Economy")]
+    public int currentGold = 0;    // ★ [추가] 현재 재화
 
     private void Awake()
     {
@@ -58,53 +68,43 @@ public class PlayerStats : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    private void Start()
+   private void Start()
     {
-        // ★ [핵심 1] 태어나자마자 DataManager(은행)에서 내 스탯 가져오기
+        // 1. DataManager가 있으면 저장된 값으로 내 스탯을 덮어씌움 (Load)
         if (DataManager.Instance != null)
         {
-            // 데이터 매니저에 저장된 값으로 내 몸 상태를 동기화
+            Debug.Log("🔄 [PlayerStats] 데이터 로드 시도...");
+
+            // ★ [순서 중요] 최대치(Max)와 재화(Gold)를 먼저 불러와야 합니다.
+            maxHealth = DataManager.Instance.currentData.maxHealth;
+            potionCapacity = DataManager.Instance.currentData.potionCapacity;
+            currentGold = DataManager.Instance.currentData.gold;
+
+            // 그 다음 현재 상태(Current) 불러오기
             currentHealth = DataManager.Instance.currentData.currentHealth;
             currentGauge = DataManager.Instance.currentData.currentGauge;
+            currentTickets = DataManager.Instance.currentData.currentTickets;
+            currentPotions = DataManager.Instance.currentData.currentPotions;
+
+            // ★ [데이터 검증] 만약 로드된 데이터가 비정상(0)이면 기본값 사용
+            // (새 게임이거나, 저장이 제대로 안 됐을 경우를 대비)
+            if (maxHealth < 5) maxHealth = 5;
+            if (potionCapacity < 1) potionCapacity = 1;
             
-            // (티켓도 저장한다면 추가 필요)
-             currentTickets = DataManager.Instance.currentData.currentTickets; 
-
-             maxHealth = DataManager.Instance.currentData.maxHealth;
-            // 키트 개수도 불러오기
-
-            // 만약 새 게임이라 데이터가 0이거나 이상하면 최대치로 설정
-            if (currentHealth <= 0 && !DataManager.Instance.currentData.isDead)
-            {
+            // 만약 현재 체력이 0인데 죽은 건 아니라면 풀피로 (버그 방지)
+            if (currentHealth <= 0 && !DataManager.Instance.currentData.isDead) 
                 currentHealth = maxHealth;
-                currentGauge = 0;
-            }
-        }
-        else
-        {
-            // 테스트용 (매니저 없이 씬만 켰을 때)
-            currentHealth = maxHealth;
-        }
-        /*
-        // 1. 데이터 동기화 (GameManager -> 나)
-        if (GameManager.Instance != null)
-        {
-            currentHealth = GameManager.Instance.storedHealth;
-            currentGauge = GameManager.Instance.storedGauge;
-            currentTickets = GameManager.Instance.storedTickets;
-            
-        }
-        else
-        {
-            // GameManager가 없으면 기본값 (테스트용)
-            currentHealth = maxHealth;
-            currentGauge = 0;
-            currentTickets = 0;
-        }
-        */
 
-        // 2. 초기 UI 갱신
+            Debug.Log($"✅ 로드 완료: 체력({currentHealth}/{maxHealth}), 돈({currentGold})");
+        }
+        else
+        {
+            // 매니저 없을 때 (테스트용)
+            currentHealth = maxHealth;
+        }
+
         UpdateAllUI();
+        StartCoroutine(LateUIUpdate());
     }
 
     void Update()
@@ -125,6 +125,9 @@ public class PlayerStats : MonoBehaviour
         
         // 2. 체력 감소 (1 대신 들어온 데미지 amount를 쓰는 게 더 유연합니다)
         currentHealth -= amount;
+        
+        // ★ [추가] 피격 소리 재생
+        AudioManager.Instance.PlaySFX(hitSound);
         
         // 3. 피격 애니메이션
         if(anim != null) anim.SetTrigger("Hit");
@@ -230,6 +233,10 @@ public class PlayerStats : MonoBehaviour
             DataManager.Instance.currentData.currentHealth = currentHealth;
             DataManager.Instance.currentData.currentGauge = currentGauge;
             DataManager.Instance.currentData.currentTickets = currentTickets; // 필요시 추가
+            DataManager.Instance.currentData.currentPotions = currentPotions;
+            DataManager.Instance.currentData.gold = currentGold; // 돈도 동기화
+            // ★ [누락된 핵심 코드] 최대 체력도 변했으면 저장해야 함!
+            DataManager.Instance.currentData.maxHealth = maxHealth;
         }
     }
 
@@ -238,7 +245,7 @@ public class PlayerStats : MonoBehaviour
         if (currentGauge >= amount)
         {
             currentGauge -= amount;
-            anim.SetTrigger("R_Skill_1");
+            //anim.SetTrigger("R_Skill_1");
 
             // ★ [수정 2] 주석 해제
             if (UIManager.Instance != null) 
@@ -383,10 +390,11 @@ public class PlayerStats : MonoBehaviour
     public void UpgradeMaxHealth(int amount)
     {
         maxHealth += amount;
-        DataManager.Instance.currentData.maxHealth = maxHealth;
-        
-        // 최대 체력이 늘어나면 체력도 꽉 채워주는 게 국룰
-        currentHealth = maxHealth; 
+        if (DataManager.Instance != null){
+            DataManager.Instance.currentData.maxHealth = maxHealth;
+        }
+        // 보통 최대 체력이 늘면 체력을 꽉 채워줍니다 (선택사항)
+        HealToFull();
         
         UpdateAllUI();
         Debug.Log($"최대 체력 증가! 현재: {maxHealth}");
@@ -396,6 +404,11 @@ public class PlayerStats : MonoBehaviour
     public void UpgradePotionCapacity()
     {
         DataManager.Instance.currentData.potionCapacity++;
+
+        // ★ 늘어난 용량을 즉시 저장
+        if (DataManager.Instance != null)
+            DataManager.Instance.currentData.potionCapacity = potionCapacity;
+
         // 얻자마자 키트 하나 채워주기
         DataManager.Instance.currentData.currentPotions++;
         
@@ -403,12 +416,59 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"키트 용량 증가! 최대: {DataManager.Instance.currentData.potionCapacity}");
     }
 
+    // 3. 재화(골드) 획득
+    public void AddGold(int amount)
+    {
+        currentGold += amount;
+
+       // 2. 장부(DataManager)에 즉시 기록하기
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.currentData.gold = currentGold;
+        } 
+        // UI 갱신 (UpdateAllUI에 골드 갱신 로직이 있다면 자동 처리됨)
+        UpdateAllUI(); 
+    }
+
+    
     // (기존) 힐 함수 수정: 최대 체력 넘지 않게
     public void Heal(int amount)
     {
         currentHealth += amount;
+        
+        // ★ [추가] 회복 소리 재생
+        AudioManager.Instance.PlaySFX(healSound);
+
         if (currentHealth > maxHealth) currentHealth = maxHealth;
         UpdateAllUI();
+    }
+
+    // ★ 0.1초 뒤에 UI를 강제로 다시 맞춤
+    IEnumerator LateUIUpdate()
+    {
+        yield return new WaitForSeconds(0.1f);
+        UpdateAllUI();
+        // Debug.Log("UI 지연 갱신 완료"); 
+    }
+
+    // ★ [핵심 추가] 씬 이동 직전에 GameManager가 호출할 "강제 저장" 함수
+    public void SaveStatsToManager()
+    {
+        if (DataManager.Instance != null)
+        {
+            // 현재 가진 모든 중요한 스탯을 DataManager에 밀어 넣습니다.
+            DataManager.Instance.currentData.maxHealth = maxHealth;         // 최대 체력
+            DataManager.Instance.currentData.currentHealth = currentHealth; // 현재 체력
+            DataManager.Instance.currentData.gold = currentGold;            // 돈
+            
+            DataManager.Instance.currentData.potionCapacity = potionCapacity;
+            DataManager.Instance.currentData.currentPotions = currentPotions;
+            
+            DataManager.Instance.currentData.currentGauge = currentGauge;
+            DataManager.Instance.currentData.currentTickets = currentTickets;
+
+            Debug.Log($"💾 [PlayerStats] 씬 이동 전 데이터 백업 완료! (MaxHP: {maxHealth}, Gold: {currentGold})");
+        }
     }
 
 }

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3389aaeca0f108b44bd20bf0c8be0735, type: 3}
+  m_Name: Gat
+  m_EditorClassIdentifier: 
+  weaponID: 5
+  weaponName: "\uAE30\uAD00\uCD1D"
+  attackRate: 0
+  icon: {fileID: -6811478723853040149, guid: 9d5338fa2901ce744a40a36c1047e666, type: 3}
+  type: 1
+  projectilePrefab: {fileID: 8705499411173304601, guid: 049fb60fa56ea4240a257586dd358b62, type: 3}
+  baseDamage: 1
+  damagePerLevel: 1
+  overrideController: {fileID: 0}
+  hitEffectPrefab: {fileID: 0}
+  hitSound: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
+  gaugeCost: 5
+  skillTriggerName: R_Skill_2
+  burstCount: 6
+  burstRate: 0.15
+  startDelay: 0

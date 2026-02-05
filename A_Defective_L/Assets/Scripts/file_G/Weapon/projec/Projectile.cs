@@ -11,14 +11,23 @@ public class Projectile : MonoBehaviour
 
     public GameObject hitEffectPrefab; // 이펙트 프리팹
 
+    private AudioClip hitSound; // ★ 전달받은 소리 저장용
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
     }
 
-    public void Initialize(int damageAmount) 
+    public void Initialize(int damageAmount, AudioClip sound = null, GameObject effectPrefab = null) 
     {
         this.damage = damageAmount;
+        this.hitSound = sound; // ★ 소리 장착!
+
+        // ★ 전달받은 이펙트가 있으면 내 변수에 저장
+        if (effectPrefab != null) 
+        {
+            this.hitEffectPrefab = effectPrefab;
+        }
 
         if (rb != null)
         {
@@ -54,6 +63,13 @@ public class Projectile : MonoBehaviour
         else if (collision.GetComponent<EnemyHealth>() != null)
         {
             collision.GetComponent<EnemyHealth>().TakeDamage(damage, transform);
+
+            // ★ [추가] 총알이 가지고 있던 타격음 재생
+                if (hitSound != null && AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlaySFX(hitSound);
+                }
+
             SpawnEffect();      // 이펙트 먼저 생성
             DestroyProjectile(); // 그 다음 삭제
         }
@@ -62,6 +78,13 @@ public class Projectile : MonoBehaviour
         else if (collision.GetComponent<BossController>() != null)
         {
             collision.GetComponent<BossController>().TakeDamage(damage);
+
+            // ★ [추가] 총알이 가지고 있던 타격음 재생
+                if (hitSound != null && AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlaySFX(hitSound);
+                }
+
             SpawnEffect();
             DestroyProjectile();
         }

@@ -12,6 +12,7 @@ public class FieldItem : MonoBehaviour
 
     void Start()
     {
+        /*
         // 이미 먹은 아이템인지 확인하고, 먹었다면 삭제
         if (DataManager.Instance != null)
         {
@@ -19,6 +20,13 @@ public class FieldItem : MonoBehaviour
             {
                 gameObject.SetActive(false); // 이미 먹음
             }
+        }
+        */
+        // ★ [핵심] 태어나자마자 장부 확인
+        // 만약 이미 먹은 아이템 목록에 내 ID가 있다면? -> 바로 자폭(삭제)
+        if (DataManager.Instance != null && DataManager.Instance.CheckItemCollected(itemID))
+        {
+            Destroy(gameObject);
         }
     }
 
@@ -32,14 +40,23 @@ public class FieldItem : MonoBehaviour
                 ApplyEffect(stats);
                 
                 // 획득 기록 저장 (JustPotionRefill 같은 소모품은 기록 안 함)
-                if (itemType != ItemType.JustPotionRefill)
+               /* if (itemType != ItemType.JustPotionRefill)
                 {
                     DataManager.Instance.currentData.collectedItems.Add(itemID);
+                }
+                */
+
+                // ★ [핵심] 먹었음을 매니저에 신고
+                if (DataManager.Instance != null)
+                {
+                    DataManager.Instance.RegisterItem(itemID);
                 }
 
                 // 이펙트 및 삭제
                 if (pickupEffect != null) Instantiate(pickupEffect, transform.position, Quaternion.identity);
-                gameObject.SetActive(false); // 삭제
+                // 삭제
+                Destroy(gameObject);
+                // gameObject.SetActive(false); // 삭제
             }
         }
     }

@@ -1337,13 +1337,25 @@ MonoBehaviour:
   m_FillRect: {fileID: 130950761}
   m_HandleRect: {fileID: 1201855566}
   m_Direction: 0
-  m_MinValue: -40
-  m_MaxValue: 0
+  m_MinValue: 0
+  m_MaxValue: 1
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1218484076}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: SetBGMVolume
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &265244940
 GameObject:
   m_ObjectHideFlags: 0
@@ -1901,7 +1913,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &391823628
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3555,7 +3567,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &661365067
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5092,13 +5104,25 @@ MonoBehaviour:
   m_FillRect: {fileID: 2052149247}
   m_HandleRect: {fileID: 1954040344}
   m_Direction: 0
-  m_MinValue: -40
-  m_MaxValue: 0
+  m_MinValue: 0
+  m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 0.5
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1218484076}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: SetSFXVolume
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &948212997
 GameObject:
   m_ObjectHideFlags: 0
@@ -6775,6 +6799,9 @@ MonoBehaviour:
   - {fileID: 2112845883}
   - {fileID: 912558355}
   - {fileID: 1626695340}
+  rewardPanel: {fileID: 0}
+  rewardIcon: {fileID: 0}
+  rewardName: {fileID: 0}
 --- !u!114 &1218484077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7611,7 +7638,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7482667652216324306, guid: 7345e7f828ebf504d8cd6af2617880db, type: 3}
+  m_Sprite: {fileID: -2720922381176439266, guid: 5403cae0bef55904f8f7d650e2f5a665, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -7873,8 +7900,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allWeapons:
   - {fileID: 11400000, guid: 433c91eef3abaf34c851cc53bfd00e4e, type: 2}
-  - {fileID: 11400000, guid: f1495153dc6fbb040a6c7a88c6631311, type: 2}
+  - {fileID: 11400000, guid: b95df918434571740907e9a5964973b7, type: 2}
+  - {fileID: 11400000, guid: ba25801282e7e8e4680fed50820345ef, type: 2}
   - {fileID: 11400000, guid: 5ac2fe6d46036c44c9d51787386bf853, type: 2}
+  - {fileID: 11400000, guid: f1495153dc6fbb040a6c7a88c6631311, type: 2}
+  - {fileID: 11400000, guid: c03776dfc7f283247ad46471a6bd9daa, type: 2}
   weaponIcon: {fileID: 17048287}
   nameText: {fileID: 701275971}
   levelText: {fileID: 111057806}
@@ -8161,7 +8191,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7482667652216324306, guid: 7345e7f828ebf504d8cd6af2617880db, type: 3}
+  m_Sprite: {fileID: -2720922381176439266, guid: 5403cae0bef55904f8f7d650e2f5a665, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

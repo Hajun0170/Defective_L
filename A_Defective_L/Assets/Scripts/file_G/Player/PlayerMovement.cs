@@ -41,6 +41,11 @@ private float wallJumpCounter; // 시간 계산용
     public GameObject dodgeEffectPrefab; // ★ 회피 이펙트 프리팹 연결
     public Vector2 dodgeEffectOffset;    // ★ 위치 미세 조정용 (발밑, 등뒤 등)
     
+    [Header("Audio")]
+    public AudioClip footstepSound;
+    public float footstepRate = 0.4f; // 0.4초마다 발소리
+    private float nextFootstepTime;
+
     // 내부 변수
     private Rigidbody2D rb;
     private PlayerStats playerStats;
@@ -79,6 +84,18 @@ private float wallJumpCounter; // 시간 계산용
 
         // 1. 입력 감지
         horizontalInput = Input.GetAxisRaw("Horizontal");
+
+       // ★ [수정] 발소리 재생 부분 (Null 체크 추가)
+        if (isGrounded && Mathf.Abs(horizontalInput) > 0.1f && Time.time >= nextFootstepTime)
+        {
+            // AudioManager가 살아있을 때만 재생!
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX(footstepSound);
+            }
+            
+            nextFootstepTime = Time.time + footstepRate; 
+        }
 
         // 2. 점프 (땅에 있을 때만)
         // (나중에 벽 점프를 추가하려면 여기에 || isTouchingWall 조건 추가 필요)

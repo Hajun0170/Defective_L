@@ -14,15 +14,12 @@ public class Portal : MonoBehaviour
             if (DataManager.Instance != null)
                 DataManager.Instance.nextSpawnPointID = targetSpawnID;
 
-            // 2. 플레이어 스탯도 임시 저장 (안전장치)
+           // ★ [핵심 수정] 플레이어의 모든 스탯(최대체력, 돈 포함)을 여기서 강제로 저장!
             PlayerStats stats = collision.GetComponent<PlayerStats>();
-            if (stats != null && GameManager.Instance != null)
+            if (stats != null)
             {
-                GameManager.Instance.SaveCurrentStatus(
-                    stats.CurrentHealth, 
-                    stats.CurrentGauge, 
-                    stats.CurrentTickets
-                );
+                // GameManager를 거치지 않고 직접 저장 함수 호출 (가장 안전함)
+                stats.SaveStatsToManager(); 
             }
 
             // 3. ★ GameManager에게 "맵만 바꿔줘!" 요청
@@ -38,19 +35,6 @@ public class Portal : MonoBehaviour
                 // 매니저 없으면 그냥 이동 (테스트용)
                 UnityEngine.SceneManagement.SceneManager.LoadScene(transferSceneName);
             }
-/*
-        // 1. 데이터 매니저 확인
-            if (DataManager.Instance != null)
-                DataManager.Instance.nextSpawnPointID = targetSpawnID;
-
-            // 2. 씬 매니저 확인 (★ 여기가 핵심)
-            if (SceneTransitionManager.Instance != null)
-            {
-                // 매니저가 있으면 우아하게 페이드 아웃
-                SceneTransitionManager.Instance.LoadScene(transferSceneName);
-            }
-      
-            */
         }
     }
 }

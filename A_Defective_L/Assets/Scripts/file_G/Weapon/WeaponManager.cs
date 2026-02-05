@@ -34,9 +34,16 @@ public class WeaponManager : MonoBehaviour
 
     private void Start()
     {
-        // 초기화: 현재 무기와 예약 무기를 동일하게 설정
-        if (equippedMelee.Count > 0) previewMeleeIndex = currentMeleeIndex;
-        if (equippedRanged.Count > 0) previewRangedIndex = currentRangedIndex;
+       // ★ [핵심] 씬이 시작될 때 DataManager에서 저장된 무기 번호 불러오기
+        if (DataManager.Instance != null)
+        {
+            currentMeleeIndex = DataManager.Instance.currentData.equippedMeleeIndex;
+            currentRangedIndex = DataManager.Instance.currentData.equippedRangedIndex;
+        
+            // 인덱스가 범위를 벗어나지 않게 안전 장치
+            currentMeleeIndex = Mathf.Clamp(currentMeleeIndex, 0, equippedMelee.Count - 1);
+            currentRangedIndex = Mathf.Clamp(currentRangedIndex, 0, equippedRanged.Count - 1);
+        }
 
         EquipWeapons(); // 초기 무기 실장착
         UpdateUI();     // UI 갱신
@@ -70,14 +77,14 @@ public class WeaponManager : MonoBehaviour
         if (previewMeleeIndex == currentMeleeIndex) return;
 
         // 다르다면 티켓 쓰고 교체 시도
+        // ... (티켓 검사 등 기존 로직) ...
         if (playerStats.UseTicket())
         {
-            currentMeleeIndex = previewMeleeIndex; // 확정
+            currentMeleeIndex = previewMeleeIndex;
             EquipWeapons();
-            playerStats.ActivateSwapBuff(); // 버프 발동 (기존 함수 재사용)
             
-            // 이펙트나 사운드 추가 가능
-            Debug.Log($"⚔️ 무기 교체 공격! -> {equippedMelee[currentMeleeIndex].weaponName}");
+            // ★ 저장!
+            SaveWeaponData();
         }
         else
         {
@@ -97,14 +104,26 @@ public class WeaponManager : MonoBehaviour
         {
             currentRangedIndex = previewRangedIndex;
             EquipWeapons();
-            // 원거리 전용 버프가 있다면 ActivateRangedBuff() 호출
-            Debug.Log($"🔫 무기 교체 사격! -> {equippedRanged[currentRangedIndex].weaponName}");
+
+            // ★ 저장!
+            SaveWeaponData();
         }
         else
         {
             previewRangedIndex = currentRangedIndex;
         }
         UpdateUI();
+    }
+
+    // 데이터 저장용 헬퍼 함수
+    private void SaveWeaponData()
+    {
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.currentData.equippedMeleeIndex = currentMeleeIndex;
+            DataManager.Instance.currentData.equippedRangedIndex = currentRangedIndex;
+            // (필요하다면 DataManager.Instance.SaveGame() 호출)
+        }
     }
 
     private void EquipWeapons()
@@ -165,20 +184,89 @@ public class WeaponManager : MonoBehaviour
         UIManager.Instance.UpdateWeaponSlots(nextMelee, nextRanged);
     }
 
-    public void AddWeapon(Weapon newWeapon)
+/*
+  public void AddWeapon(Weapon newWeapon)
     {
-        // 무기 타입에 따라 적절한 리스트에 추가
-        if (newWeapon.type == WeaponType.Melee) // Weapon 스크립트에 타입이 있다고 가정
+        // 1. 무기 타입에 따라 적절한 리스트에 추가하고, 
+        // 2. ★ [추가] 방금 추가한 무기의 인덱스로 '현재 무기'를 변경합니다.
+
+        if (newWeapon.type == WeaponType.Melee) 
         {
             equippedMelee.Add(newWeapon);
+            
+            // 방금 추가된 무기는 리스트의 맨 마지막에 있음
+            currentMeleeIndex = equippedMelee.Count - 1; 
+            
+            // UI 예약 번호도 같이 맞춰줌 (안 그러면 꼬임)
+            previewMeleeIndex = currentMeleeIndex; 
         }
         else
         {
             equippedRanged.Add(newWeapon);
+            
+            currentRangedIndex = equippedRanged.Count - 1;
+            previewRangedIndex = currentRangedIndex;
+        }
+    
+        
+
+        // 3. 실제 장착 실행 (애니메이션 교체 등 포함)
+        EquipWeapons(); 
+
+        // 4. 데이터 저장 (먹자마자 저장해야 안전)
+        SaveWeaponData();
+
+        // 5. UI 갱신 (슬롯 켜짐)
+        UpdateUI(); 
+        
+        Debug.Log($"⚔️ 무기 획득 및 장착 완료: {newWeapon.weaponName}");
+    }
+    */
+    public void AddWeapon(Weapon newWeapon)
+    {
+        if (newWeapon == null) return;
+
+        // 1. 이미 가지고 있는지 확인 (중복 방지)
+        if (newWeapon.type == WeaponType.Melee)
+        {
+            if (!equippedMelee.Contains(newWeapon))
+            {
+                equippedMelee.Add(newWeapon);
+            }
+            
+            // ★ 가지고 있든 없든, 방금 먹은 이 무기를 '장착' 상태로 만듦
+            // (리스트에서 이 무기의 위치를 찾아서 인덱스로 설정)
+            currentMeleeIndex = equippedMelee.IndexOf(newWeapon);
+            previewMeleeIndex = currentMeleeIndex;
+        }
+        else // 원거리
+        {
+            if (!equippedRanged.Contains(newWeapon))
+            {
+                equippedRanged.Add(newWeapon);
+            }
+            currentRangedIndex = equippedRanged.IndexOf(newWeapon);
+            previewRangedIndex = currentRangedIndex;
         }
 
-        // ★ 핵심: 무기를 먹었으니 UI를 다시 그려라! (이때 슬롯이 켜짐)
-        UpdateUI(); 
+        // 2. DataManager '획득 장부'에 도장 찍기 (영구 저장용)
+        if (DataManager.Instance != null)
+        {
+            // 무기 ID를 이용해 hasWeapons 배열 업데이트
+            DataManager.Instance.currentData.hasWeapons[newWeapon.weaponID] = true;
+            
+            // 현재 장착 인덱스도 저장
+            SaveWeaponData();
+            
+            // 즉시 파일 저장 (선택)
+            DataManager.Instance.SaveDataToDisk();
+        }
+
+        // 3. 실제 장착 및 UI 갱신
+        EquipWeapons();
+        UpdateUI();
+
+        Debug.Log($"⚔️ 무기 장착 완료: {newWeapon.weaponName}");
     }
     
 }

@@ -11,7 +11,7 @@ public class SaveData
     public float playerY;
 
     // 2. 플레이어 스탯
-    public int currentHealth;
+    public int currentHealth =5;
     public int maxHealth = 5;       // 최대 체력
     public int currentGauge;      // 무기 게이지
     
@@ -40,5 +40,14 @@ public class SaveData
     
     // ★ [추가] 먹은 아이템 ID 목록 (중복 획득 방지)
     public List<string> collectedItems = new List<string>();
+    //public List<string> defeatedBosses = new List<string>(); // 잡은 보스 장부
+
+      // ★ [추가] 현재 장착 중인 무기의 인덱스(번호)를 저장
+    // ★ [추가] 이 두 줄이 없어서 오류가 난 것입니다. 꼭 추가하세요!
+    public int equippedMeleeIndex = 0;
+    public int equippedRangedIndex = 0;
+
+    // 무기 획득 여부를 저장하는 배열 (0번 무기 먹었니? 1번 먹었니?)
+    public bool[] hasWeapons = new bool[20];
     
 }

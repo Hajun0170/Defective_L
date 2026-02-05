@@ -105,7 +105,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 20
   lifeTime: 3
-  hitEffectPrefab: {fileID: 0}
+  hitEffectPrefab: {fileID: 7790824731320521514, guid: 4f6bfe2f8b9c43a499d7f3e5c1902800, type: 3}
 --- !u!50 &7109638871475180283
 Rigidbody2D:
   serializedVersion: 5
