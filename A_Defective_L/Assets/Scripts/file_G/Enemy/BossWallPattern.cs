@@ -1,117 +1,214 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 public class BossWallPattern : MonoBehaviour
 {
-    [Header("Settings")]
-    public float moveSpeed = 5f;
-    public float wallAttackRate = 1.5f; 
-    public int projectileCount = 5;    
+    // ... (기존 설정 변수들: moveSpeed, detectRange 등등 그대로 유지) ...
+    [Header("Basic Stats")]
+    [SerializeField] private float moveSpeed = 3.0f;
+    [SerializeField] private float detectRange = 8.0f;
+    [SerializeField] private float attackRange = 1.2f;
+    [SerializeField] private int attackDamage = 1;
+
+    [Header("Combat Settings")]
+    [SerializeField] private float attackRate = 1.5f;
+    [SerializeField] private float attackAfterDelay = 1.0f;
+    [SerializeField] private Vector2 rangeCenterOffset;
+
+    [Header("Wall Slam Pattern")]
+    [SerializeField] private float phaseTwoRatio = 0.5f; // 체력 50%
+    [SerializeField] private float wallPatternCooldown = 8.0f;
+    [SerializeField] private float jumpSpeed = 10.0f;
+    [SerializeField] private float slamSpeed = 15.0f;
+    [SerializeField] private float clingDuration = 1.0f;
+    [SerializeField] private Transform[] wallPoints;
 
     [Header("References")]
-    public Transform wallPoint;       
-    public Transform groundPoint;     
-    public GameObject projectilePrefab; 
-    public Transform firePoint;       
-
-    // ★ [수정] EnemyHealth 대신 BossController 참조
-    private BossController bossController; 
-    private Rigidbody2D rb;
+    private Transform player;
     private Animator anim;
-    
-    private bool isPhaseTwo = false;  
-    private bool isClinging = false;  
+    private Rigidbody2D rb;
+    private SpriteRenderer spriteRenderer;
+
+    // ★ [수정 1] EnemyHealth 대신 BossController를 참조
+    private BossController bossController; 
+
+    // 상태 변수
+    private bool isAttacking = false; 
+    private bool isSpecialAttacking = false; 
+    private float nextAttackTime = 0f;
+    private float nextWallPatternTime = 0f;
+    private Vector3 originalScale;
 
     private void Awake()
     {
-        // ★ 같은 오브젝트에 있는 BossController 가져오기
-        bossController = GetComponent<BossController>();
-        rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        originalScale = transform.localScale;
+
+        // ★ [수정 2] 같은 오브젝트에 있는 BossController 가져오기
+        bossController = GetComponent<BossController>();
+    }
+
+    private void Start()
+    {
+        GameObject p = GameObject.FindGameObjectWithTag("Player");
+        if (p != null) player = p.transform;
+        
+        // 시작하자마자 패턴 안 나오게 쿨타임 주기
+        nextWallPatternTime = Time.time + 3.0f;
     }
 
     private void Update()
     {
-        // 예외 처리: 보스 컨트롤러가 없거나 이미 죽었거나 벽에 붙어있으면 패스
-        if (bossController == null || isClinging || bossController.IsDead()) return;
-
-        // ★ [수정] BossController의 체력을 확인 (Getter 함수 필요)
-        // 체력이 50% 이하고, 아직 2페이즈를 안 했다면?
-        if (!isPhaseTwo && bossController.GetCurrentHealth() <= (bossController.maxHealth * 0.5f))
-        {
-            StartCoroutine(StartWallPhase());
-        }
-        else
-        {
-            // (1페이즈 로직...)
-        }
-    }
-
-    IEnumerator StartWallPhase()
-    {
-        isPhaseTwo = true; 
-        isClinging = true; 
-
-        Debug.Log("보스: 2페이즈 시작! 벽으로 이동!");
-        anim.SetTrigger("Move"); 
-
-        // ★ [수정] 거리 오차 범위를 0.1f로 줄이고, 타임아웃(안전장치) 추가
-        //float timeLimit = 5.0f; // 5초 안에 못 가면 강제 이동
-        float timer = 0f;
-
-        // ★ [수정 1] Z축 문제 방지를 위해 Vector2로 거리 계산
-        // 혹시 벽 포인트 Z값이 보스랑 다르면 평생 도착 못할 수도 있음
-        while (Vector2.Distance(transform.position, wallPoint.position) > 0.1f) // 0.5f -> 0.1f로 정밀하게
-        {
-            // 이동
-            transform.position = Vector2.MoveTowards(transform.position, wallPoint.position, moveSpeed * Time.deltaTime);
-            timer += Time.deltaTime;
-            yield return null;
-        }
-
-        // ★ [핵심 해결책] 반복문이 끝났다는 건 거의 다 왔다는 뜻.
-        // 하지만 미세하게 떨어져 있을 수 있으니, 강제로 좌표를 덮어씌워서 "딱 붙게" 만듭니다.
-        transform.position = wallPoint.position;
-        // 2. 벽 부착
-        Debug.Log("보스: 벽 부착!");
-        // 리지드바디 끄기 (중력 무시)
-        rb.linearVelocity = Vector2.zero; // 혹시 움직이던 관성 제거
-        rb.bodyType = RigidbodyType2D.Static; 
+        if (player == null || isSpecialAttacking) return;
         
-        // ★ [애니메이션] 벽 타는 모션 실행
-        // 애니메이터에 "IsWallCling"이라는 Bool 파라미터를 만들고,
-        // 벽에 매달려있는 애니메이션(WallCling_Idle)과 연결해야 합니다.
-        anim.SetBool("IsWallCling", true);    
+        // ★ [추가] 보스가 죽었으면(HP 0) 패턴 중지
+        if (bossController != null && bossController.GetCurrentHealth() <= 0) return;
 
-        // 3. 공격 루프
-        for (int i = 0; i < projectileCount; i++)
+        Vector2 centerPos = (Vector2)transform.position + rangeCenterOffset;
+        float distanceToPlayer = Vector2.Distance(centerPos, player.position);
+
+        // ====================================================
+        // ★ [수정 3] BossController에게 체력 비율 물어보기
+        // ====================================================
+        bool isPhaseTwo = false;
+        if (bossController != null)
         {
-            yield return new WaitForSeconds(wallAttackRate);
-            
-            anim.SetTrigger("Attack"); 
-            Debug.Log("보스: 하단 공격!");
-
-            if (projectilePrefab != null)
+            // 방금 만든 함수 호출
+            if (bossController.GetHealthPercentage() <= phaseTwoRatio)
             {
-                Instantiate(projectilePrefab, firePoint.position, Quaternion.Euler(0, 0, -90));
+                isPhaseTwo = true;
             }
         }
 
-        yield return new WaitForSeconds(1f); 
-
-        // 4. 복귀
-        Debug.Log("보스: 패턴 종료, 복귀.");
-        rb.bodyType = RigidbodyType2D.Dynamic; 
-        
-        // ★ 벽 타기 모션 해제
-        anim.SetBool("IsWallCling", false);
-        
-        while (Vector2.Distance(transform.position, groundPoint.position) > 1f)
+        // 2페이즈 진입 & 쿨타임 완료 시 특수 패턴
+        if (isPhaseTwo && Time.time >= nextWallPatternTime)
         {
-             transform.position = Vector2.MoveTowards(transform.position, groundPoint.position, moveSpeed * 2 * Time.deltaTime);
-             yield return null;
+            StartCoroutine(WallSlamRoutine());
+            return; 
         }
 
-        isClinging = false; 
+        // --- 기본 추적 및 공격 로직 ---
+        if (distanceToPlayer <= attackRange)
+        {
+            AttackPlayer();
+        }
+        else if (distanceToPlayer <= detectRange && !isAttacking)
+        {
+            ChasePlayer();
+        }
+        else
+        {
+            StopMoving();
+        }
+    }
+
+    // ... (WallSlamRoutine, AttackRoutine 등 나머지 로직은 완벽히 동일) ...
+    
+    // ★ [수정 4] 데미지 주는 함수 (BossController도 TakeDamage가 있으니 그거 써도 되지만, 
+    // 여기서는 플레이어를 때리는 거니까 그대로 둠)
+    private void DealAreaDamage(float range)
+    {
+        Vector2 centerPos = (Vector2)transform.position + rangeCenterOffset;
+        if (Vector2.Distance(centerPos, player.position) <= range)
+        {
+            player.GetComponent<PlayerStats>()?.TakeDamage(attackDamage, transform);
+        }
+    }
+    
+    // ... (나머지 이동/애니메이션 함수들 그대로 유지) ...
+    
+    private IEnumerator WallSlamRoutine()
+    {
+        isSpecialAttacking = true; 
+        rb.linearVelocity = Vector2.zero;
+        rb.bodyType = RigidbodyType2D.Kinematic; 
+        anim.SetTrigger("Jump"); 
+
+        Transform targetWall = wallPoints[Random.Range(0, wallPoints.Length)];
+        
+        // 벽으로 이동
+        while (Vector2.Distance(transform.position, targetWall.position) > 0.5f)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, targetWall.position, jumpSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        anim.SetBool("WallCling", true);
+        FlipTowards(player.position);
+        yield return new WaitForSeconds(clingDuration);
+
+        Vector3 slamTarget = player.position;
+        anim.SetBool("WallCling", false);
+        anim.SetTrigger("Slam"); 
+
+        // 내려찍기
+        while (Vector2.Distance(transform.position, slamTarget) > 0.5f)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, slamTarget, slamSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        DealAreaDamage(attackRange * 2.0f); 
+
+        yield return new WaitForSeconds(attackAfterDelay);
+
+        rb.bodyType = RigidbodyType2D.Dynamic; 
+        nextWallPatternTime = Time.time + wallPatternCooldown; 
+        isSpecialAttacking = false; 
+    }
+
+    private void ChasePlayer()
+    {
+        Vector2 direction = (player.position - transform.position).normalized;
+        rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
+        anim.SetBool("Walk", true);
+        FlipTowards(player.position);
+    }
+
+    private void StopMoving()
+    {
+        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+        anim.SetBool("Walk", false);
+    }
+
+    private void FlipTowards(Vector3 target)
+    {
+        if (target.x > transform.position.x)
+            transform.localScale = new Vector3(Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
+        else
+            transform.localScale = new Vector3(-Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
+    }
+
+    private void AttackPlayer()
+    {
+        StopMoving();
+        if (Time.time >= nextAttackTime && !isAttacking)
+        {
+            isAttacking = true;
+            nextAttackTime = Time.time + attackRate;
+            anim.SetTrigger("Attack1");
+            StartCoroutine(AttackRoutine());
+        }
+    }
+
+    private IEnumerator AttackRoutine()
+    {
+        yield return new WaitForSeconds(0.2f); 
+        DealAreaDamage(attackRange);           
+        yield return new WaitForSeconds(attackAfterDelay); 
+        isAttacking = false;
+    }
+    
+    private void OnDrawGizmosSelected()
+    {
+        Vector2 centerPos = (Vector2)transform.position + rangeCenterOffset;
+        Gizmos.color = Color.yellow; Gizmos.DrawWireSphere(centerPos, detectRange);
+        Gizmos.color = Color.red;    Gizmos.DrawWireSphere(centerPos, attackRange);
+        if(wallPoints != null) {
+            Gizmos.color = Color.cyan;
+            foreach(var wall in wallPoints) if(wall != null) Gizmos.DrawWireSphere(wall.position, 0.5f);
+        }
     }
 }

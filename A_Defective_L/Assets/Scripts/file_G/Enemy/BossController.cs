@@ -216,4 +216,12 @@ public class BossController : MonoBehaviour
     {
         return currentHealth <= 0;
     }
+    // BossController.cs 안의 맨 아래쪽에 추가해주세요
+
+    // ★ [추가] 현재 체력 비율 반환 (0.0 ~ 1.0)
+    public float GetHealthPercentage()
+    {
+        if (maxHealth == 0) return 0;
+        return (float)currentHealth / (float)maxHealth;
+    }
 }

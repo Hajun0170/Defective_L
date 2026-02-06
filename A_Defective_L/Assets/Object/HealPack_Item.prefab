@@ -98,6 +98,7 @@ GameObject:
   - component: {fileID: 7765360097746970267}
   - component: {fileID: 97069071306774056}
   - component: {fileID: 1345210941212761417}
+  - component: {fileID: -5702954216833289912}
   m_Layer: 0
   m_Name: HealPack_Item
   m_TagString: Untagged
@@ -183,7 +184,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1185708455469226770}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71711dda9a0c4ed449455ad49074d375, type: 3}
   m_Name: 
@@ -292,3 +293,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &-5702954216833289912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1185708455469226770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 041a72bf5a698c547bddf5c2f74f5408, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemID: 
+  type: 1
+  amount: 1
+  pickupEffect: {fileID: 0}

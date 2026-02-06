@@ -3318,11 +3318,13 @@ MonoBehaviour:
   knockbackForce: 10
   stunTime: 0.3
   isBoss: 0
+  uniqueID: 
   dropItemPrefab: {fileID: 2030181104715743092, guid: 9e44e85e8bc500c438667e2526c5d29b, type: 3}
   deathEffectPrefab: {fileID: 1163049381363031496, guid: cfc95ed90f542474282f18e01ec1d03a, type: 3}
   spawnOffset: {x: 0, y: 1}
   dropWeapon: {fileID: 0}
   deathSound: {fileID: 0}
+  directRewardPanel: {fileID: 0}
 --- !u!50 &28109243
 Rigidbody2D:
   serializedVersion: 5
@@ -3680,7 +3682,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: " \uC2A4\uD0AC \uC0AC\uC6A9\n      Z"
+  m_text: " \uC2A4\uD0AC \uC0AC\uC6A9\n      X"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9a78bb1ca5e2d5a4088e3907ecc03d5a, type: 2}
   m_sharedMaterial: {fileID: -4310728312932255727, guid: 9a78bb1ca5e2d5a4088e3907ecc03d5a, type: 2}
@@ -14896,11 +14898,13 @@ MonoBehaviour:
   knockbackForce: 10
   stunTime: 0.3
   isBoss: 0
+  uniqueID: 
   dropItemPrefab: {fileID: 2030181104715743092, guid: 9e44e85e8bc500c438667e2526c5d29b, type: 3}
   deathEffectPrefab: {fileID: 1163049381363031496, guid: cfc95ed90f542474282f18e01ec1d03a, type: 3}
   spawnOffset: {x: 0, y: 1}
   dropWeapon: {fileID: 0}
   deathSound: {fileID: 0}
+  directRewardPanel: {fileID: 0}
 --- !u!50 &1872262237
 Rigidbody2D:
   serializedVersion: 5

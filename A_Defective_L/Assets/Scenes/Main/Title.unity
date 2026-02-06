@@ -4697,6 +4697,7 @@ MonoBehaviour:
     collectedItems: []
     equippedMeleeIndex: 0
     equippedRangedIndex: 0
+    hasWeapons: 0000000000000000000000000000000000000000
   nextSpawnPointID: 0
 --- !u!4 &1407664558
 Transform:
