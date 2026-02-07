@@ -22,8 +22,21 @@ public class UpgradeManager : MonoBehaviour
     // 패널이 켜질 때마다 실행됨
     private void OnEnable()
     {
-        currentIdx = 0; // 0번 무기부터 보여주기
-        UpdateUI();
+       // 안전장치: 데이터가 없으면 종료
+        if (DataManager.Instance == null || allWeapons.Length == 0) return;
+
+        // 우선 0번부터 시작해서
+        currentIdx = 0;
+        
+        // 만약 0번 무기가 없다면, 있을 때까지 다음으로 넘김
+        if (!DataManager.Instance.currentData.hasWeapons[currentIdx])
+        {
+            ClickChangeWeapon(1); 
+        }
+        else
+        {
+            UpdateUI();
+        }
     }
 
     private void Update()
@@ -62,8 +75,8 @@ public class UpgradeManager : MonoBehaviour
 
         if (currentLvl >= maxLevel)
         {
-            levelText.text = $"Lv.MAX";
-            statusText.text = $"{currentDmg} (최대)";
+            levelText.text = $"MAX";
+            statusText.text = $"{currentDmg}:MAX";
             costText.text = "-";
             upgradeButton.interactable = false; // 최대 레벨이면 버튼 비활성
         }
@@ -106,13 +119,32 @@ public class UpgradeManager : MonoBehaviour
     // [버튼 연결] 다음/이전 무기 보기
     public void ClickChangeWeapon(int direction) // +1 또는 -1
     {
-        currentIdx += direction;
+        int loopCount = 0; // 무한 루프 방지용 안전장치
+        int totalWeapons = allWeapons.Length;
 
-        // 범위 넘어가면 순환시키기
-        if (currentIdx >= allWeapons.Length) currentIdx = 0;
-        if (currentIdx < 0) currentIdx = allWeapons.Length - 1;
+        // "가진 무기"가 나올 때까지 반복해서 넘김
+        while (loopCount < totalWeapons)
+        {
+            currentIdx += direction;
 
-        UpdateUI();
+            // 범위 순환
+            if (currentIdx >= totalWeapons) currentIdx = 0;
+            if (currentIdx < 0) currentIdx = totalWeapons - 1;
+
+            // ★ 데이터 매니저 확인: 내가 이 무기를 가지고 있나?
+            if (DataManager.Instance.currentData.hasWeapons[currentIdx])
+            {
+                // 가지고 있으면 UI 갱신하고 종료
+                UpdateUI();
+                return;
+            }
+
+            // 안 가지고 있으면 while문이 다시 돌면서 다음 인덱스로 넘어감
+            loopCount++;
+        }
+
+        // 여기까지 왔으면 가진 무기가 하나도 없다는 뜻 (혹은 에러)
+        Debug.Log("소지한 무기가 없습니다.");
     }
 
     // [버튼 연결] 닫기

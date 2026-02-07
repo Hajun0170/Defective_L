@@ -94,7 +94,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5083117840817236220}
   - component: {fileID: 1641315576371983635}
-  - component: {fileID: 362808324734039850}
   - component: {fileID: 7765360097746970267}
   - component: {fileID: 97069071306774056}
   - component: {fileID: 1345210941212761417}
@@ -177,22 +176,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &362808324734039850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1185708455469226770}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71711dda9a0c4ed449455ad49074d375, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemType: 0
-  itemID: 1
-  amount: 1
-  pickupEffect: {fileID: 8690950337773083281, guid: 803b96fa8ebd5a749bdf32bd0e553139, type: 3}
 --- !u!58 &7765360097746970267
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -308,4 +291,4 @@ MonoBehaviour:
   itemID: 
   type: 1
   amount: 1
-  pickupEffect: {fileID: 0}
+  pickupEffect: {fileID: 8690950337773083281, guid: 803b96fa8ebd5a749bdf32bd0e553139, type: 3}

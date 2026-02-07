@@ -143,7 +143,11 @@ public class BossBattleManager : MonoBehaviour
         else
         {
             // 스킬 UI가 없으면 바로 문 염
-            CloseAbilityPanel();
+           // CloseAbilityPanel();
+
+           // ★ [수정] 패널이 없으면 '닫기 함수'를 부르는 게 아니라
+            // 바로 문 여는 시퀀스를 시작합니다.
+            StartCoroutine(EndBattleSequence());
         }
     }
 

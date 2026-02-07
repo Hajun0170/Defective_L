@@ -13,11 +13,11 @@ GameObject:
   - component: {fileID: 889465645572127056}
   - component: {fileID: 1508077581044575448}
   - component: {fileID: 1392273341469578745}
-  - component: {fileID: 5096341626721657110}
   - component: {fileID: 4313873389138107362}
   - component: {fileID: 6744767828669284206}
   - component: {fileID: 900370855955059107}
   - component: {fileID: 7427113882401116410}
+  - component: {fileID: 7551470302223313813}
   m_Layer: 3
   m_Name: player
   m_TagString: Player
@@ -161,6 +161,8 @@ MonoBehaviour:
   wallJumpPower: {x: 1, y: 10}
   dodgeEffectPrefab: {fileID: 5064969817289113816, guid: ad8b018c5f03f994b9638c6781d948c2, type: 3}
   dodgeEffectOffset: {x: 0, y: 1.2}
+  footstepSound: {fileID: 0}
+  footstepRate: 0.4
 --- !u!114 &1392273341469578745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,24 +182,13 @@ MonoBehaviour:
   maxTickets: 3
   swapBuffMultiplier: 1.5
   swapBuffDuration: 3
+  hitSound: {fileID: 0}
+  healSound: {fileID: 0}
+  deathSound: {fileID: 0}
+  potionCapacity: 1
+  currentPotions: 0
   healAmountPerKit: 3
---- !u!114 &5096341626721657110
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 882267536704770672}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d43ceb056f61334899184a660aa6d9d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  equippedMelee:
-  - {fileID: 11400000, guid: 433c91eef3abaf34c851cc53bfd00e4e, type: 2}
-  equippedRanged:
-  - {fileID: 11400000, guid: f1495153dc6fbb040a6c7a88c6631311, type: 2}
-  - {fileID: 11400000, guid: 5ac2fe6d46036c44c9d51787386bf853, type: 2}
+  currentGold: 0
 --- !u!114 &4313873389138107362
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,6 +276,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCollider: {fileID: 900370855955059107}
+--- !u!114 &7551470302223313813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 882267536704770672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d43ceb056f61334899184a660aa6d9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equippedMelee: []
+  equippedRanged: []
+  allGameWeapons:
+  - {fileID: 11400000, guid: 433c91eef3abaf34c851cc53bfd00e4e, type: 2}
+  - {fileID: 11400000, guid: b95df918434571740907e9a5964973b7, type: 2}
+  - {fileID: 11400000, guid: ba25801282e7e8e4680fed50820345ef, type: 2}
+  - {fileID: 11400000, guid: 5ac2fe6d46036c44c9d51787386bf853, type: 2}
+  - {fileID: 11400000, guid: f1495153dc6fbb040a6c7a88c6631311, type: 2}
+  - {fileID: 11400000, guid: c03776dfc7f283247ad46471a6bd9daa, type: 2}
 --- !u!1 &1721626093477348619
 GameObject:
   m_ObjectHideFlags: 0

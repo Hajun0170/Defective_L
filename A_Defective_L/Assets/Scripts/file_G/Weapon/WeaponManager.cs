@@ -22,6 +22,10 @@ public class WeaponManager : MonoBehaviour
     // ★ [추가] 애니메이터를 제어하기 위해 변수 추가
     private Animator anim;
 
+    [Header("All Game Weapons (게임의 모든 무기 등록!)")]
+    // ★ 인스펙터에서 게임에 존재하는 모든 무기(ScriptableObject)를 순서대로(ID순) 넣으세요.
+    public Weapon[] allGameWeapons;
+
     private void Awake()
     {
         playerAttack = GetComponent<PlayerAttack>();
@@ -34,15 +38,34 @@ public class WeaponManager : MonoBehaviour
 
     private void Start()
     {
+
+        // 1. 리스트 초기화
+        equippedMelee.Clear();
+        equippedRanged.Clear();
+
+         LoadWeaponsFromData();
+
        // ★ [핵심] 씬이 시작될 때 DataManager에서 저장된 무기 번호 불러오기
         if (DataManager.Instance != null)
         {
             currentMeleeIndex = DataManager.Instance.currentData.equippedMeleeIndex;
             currentRangedIndex = DataManager.Instance.currentData.equippedRangedIndex;
-        
+
+            // ★ [수정] 무기가 하나라도 있을 때만 Clamp (범위 제한)
+            if (equippedMelee.Count > 0)
+                currentMeleeIndex = Mathf.Clamp(currentMeleeIndex, 0, equippedMelee.Count - 1);
+            else
+                currentMeleeIndex = -1; // 없으면 -1
+
+            if (equippedRanged.Count > 0)
+                currentRangedIndex = Mathf.Clamp(currentRangedIndex, 0, equippedRanged.Count - 1);
+            else
+                currentRangedIndex = -1;
+            /*
             // 인덱스가 범위를 벗어나지 않게 안전 장치
             currentMeleeIndex = Mathf.Clamp(currentMeleeIndex, 0, equippedMelee.Count - 1);
             currentRangedIndex = Mathf.Clamp(currentRangedIndex, 0, equippedRanged.Count - 1);
+            */       
         }
 
         EquipWeapons(); // 초기 무기 실장착
@@ -128,7 +151,8 @@ public class WeaponManager : MonoBehaviour
 
     private void EquipWeapons()
     {
-        if (equippedMelee.Count > 0) {
+        /*
+        if (equippedMelee.Count > 0 ) {
             playerAttack.meleeWeapon = equippedMelee[currentMeleeIndex];
             
             // 2. ★ [추가] 근접 무기에 오버라이드 컨트롤러가 있다면 교체!
@@ -137,6 +161,31 @@ public class WeaponManager : MonoBehaviour
 
             }
         if (equippedRanged.Count > 0) playerAttack.rangedWeapon = equippedRanged[currentRangedIndex];
+        */
+        // 1. 근거리 무기 장착 처리
+        if (equippedMelee.Count > 0 && currentMeleeIndex >= 0 && currentMeleeIndex < equippedMelee.Count)
+        {
+            Weapon currentWeapon = equippedMelee[currentMeleeIndex];
+            playerAttack.meleeWeapon = currentWeapon;
+            
+            // ★ [유지] 애니메이터 교체 (무기 있을 때만!)
+            UpdateAnimationController(currentWeapon);
+        }
+        else
+        {
+            // 무기 없으면 슬롯 비우기
+            playerAttack.meleeWeapon = null;
+        }
+
+        // 2. 원거리 무기 장착 처리
+        if (equippedRanged.Count > 0 && currentRangedIndex >= 0 && currentRangedIndex < equippedRanged.Count)
+        {
+            playerAttack.rangedWeapon = equippedRanged[currentRangedIndex];
+        }
+        else
+        {
+            playerAttack.rangedWeapon = null;
+        }
     }
 
     // ★ [새로 만듦] 애니메이터 교체 및 새로고침 함수
@@ -269,4 +318,24 @@ public class WeaponManager : MonoBehaviour
         Debug.Log($"⚔️ 무기 장착 완료: {newWeapon.weaponName}");
     }
     
+    private void LoadWeaponsFromData()
+    {
+        if (DataManager.Instance == null) return;
+
+        bool[] hasWeapons = DataManager.Instance.currentData.hasWeapons;
+
+        // 전체 무기를 훑으면서
+        for (int i = 0; i < allGameWeapons.Length; i++)
+        {
+            // 만약 i번 무기를 가지고 있다면? (hasWeapons[i] == true)
+            if (i < hasWeapons.Length && hasWeapons[i]) 
+            {
+                Weapon w = allGameWeapons[i];
+                
+                // 타입에 맞춰 리스트에 추가
+                if (w.type == WeaponType.Melee) equippedMelee.Add(w);
+                else equippedRanged.Add(w);
+            }
+        }
+    }
 }

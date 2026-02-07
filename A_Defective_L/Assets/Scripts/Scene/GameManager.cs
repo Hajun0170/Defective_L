@@ -6,7 +6,8 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public bool IsCutscene { get; private set; } = false;
+    //public bool IsCutscene { get; private set; } = false;
+    public bool IsCutscene { get; set; }
     public Vector2 NextSpawnPoint { get; set; }
 
     public int storedHealth = 5;

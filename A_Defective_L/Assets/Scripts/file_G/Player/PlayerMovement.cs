@@ -399,4 +399,18 @@ private IEnumerator WallJumpCoroutine()
 
     isWallJumping = false; // 이동 허용
 }
+// PlayerMovement.cs 안에 추가
+// ★ 이 함수를 추가해야 승강기에서 호출할 수 있습니다.
+    public void StopImmediately()
+    {
+        // rb는 Rigidbody2D 변수 이름입니다. 
+        // 만약 변수 이름이 rigid나 rBody라면 그 이름에 맞춰주세요.
+        if (GetComponent<Rigidbody2D>() != null)
+        {
+            GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
+        }
+        
+        // 혹시 걷기 입력값 변수가 있다면 0으로 초기화 (선택사항)
+        // moveInput = 0; 
+    }
 }

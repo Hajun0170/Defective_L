@@ -12956,12 +12956,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d43ceb056f61334899184a660aa6d9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  equippedMelee:
-  - {fileID: 0}
-  - {fileID: 0}
-  equippedRanged:
-  - {fileID: 0}
-  - {fileID: 0}
+  equippedMelee: []
+  equippedRanged: []
+  allGameWeapons:
+  - {fileID: 11400000, guid: 433c91eef3abaf34c851cc53bfd00e4e, type: 2}
+  - {fileID: 11400000, guid: b95df918434571740907e9a5964973b7, type: 2}
+  - {fileID: 11400000, guid: ba25801282e7e8e4680fed50820345ef, type: 2}
+  - {fileID: 11400000, guid: 5ac2fe6d46036c44c9d51787386bf853, type: 2}
+  - {fileID: 11400000, guid: f1495153dc6fbb040a6c7a88c6631311, type: 2}
+  - {fileID: 11400000, guid: c03776dfc7f283247ad46471a6bd9daa, type: 2}
 --- !u!114 &1026942818
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -37,6 +37,7 @@ void Start()
 
             // ★ 1. 들어오면 화살표 띄우기
             if (interactionUI != null) interactionUI.SetActive(true);
+            if (interactionUI2 != null) interactionUI2.SetActive(true); // ★ 추가
 
             // ★ 2. 상태 초기화 (다시 들어오면 저장부터 하게)
             hasSaved = false;
@@ -60,7 +61,8 @@ void Start()
             }
 
              if (interactionUI != null) interactionUI.SetActive(false);
-              if (interactionUI != null) interactionUI2.SetActive(false);
+              if (interactionUI2 != null) interactionUI2.SetActive(false);
+              
         }
     }
 
@@ -104,8 +106,9 @@ void Start()
             // 2. [동기화] ★ 핵심 추가!
             // 회복된 체력뿐만 아니라, 그동안 모은 돈(Gold), 최대 체력(MaxHP) 등
             // 모든 정보를 DataManager에 최신 상태로 밀어 넣습니다.
-            playerStats.SaveStatsToManager();
-
+            // playerStats.SaveStatsToManager();
+            playerStats.RestAtShelter(); // ★ 이걸로 바꾸세요!
+            
             // 3. [파일 저장]
             // DataManager에 있는 최신 정보를 하드디스크(파일)에 기록
             if (DataManager.Instance != null)

@@ -35,6 +35,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Main/Field/Stage2_Boss.unity
     guid: adc056a572794e742a29a8dab6476433
+  - enabled: 1
+    path: Assets/Scenes/Main/Field/Scene_Ending.unity
+    guid: e833d3d168efd3346886c2a032b5ded5
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

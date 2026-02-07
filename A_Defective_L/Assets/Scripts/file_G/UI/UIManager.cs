@@ -76,6 +76,13 @@ public class UIManager : MonoBehaviour
     public UnityEngine.UI.Image rewardIcon; // 아이콘 이미지
     public TMPro.TMP_Text rewardName; // 이름 텍스트
     
+    [Header("Key Hints Options")]
+    // ★ 인스펙터에서 키 도움말 이미지들을 싹 다 넣으세요 (공격키 아이콘, 점프키 아이콘 등)
+    // 혹은 부모 오브젝트 하나만 넣어도 됩니다.
+    public GameObject[] keyHintObjects; 
+
+    // 옵션 UI에 있는 토글(체크박스)도 연결 (옵션창 열 때 현재 상태 반영용)
+    public UnityEngine.UI.Toggle keyHintToggle;
 
     // 내부 변수들
     List<Resolution> resolutions = new List<Resolution>();
@@ -96,6 +103,22 @@ public class UIManager : MonoBehaviour
     {
         InitVideoSettings(); // ★ 시작할 때 해상도 목록 채우기
         InitAudioUI();       // ★ 슬라이더 위치 초기화
+
+        // 게임 시작 시 저장된 설정대로 초기화
+        if (DataManager.Instance != null)
+        {
+            bool isShown = DataManager.Instance.currentData.showKeyHints;
+            ApplyKeyHintSetting(isShown);
+
+            // 옵션 창의 체크박스 상태도 데이터와 맞춰줌
+            if (keyHintToggle != null) 
+            {
+                keyHintToggle.isOn = isShown;
+                
+                // ★ 토글에 이벤트 리스너 자동 연결 (클릭 시 함수 호출)
+                keyHintToggle.onValueChanged.AddListener(OnKeyHintToggleChanged);
+            }
+        }
     }
 
     // ====================================================
@@ -513,5 +536,28 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 1; // 게임 재개
     }
     
-    
+    // ★ 토글(체크박스)을 눌렀을 때 호출될 함수
+    public void OnKeyHintToggleChanged(bool isOn)
+    {
+        // 1. 데이터 변경 및 저장
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.currentData.showKeyHints = isOn;
+            DataManager.Instance.SaveDataToDisk();
+        }
+
+        // 2. 화면 갱신
+        ApplyKeyHintSetting(isOn);
+    }
+
+    // 실제 오브젝트를 껐다 켜는 함수
+    private void ApplyKeyHintSetting(bool isShown)
+    {
+        if (keyHintObjects == null) return;
+
+        foreach (GameObject obj in keyHintObjects)
+        {
+            if (obj != null) obj.SetActive(isShown);
+        }
+    }
 }

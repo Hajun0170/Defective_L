@@ -49,5 +49,8 @@ public class SaveData
 
     // 무기 획득 여부를 저장하는 배열 (0번 무기 먹었니? 1번 먹었니?)
     public bool[] hasWeapons = new bool[20];
+
+    // ★ [추가] 조작키 표시 여부 (기본값: true 또는 false)
+    public bool showKeyHints = false;
     
 }

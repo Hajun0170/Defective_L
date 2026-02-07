@@ -278,18 +278,22 @@ public class PlayerStats : MonoBehaviour
     }
 
     // --- 유틸리티 ---
+   // [수정] UI 업데이트 시 로컬 변수 동기화
     private void UpdateAllUI()
     {
-        if (UIManager.Instance != null)
+        if (UIManager.Instance != null && DataManager.Instance != null)
         {
-            UIManager.Instance.UpdateHealth(currentHealth, maxHealth);
+            // ★ UI 그리기 전에 로컬 변수를 매니저 값으로 덮어쓰기 (안전장치)
+            potionCapacity = DataManager.Instance.currentData.potionCapacity;
+            currentPotions = DataManager.Instance.currentData.currentPotions;
+            currentGold = DataManager.Instance.currentData.gold;
 
+            UIManager.Instance.UpdateHealth(currentHealth, maxHealth);
             UIManager.Instance.UpdateGauge(currentGauge, maxGauge);
             UIManager.Instance.UpdateTickets(currentTickets);
-            // 포션 UI 갱신
-            UIManager.Instance.UpdatePotionUI(
-                DataManager.Instance.currentData.currentPotions, 
-                DataManager.Instance.currentData.potionCapacity);
+            
+            // 포션 UI
+            UIManager.Instance.UpdatePotionUI(currentPotions, potionCapacity);
         }
     }
     
@@ -353,17 +357,41 @@ public class PlayerStats : MonoBehaviour
 {
     currentHealth = maxHealth; // 체력 최대치로
     
+    /*
     // UI 갱신 (이미 연결되어 있다면)
     if (UIManager.Instance != null)
     {
       // 최대 용량(potionCapacity)만큼 현재 개수(currentPotions)를 채움
         DataManager.Instance.currentData.currentPotions = DataManager.Instance.currentData.potionCapacity;
     }
+    */
 
     // (3) UI 및 데이터 갱신
     SyncDataToManager(); // 변경된 체력을 데이터 매니저에 즉시 반영
     UpdateAllUI();       // 체력바, 포션UI 등 모든 UI 갱신
 }
+
+// ★ [신규] 쉼터에서 호출할 함수 (체력 + 포션 모두 리필)
+    public void RestAtShelter()
+    {
+        // 1. 체력 완충
+        currentHealth = maxHealth;
+
+        // 2. 포션 완충 (DataManager 값 이용)
+        if (DataManager.Instance != null)
+        {
+            // 용량만큼 현재 개수 채우기
+            DataManager.Instance.currentData.currentPotions = DataManager.Instance.currentData.potionCapacity;
+            
+            // 로컬 변수도 싱크 맞추기 (중요)
+            currentPotions = DataManager.Instance.currentData.currentPotions;
+        }
+
+        SyncDataToManager();
+        UpdateAllUI();
+        
+        Debug.Log("💤 쉼터 휴식 완료: 체력/포션 모두 회복!");
+    }
 
 // 1. 회복 키트 사용
     void UsePotion()
@@ -403,6 +431,7 @@ public class PlayerStats : MonoBehaviour
     // 3. 키트 소지 한도 증가 아이템 획득 시 호출
     public void UpgradePotionCapacity()
     {
+        /*
         DataManager.Instance.currentData.potionCapacity++;
 
         // ★ 늘어난 용량을 즉시 저장
@@ -414,6 +443,20 @@ public class PlayerStats : MonoBehaviour
         
         UpdateAllUI();
         Debug.Log($"키트 용량 증가! 최대: {DataManager.Instance.currentData.potionCapacity}");
+        */
+        // 1. 매니저 데이터 증가
+        if (DataManager.Instance != null)
+        {
+            DataManager.Instance.currentData.potionCapacity++;
+            DataManager.Instance.currentData.currentPotions++; // 얻자마자 하나 줌
+            
+            // ★ 2. 로컬 변수 즉시 동기화 (이게 빠져서 꼬였던 것!)
+            potionCapacity = DataManager.Instance.currentData.potionCapacity;
+            currentPotions = DataManager.Instance.currentData.currentPotions;
+        }
+
+        UpdateAllUI();
+        Debug.Log($"키트 용량 증가! 최대: {potionCapacity}");
     }
 
     // 3. 재화(골드) 획득

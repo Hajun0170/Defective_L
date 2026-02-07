@@ -6986,24 +6986,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: equippedMelee.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: equippedRanged.Array.size
-      value: 2
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
+      propertyPath: 'equippedMelee.Array.data[0]'
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: 'equippedMelee.Array.data[1]'
       value: 
-      objectReference: {fileID: 11400000, guid: b95df918434571740907e9a5964973b7, type: 2}
+      objectReference: {fileID: 0}
     - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: 'equippedRanged.Array.data[0]'
       value: 
-      objectReference: {fileID: 11400000, guid: 5ac2fe6d46036c44c9d51787386bf853, type: 2}
+      objectReference: {fileID: 0}
     - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: 'equippedRanged.Array.data[1]'
       value: 
-      objectReference: {fileID: 11400000, guid: f1495153dc6fbb040a6c7a88c6631311, type: 2}
+      objectReference: {fileID: 0}
     - target: {fileID: 6744767828669284206, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: m_Controller
       value: 

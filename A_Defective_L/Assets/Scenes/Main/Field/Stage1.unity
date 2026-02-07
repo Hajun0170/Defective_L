@@ -86278,26 +86278,38 @@ PrefabInstance:
       propertyPath: m_Name
       value: player
       objectReference: {fileID: 0}
+    - target: {fileID: 4313873389138107362, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
+      propertyPath: meleeWeapon
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4313873389138107362, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
+      propertyPath: rangedWeapon
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: equippedMelee.Array.size
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: equippedRanged.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: 'equippedMelee.Array.data[0]'
       value: 
-      objectReference: {fileID: 11400000, guid: b95df918434571740907e9a5964973b7, type: 2}
+      objectReference: {fileID: 0}
     - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: 'equippedMelee.Array.data[1]'
       value: 
-      objectReference: {fileID: 11400000, guid: 433c91eef3abaf34c851cc53bfd00e4e, type: 2}
+      objectReference: {fileID: 0}
     - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: 'equippedRanged.Array.data[0]'
       value: 
-      objectReference: {fileID: 11400000, guid: 5ac2fe6d46036c44c9d51787386bf853, type: 2}
+      objectReference: {fileID: 0}
+    - target: {fileID: 5096341626721657110, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
+      propertyPath: 'equippedRanged.Array.data[1]'
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8877745508595519808, guid: 741cc07a5cb36a6498add881140b0aae, type: 3}
       propertyPath: m_LocalPosition.x
       value: 261.74

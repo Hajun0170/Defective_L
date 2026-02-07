@@ -42,11 +42,36 @@ public class DataManager : MonoBehaviour
         currentData.maxHealth = 5;
         currentData.currentHealth = 5;
         currentData.currentGauge = 0;
+        currentData.currentPotions = 1;
+        currentData.potionCapacity = 1; // 기본 용량
+        currentData.gold = 0;
         currentData.shelterID = -1; // -1은 쉼터 방문 전이라는 뜻
+
+        currentData.hasWeapons = new bool[6]; 
+
+        // ★ [수정 3] 장착 슬롯을 -1 (없음)로 설정
+        // 0으로 두면 "0번 무기 내놔!" 하다가 에러 나거나 없는 무기를 쓰려고 합니다.
+        currentData.equippedMeleeIndex = -1;
+        currentData.equippedRangedIndex = -1;
 
         // ★ [중요] 보스 목록도 깨끗하게 초기화 (Null 에러 방지)
         currentData.defeatedBosses = new List<string>();
+         currentData.collectedItems = new List<string>();
         
+            // 스킬 초기화
+
+        currentData.hasSprint = false;
+
+        currentData.hasWallCling = false;
+
+        currentData.showKeyHints = false; // (선택) 초기 설정값
+
+           // 3. ★ 초기화된 상태를 파일로 '즉시 저장'해서 덮어씌움!
+
+        // 이걸 안 하면 LoadGame() 할 때 옛날 파일이 다시 로드될 수 있음
+
+        SaveDataToDisk();
+
         Debug.Log("새 게임 데이터 생성 완료!");
     }
 
