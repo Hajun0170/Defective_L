@@ -19,6 +19,9 @@ public class BossController : MonoBehaviour
     // 카메라 복귀용
     private Transform playerTransform; 
 
+    public bool isDead = false; // 사망 여부
+    public bool isIntroFinished = false; // 연출 끝났는지 여부 (없으면 추가)
+
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();

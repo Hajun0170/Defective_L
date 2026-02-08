@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3280478659209195466}
   - component: {fileID: 2338207803056722819}
   m_Layer: 0
-  m_Name: Gatlling_E_ver
+  m_Name: Gatlling_B_ver
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -186,7 +186,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!114 &3280478659209195466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,7 +211,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40767a1ee632fdd41a496fb89e00a967, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 16
+  speed: 20
   damage: 1
   lifeTime: 5
   hitEffect: {fileID: 8690950337773083281, guid: 803b96fa8ebd5a749bdf32bd0e553139, type: 3}

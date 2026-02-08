@@ -18,8 +18,8 @@ MonoBehaviour:
   icon: {fileID: 2372947517068079288, guid: 2aad2bc469c276744b723100ede7cd93, type: 3}
   type: 0
   projectilePrefab: {fileID: 0}
-  baseDamage: 4
-  damagePerLevel: 2
+  baseDamage: 5
+  damagePerLevel: 1
   overrideController: {fileID: 22100000, guid: 3ce18e066832f8048bb1a63abbd760af, type: 2}
   hitEffectPrefab: {fileID: 3831914920178570219, guid: 9fca20edd9d7ed043affbdc90b47115d, type: 3}
   hitSound: {fileID: 8300000, guid: c42b96c6e13835d4bbe22881780345d7, type: 3}

@@ -8,8 +8,18 @@ public class EnemyProjectile : MonoBehaviour
     public float lifeTime = 5f; // 너무 오래 날아가면 삭제
     public GameObject hitEffect; // 폭발 이펙트
 
+    [Header("Audio")] // ★ 소리 추가
+    public AudioClip spawnSound; // 인스펙터에 '뿅' 하는 소리 파일 넣기
+    public float soundVolume = 0.5f;
+
     private void Start()
-    {
+    {   
+        // 1. 소리 재생 (AudioSource 컴포넌트 없이도 1회성 재생 가능)
+        if (spawnSound != null)
+        {
+            AudioSource.PlayClipAtPoint(spawnSound, transform.position, soundVolume);
+        }
+        
         // 일정 시간 뒤 자동 삭제 (메모리 관리)
         Destroy(gameObject, lifeTime);
     }
