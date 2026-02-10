@@ -38,6 +38,11 @@ public class EnemyProjectile : MonoBehaviour
             PlayerStats player = collision.GetComponent<PlayerStats>();
             if (player != null)
             {
+                // ★ [핵심 수정] 플레이어가 무적 상태(회피 중)라면?
+                // 데미지도 주지 않고, 투사체도 파괴하지 않고, 여기서 코드 종료(return)!
+                // 결과적으로 투사체는 그냥 지나가게 됨
+                if (player.IsInvincible) return;
+                
                 // 플레이어에게 데미지 입힘 (공격자 transform 넘겨줌)
                 player.TakeDamage(damage, transform);
             }

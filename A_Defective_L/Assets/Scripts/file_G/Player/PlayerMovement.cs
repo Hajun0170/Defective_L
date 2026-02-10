@@ -43,8 +43,11 @@ private float wallJumpCounter; // 시간 계산용
     
     [Header("Audio")]
     public AudioClip footstepSound;
+
+    public AudioClip dashSound; // ★ [추가] 대시 사운드 (인스펙터에서 연결하세요!)
     public float footstepRate = 0.4f; // 0.4초마다 발소리
     private float nextFootstepTime;
+    public float SprintStepRate = 0.2f;
 
     // 내부 변수
     private Rigidbody2D rb;
@@ -86,15 +89,32 @@ private float wallJumpCounter; // 시간 계산용
         horizontalInput = Input.GetAxisRaw("Horizontal");
 
        // ★ [수정] 발소리 재생 부분 (Null 체크 추가)
-        if (isGrounded && Mathf.Abs(horizontalInput) > 0.1f && Time.time >= nextFootstepTime)
+       if (isGrounded && Mathf.Abs(horizontalInput) > 0.1f)
         {
-            // AudioManager가 살아있을 때만 재생!
-            if (AudioManager.Instance != null)
+            // 1. 현재 달리기(Sprint) 상태인지 확인
+            // 조건: 스프린트 능력 보유 + C키 누름
+            bool isSprinting = DataManager.Instance.currentData.hasSprint && Input.GetKey(KeyCode.C);
+
+            // 2. 상태에 따른 발소리 간격 결정
+            // 달리면 0.2초(빠름), 걸으면 0.4초(보통)
+            float currentStepRate = isSprinting ? SprintStepRate : footstepRate;
+
+            // 3. 시간 체크 및 소리 재생
+            if (Time.time >= nextFootstepTime)
             {
-                AudioManager.Instance.PlaySFX(footstepSound);
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlaySFX(footstepSound);
+                }
+                
+                // 다음 발소리 시간 갱신
+                nextFootstepTime = Time.time + currentStepRate;
             }
-            
-            nextFootstepTime = Time.time + footstepRate; 
+        }
+        else
+        {
+            // 멈춰있을 때는 즉시 소리가 날 준비를 함
+            nextFootstepTime = 0f;
         }
 
         // 2. 점프 (땅에 있을 때만)
@@ -190,8 +210,6 @@ private float wallJumpCounter; // 시간 계산용
         {
             currentSpeed = sprintSpeed;
             
-            // (선택) 잔상 이펙트를 남기거나 달리기 애니메이션 속도를 올림
-            // anim.SetFloat("RunMultiplier", 1.5f); 
         }
 
         // 실제 이동 적용
@@ -286,6 +304,12 @@ private float wallJumpCounter; // 시간 계산용
     {
         canDash = false;
         isDashing = true;
+
+        // ★ [수정] 대시 시작하자마자 소리 '딱 한 번' 재생
+        if (AudioManager.Instance != null && dashSound != null)
+        {
+            AudioManager.Instance.PlaySFX(dashSound); 
+        }
 
         // ★ [추가] 회피 이펙트 생성 로직
         // ====================================================

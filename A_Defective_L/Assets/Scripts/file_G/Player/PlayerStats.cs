@@ -22,6 +22,8 @@ public class PlayerStats : MonoBehaviour
     public float DamageMultiplier { get; private set; } = 1.0f;
 
     private bool isInvincible = false;
+    // ★ [추가] 외부(투사체)에서 무적 여부를 확인할 수 있게 읽기 전용으로 열어줌
+    public bool IsInvincible => isInvincible;
     private SpriteRenderer spriteRenderer;
 
     [Header("Swap Buff Settings")]

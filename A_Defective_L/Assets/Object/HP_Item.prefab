@@ -208,6 +208,7 @@ MonoBehaviour:
   type: 0
   amount: 1
   pickupEffect: {fileID: 8690950337773083281, guid: 803b96fa8ebd5a749bdf32bd0e553139, type: 3}
+  pickupSound: {fileID: 8300000, guid: 8ac0971a688744c14b0f0b2dd2635782, type: 3}
 --- !u!1 &6027849418940238598
 GameObject:
   m_ObjectHideFlags: 0

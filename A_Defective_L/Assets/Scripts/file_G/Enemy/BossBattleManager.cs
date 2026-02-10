@@ -136,9 +136,19 @@ public class BossBattleManager : MonoBehaviour
         // 스킬 해금 UI 표시
         if (abilityPanel != null)
         {
-            isRewardActive = true;
+
             abilityPanel.SetActive(true);
+
+            // ★ [수정] 바로 isRewardActive = true 하지 않음 (입력 잠금)
+            isRewardActive = false;
+
             Time.timeScale = 0;
+
+            // ★ 1초 대기 (TimeScale이 0이므로 Realtime 사용 필수!)
+            yield return new WaitForSecondsRealtime(1.0f);
+
+            // ★ 이제 입력 받기 시작
+            isRewardActive = true;
         }
         else
         {

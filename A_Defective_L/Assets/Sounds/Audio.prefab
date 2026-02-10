@@ -44,7 +44,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -309,7 +309,8 @@ MonoBehaviour:
   sfxGroup: {fileID: -1254177797459229179, guid: 31b8560e577848841a78a66a267db9c5, type: 2}
   bgmSource: {fileID: 7378264150530810962}
   sfxSource: {fileID: 7355658332648411890}
-  titleBGM: {fileID: 0}
-  prologueTheme: {fileID: 8300000, guid: 277c67e28a760a845b6e2982fb871d8a, type: 3}
-  stageBGM: {fileID: 0}
+  titleBGM: {fileID: 8300000, guid: e4d7d5aa9ce8f54489986c9a5e7df3fd, type: 3}
+  prologueTheme: {fileID: 8300000, guid: 10b9e1a2fbca779428f8a2dc52e9ece2, type: 3}
+  stageBGM: {fileID: 8300000, guid: 10b9e1a2fbca779428f8a2dc52e9ece2, type: 3}
   bossBGM: {fileID: 0}
+  EndingBGM: {fileID: 8300000, guid: 277c67e28a760a845b6e2982fb871d8a, type: 3}

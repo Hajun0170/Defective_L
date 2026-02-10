@@ -83,7 +83,105 @@ public class EnemyHealth : MonoBehaviour
         if (flashRoutine != null) StopCoroutine(flashRoutine);
         flashRoutine = StartCoroutine(HitColorRoutine());
 
-        if (currentHealth <= 0) Die();
+        //if (currentHealth <= 0) Die();
+
+        // ★ [수정] 체력이 0이 되면 코루틴 시작!
+        if (currentHealth <= 0)
+        {
+            StartCoroutine(DeathSequence());
+        }
+    }
+
+    // ★ [수정] Die 함수를 코루틴으로 변경 (이름: DeathSequence)
+   
+   IEnumerator DeathSequence()
+    {
+        // ====================================================
+        // 1. ★ [핵심] 즉시 사라진 것처럼 위장하기 (Ghost Mode)
+        // ====================================================
+        
+        // A. 충돌 끄기 (플레이어가 닿아도 안 아프게)
+        if (col != null) col.enabled = false; 
+
+        // B. 물리 끄기 (바닥으로 툭 떨어지는 것 방지)
+        if (rb != null) 
+        {
+            rb.linearVelocity = Vector2.zero; // 움직임 멈춤
+            rb.gravityScale = 0f;            // 중력 끄기 (공중에서 멈춤)
+            rb.simulated = false;            // ★ 물리 연산 아예 제외
+        }
+
+        // C. 눈에서 치우기 (스프라이트 끄기)
+        // Destroy는 아니지만 플레이어 눈에는 사라진 것처럼 보임
+        if (spriteRenderer != null) spriteRenderer.enabled = false;
+        
+        // D. AI 뇌 끄기
+        if (enemyAI != null) enemyAI.enabled = false;
+
+        // ----------------------------------------------------
+        // 이제 몬스터는 "안 보이고 만질 수도 없는 상태"입니다.
+        // 하지만 gameObject는 살아있어서 아래 코드는 계속 실행됩니다.
+        // ----------------------------------------------------
+
+        // 2. 장부 기록
+        if (!string.IsNullOrEmpty(uniqueID) && DataManager.Instance != null)
+        {
+            DataManager.Instance.RegisterBossKill(uniqueID);
+            DataManager.Instance.SaveDataToDisk();
+        }
+
+        // 3. 이펙트 & 아이템 생성
+        // (몬스터가 사라진 위치에서 이펙트만 펑!)
+        Vector3 spawnPos = GetSpawnPosition();
+        Vector3 itemSpawnPos = spawnPos + new Vector3(0, 0.5f, 0); 
+
+        if (deathEffectPrefab != null) Instantiate(deathEffectPrefab, spawnPos, Quaternion.identity);
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySFX(deathSound);
+
+        if (dropItemPrefab != null) 
+        {
+            GameObject item = Instantiate(dropItemPrefab, itemSpawnPos, Quaternion.identity);
+            
+            // 아이템이 살짝 튀어오르게
+            Rigidbody2D itemRb = item.GetComponent<Rigidbody2D>();
+            if (itemRb != null)
+            {
+                itemRb.AddForce(new Vector2(0, 3f), ForceMode2D.Impulse);
+            }
+        }
+
+        // 4. 대기 (플레이어는 이펙트를 보고, 1.5초 뒤 패널을 기다림)
+        yield return new WaitForSeconds(1.5f); 
+
+        // 5. 보상 패널 띄우기
+        if (dropWeapon != null)
+        {
+            if (directRewardPanel != null)
+            {
+                directRewardPanel.SetActive(true);
+                
+                GameObject player = GameObject.FindGameObjectWithTag("Player");
+                if(player != null) 
+                {
+                    player.GetComponent<WeaponManager>()?.AddWeapon(dropWeapon);
+                }
+            }
+            else if (GameManager.Instance != null)
+            {
+                GameManager.Instance.GetWeaponReward(dropWeapon);
+            }
+        }
+
+        // 6. 진짜 삭제 (이제 역할 끝)
+        if (isBoss)
+        {
+            BossBattleManager manager = FindFirstObjectByType<BossBattleManager>();
+            if (manager != null) manager.OnBossDefeated();
+        }
+        else
+        {
+            Destroy(gameObject); 
+        }
     }
 
     public void Die()

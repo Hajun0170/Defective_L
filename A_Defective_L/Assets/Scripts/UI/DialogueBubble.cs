@@ -2,13 +2,10 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 
-public class DialogueBubble : MonoBehaviour
+public class DialogueBubble : MonoBehaviour //대사 출력 코드이고 안 써서 보류
 {
     [SerializeField] private GameObject bubbleObj;
     [SerializeField] private TextMeshProUGUI textComp;
-    
-    // [수정] offset 변수 삭제! (이제 타겟 위치 그대로 따라감)
-    // [SerializeField] private Vector3 offset = new Vector3(0, 2.5f, 0); 
 
     private Transform target;
 
@@ -16,7 +13,7 @@ public class DialogueBubble : MonoBehaviour
     {
         if (target != null && bubbleObj.activeSelf)
         {
-            // [수정] offset 더하기 로직 제거 -> target.position 그대로 사용
+            //target.position 사용
             transform.position = Camera.main.WorldToScreenPoint(target.position);
         }
     }

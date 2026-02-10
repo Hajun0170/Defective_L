@@ -48,7 +48,7 @@ public class FinalBossAI : MonoBehaviour
         status = GetComponent<BossController>();
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        rb.bodyType = RigidbodyType2D.Kinematic;
+       // rb.bodyType = RigidbodyType2D.Kinematic; 물리판정 문제로 인해 Dynamic으로 변경 
     }
 
     void Start()
@@ -399,6 +399,27 @@ public class FinalBossAI : MonoBehaviour
         Gizmos.DrawLine(wallRayStart, wallRayStart + Vector3.right * wallCheckDistance);
         
         Gizmos.DrawSphere(wallRayStart, 0.2f);
+    }
+
+    // ★ [추가] 외부(BossController)에서 호출할 함수: "야! 동작 그만!"
+    public void StopAllPatterns()
+    {
+        // 1. 실행 중인 공격 패턴(개틀링, 칼던지기 등) 즉시 종료
+        StopAllCoroutines(); 
+
+        // 2. 이동 물리력 제거 (미끄러짐 방지)
+        if (rb != null) rb.linearVelocity = Vector2.zero;
+
+        // 3. 걷기 애니메이션 해제
+        if (anim != null) anim.SetBool("IsWalk", false);
+
+        // 4. 상태 초기화
+        isActing = false;
+        
+        // 5. 더 이상 Update가 돌지 않도록 스크립트 자체를 비활성화 (확실한 마무리)
+        this.enabled = false; 
+
+        Debug.Log("🚫 AI: 모든 패턴 강제 종료됨");
     }
 
 }

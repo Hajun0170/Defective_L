@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class SpawnPoint : MonoBehaviour
+public class SpawnPoint : MonoBehaviour //플레이어가 이 위치에서 시작하게 함
 {
     [Header("이 위치의 번호")]
     public int spawnID; 
 
     private void Awake()
     {
-        // 씬이 켜지자마자 (화면이 밝아지기 전에) 검사
+        // 씬이 켜지자마자 검사
         if (DataManager.Instance.nextSpawnPointID == spawnID)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -19,7 +19,7 @@ public class SpawnPoint : MonoBehaviour
         }
     }
 
-    // 에디터에서 위치 보기 편하게
+    // 에디터에서 위치 보기 편하게 설정
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.cyan;

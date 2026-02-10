@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class FollowCamera : MonoBehaviour
 {
-    public Transform tTarget;             // 따라갈 대상 (플레이어)
+    public Transform tTarget;             // 따라갈 대상 
     public Vector3 vOffset = new Vector3(0, 0, -10); // 기본 시야 오프셋
-    public float fSmoothSpeed = 5f;       // 따라가는 부드러움 정도
+    public float fSmoothSpeed = 5f;       // 따라가는 부드러움
 
-    // ★ 카메라 제어권을 뺏기 위한 변수
+    //특정 상황에서 카메라 시점을 뺏기 위한 변수
     private bool isCutsceneMode = false;
 
     void LateUpdate()
@@ -18,15 +18,15 @@ public class FollowCamera : MonoBehaviour
         transform.position = vSmoothedPos;
     }
 
-    // 외부(GameManager)에서 타겟을 설정해주는 함수
+    //GameManager에서 타겟을 설정해주는 함수
     public void SetTarget(Transform newTarget)
     {
         tTarget = newTarget;
-        // 씬 이동 직후에는 텔레포트하듯이 즉시 이동 (부드러운 이동 X)
+        // 씬 이동 직후에는 텔레포트하듯이 즉시 이동 
         transform.position = tTarget.position + vOffset;
     }
 
-    // ★ 외부에서 "이제부터 내가 조종할게"라고 신호 주는 함수
+    // 외부에서 카메라를 조종하는 신호 주는 함수
     public void SetCutsceneMode(bool isActive)
     {
         isCutsceneMode = isActive;

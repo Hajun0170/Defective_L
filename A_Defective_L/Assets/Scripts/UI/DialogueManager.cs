@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// [추가] 대사 데이터를 담을 구조체
-public class DialogueEntry
+// 대사 데이터를 담을 구조체
+public class DialogueEntry //대사 출력 코드인데 현재 보류함. 이해도가 부족해서 ㅇㅇ
 {
-    public string Speaker; // 화자 (예: L, Robot)
+    public string Speaker; //  L
     public string Text;    // 내용
 }
 
@@ -33,10 +33,10 @@ public class DialogueManager : MonoBehaviour
             if (parts.Length >= 3)
             {
                 string key = parts[0].Trim();
-                string speaker = parts[1].Trim(); // 두 번째 칸이 화자
+                string speaker = parts[1].Trim(); // 두 번째 칸이 캐릭터
                 string text = string.Join(",", parts, 2, parts.Length - 2).Trim();
 
-                // 딕셔너리에 구조체로 저장
+                // 딕셔너리에 구조체로 저장... 
                 if (!dialogueMap.ContainsKey(key))
                 {
                     dialogueMap.Add(key, new DialogueEntry { Speaker = speaker, Text = text });
@@ -45,7 +45,7 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    // [수정] ID를 주면 구조체(Speaker + Text)를 리턴
+    // ID를 주면 구조체 Speaker + Text를 리턴
     public DialogueEntry GetDialogue(string id)
     {
         return dialogueMap.ContainsKey(id) ? dialogueMap[id] : null;

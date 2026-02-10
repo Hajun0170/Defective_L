@@ -5,7 +5,8 @@ public class CurrencyPickup : MonoBehaviour
     [Header("설정")]
     public int goldAmount = 1;   // 획득량
     public GameObject pickupEffect; 
-
+    //사운드
+    public AudioClip pickupSound;
     private void Start()
     {
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
@@ -34,6 +35,13 @@ public class CurrencyPickup : MonoBehaviour
                     Instantiate(pickupEffect, transform.position, Quaternion.identity);
                 }
 
+                // ★ [추가] 획득 사운드 재생
+                // (오브젝트가 사라지더라도 소리는 남아야 하므로 AudioManager나 PlayClipAtPoint 사용)
+                if (AudioManager.Instance != null && pickupSound != null)
+                {
+                    AudioManager.Instance.PlaySFX(pickupSound);
+                }
+             
                 // 삭제
                 Destroy(gameObject);
             }

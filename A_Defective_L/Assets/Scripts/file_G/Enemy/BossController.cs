@@ -134,7 +134,8 @@ public class BossController : MonoBehaviour
     // 🩸 데미지 처리 (EnemyHealth 로직 + 보스 UI)
     // ====================================================
     public void TakeDamage(int damage)
-    {
+    {   
+        
         if (currentHealth <= 0) return;
 
         currentHealth -= damage;
@@ -156,6 +157,17 @@ public class BossController : MonoBehaviour
         // 4. 사망 체크
         if (currentHealth <= 0)
         {
+            isDead = true; // ★ 사망 플래그
+
+            // =======================================================
+            // ★ [추가] 옆에 붙어있는 AI 찾아서 멈추라고 명령하기
+            // =======================================================
+            FinalBossAI ai = GetComponent<FinalBossAI>();
+            if (ai != null)
+            {
+                ai.StopAllPatterns(); // "공격 멈춰!"
+            }
+            
             StartCoroutine(DeathSequence());
         }
     }
@@ -175,7 +187,7 @@ public class BossController : MonoBehaviour
     // ====================================================
     IEnumerator DeathSequence()
     {     
-
+        
         // 슬로우 모션
         Time.timeScale = 0.2f;
 

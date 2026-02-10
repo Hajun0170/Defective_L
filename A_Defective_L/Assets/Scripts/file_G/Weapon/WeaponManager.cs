@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
+    [Header("Audio")]
+    public AudioClip swapSound; // ★ 교체 사운드 (철컥!)
+
     [Header("Battle Slots (전투용 3칸 권장)")]
     // 인벤토리 전체가 아니라, 전투에 들고 나갈 3개의 무기 리스트
     public List<Weapon> equippedMelee = new List<Weapon>(); 
@@ -26,6 +29,7 @@ public class WeaponManager : MonoBehaviour
     // ★ 인스펙터에서 게임에 존재하는 모든 무기(ScriptableObject)를 순서대로(ID순) 넣으세요.
     public Weapon[] allGameWeapons;
 
+    
     private void Awake()
     {
         playerAttack = GetComponent<PlayerAttack>();
@@ -66,10 +70,21 @@ public class WeaponManager : MonoBehaviour
             currentMeleeIndex = Mathf.Clamp(currentMeleeIndex, 0, equippedMelee.Count - 1);
             currentRangedIndex = Mathf.Clamp(currentRangedIndex, 0, equippedRanged.Count - 1);
             */       
+            // ★ [핵심] UI에 보여질 '예약 번호'도 현재 번호와 맞춰줌! (이게 0번으로 뜨는 원인)
+            previewMeleeIndex = currentMeleeIndex;
+            previewRangedIndex = currentRangedIndex;
         }
 
         EquipWeapons(); // 초기 무기 실장착
         UpdateUI();     // UI 갱신
+
+        // ★ [핵심 추가] UI 매니저에게 "나 지금 이거 들었어!" 라고 강제 보고 (Start 시점 동기화)
+        if (UIManager.Instance != null && equippedMelee.Count > 0)
+        {
+            // 현재 들고 있는 무기를 슬롯에 바로 꽂아버림
+            UIManager.Instance.UpdateWeaponSlots(equippedMelee[currentMeleeIndex], 
+                (equippedRanged.Count > 0) ? equippedRanged[currentRangedIndex] : null);
+        }
     }
 
     private void Update()
@@ -170,6 +185,15 @@ public class WeaponManager : MonoBehaviour
             
             // ★ [유지] 애니메이터 교체 (무기 있을 때만!)
             UpdateAnimationController(currentWeapon);
+
+            // ★ [추가] 교체 사운드 재생
+        if (AudioManager.Instance != null && swapSound != null)
+        {
+            // 약간의 피치(음높이) 변화를 주면 더 자연스럽습니다 (선택 사항)
+            // AudioManager에 기능이 없다면 그냥 PlaySFX만 쓰셔도 무방합니다.
+            AudioManager.Instance.PlaySFX(swapSound); 
+        }
+
         }
         else
         {
@@ -181,11 +205,21 @@ public class WeaponManager : MonoBehaviour
         if (equippedRanged.Count > 0 && currentRangedIndex >= 0 && currentRangedIndex < equippedRanged.Count)
         {
             playerAttack.rangedWeapon = equippedRanged[currentRangedIndex];
+
+            // ★ [추가] 교체 사운드 재생
+        if (AudioManager.Instance != null && swapSound != null)
+        {
+            // 약간의 피치(음높이) 변화를 주면 더 자연스럽습니다 (선택 사항)
+            // AudioManager에 기능이 없다면 그냥 PlaySFX만 쓰셔도 무방합니다.
+            AudioManager.Instance.PlaySFX(swapSound); 
+        }
+        
         }
         else
         {
             playerAttack.rangedWeapon = null;
         }
+
     }
 
     // ★ [새로 만듦] 애니메이터 교체 및 새로고침 함수

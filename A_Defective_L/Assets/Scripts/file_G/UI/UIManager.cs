@@ -39,8 +39,8 @@ public class UIManager : MonoBehaviour
 
     [Header("★ Audio Settings")]
     public AudioMixer mainMixer;     // 오디오 믹서 연결
-    public Slider bgmSlider;         // BGM 슬라이더 연결
-    public Slider sfxSlider;         // SFX 슬라이더 연결
+   // public Slider bgmSlider;         // BGM 슬라이더 연결
+    //public Slider sfxSlider;         // SFX 슬라이더 연결
 
     [Header("★ Video Settings")]
   // 기존: public Dropdown resolutionDropdown; 
@@ -102,7 +102,7 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         InitVideoSettings(); // ★ 시작할 때 해상도 목록 채우기
-        InitAudioUI();       // ★ 슬라이더 위치 초기화
+       // InitAudioUI();       // ★ 슬라이더 위치 초기화
 
         // 게임 시작 시 저장된 설정대로 초기화
         if (DataManager.Instance != null)
@@ -244,12 +244,12 @@ public class UIManager : MonoBehaviour
             optionsPopup.SetActive(true);
 
             // ★ [추가] 옵션창 열 때 슬라이더 위치 재동기화 (Sync)
-            SyncAudioSliders();
+           // SyncAudioSliders();
         }
     }
 
     // 슬라이더 동기화용 헬퍼 함수
-    void SyncAudioSliders()
+    /*void SyncAudioSliders()
     {
         // 저장된 값 다시 읽어오기
         float savedBGM = PlayerPrefs.GetFloat("BGM_Volume", 1.0f);
@@ -264,6 +264,7 @@ public class UIManager : MonoBehaviour
         // if (resolutionDropdown != null) resolutionDropdown.value = PlayerPrefs.GetInt("Resolution_Index", 0);
         // if (screenModeDropdown != null) screenModeDropdown.value = PlayerPrefs.GetInt("Screen_Mode", 0);
     }
+    */
 
     public void OnClickCloseOptions()
     {
@@ -494,7 +495,7 @@ public class UIManager : MonoBehaviour
     }
 
     // 1. 오디오 UI 초기화 (저장된 값으로 슬라이더 맞추기)
-    void InitAudioUI()
+    /*void InitAudioUI()
     {
         float savedBGM = PlayerPrefs.GetFloat("BGM_Volume", 1.0f);
         float savedSFX = PlayerPrefs.GetFloat("SFX_Volume", 1.0f);
@@ -511,7 +512,7 @@ public class UIManager : MonoBehaviour
             sfxSlider.value = savedSFX;
             sfxSlider.onValueChanged.AddListener((val) => AudioManager.Instance.SetSFXVolume(val));
         }
-    }
+    }*/
 
     // 보상 패널 띄우기 함수
     public void ShowRewardPanel(Weapon weapon)

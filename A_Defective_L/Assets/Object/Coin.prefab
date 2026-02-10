@@ -169,6 +169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   goldAmount: 1
   pickupEffect: {fileID: 8690950337773083281, guid: 803b96fa8ebd5a749bdf32bd0e553139, type: 3}
+  pickupSound: {fileID: 8300000, guid: c50dcf401ede9422da7805612256b5ac, type: 3}
 --- !u!70 &3432411409512860916
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

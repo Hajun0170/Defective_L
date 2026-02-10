@@ -10,43 +10,32 @@ public class TitleUIConnector : MonoBehaviour
     public GameObject optionWindowPanel; 
 
     [Header("Audio UI")]
-    public Slider bgmSlider;
-    public Slider sfxSlider;
+    //public Slider bgmSlider;
+    //public Slider sfxSlider;
 
     [Header("Screen UI")]
-    public TMP_Dropdown resolutionDropdown;   // 해상도 드롭다운
-    public TMP_Dropdown screenModeDropdown;   // 화면모드 드롭다운 (이름 변경)
+    public TMP_Dropdown resolutionDropdown;   // 해상도 
+    public TMP_Dropdown screenModeDropdown;   // 화면모드 
 
     // 해상도 정보를 담을 리스트
     List<Resolution> resolutions = new List<Resolution>();
 
     private void Start()
     {
-        // 1. 옵션창 끄기
+        // 옵션창 끄기
         if (optionWindowPanel != null) optionWindowPanel.SetActive(false);
 
-        // 2. 오디오 연결
-        if (AudioManager.Instance != null)
-        {
-            bgmSlider.onValueChanged.AddListener(AudioManager.Instance.SetBGMVolume);
-            sfxSlider.onValueChanged.AddListener(AudioManager.Instance.SetSFXVolume);
-            
-            // (선택) 저장된 볼륨값으로 슬라이더 위치 맞추기 구현 가능
-        }
-
-        // 3. 비디오 설정 초기화 (보내주신 코드 적용)
+        // 비디오 설정 초기화
         InitVideoSettings();
     }
 
     public void OpenOptions() => optionWindowPanel.SetActive(true);
     public void CloseOptions() => optionWindowPanel.SetActive(false);
 
-    // ★ 보내주신 로직 그대로 적용
     void InitVideoSettings()
     {
-        // -------------------------------------------------------
-        // A. 해상도 초기화 (1920x1080, 1280x720 고정)
-        // -------------------------------------------------------
+        // 해상도 초기화 1920x1080, 1280x720
+ 
         if (resolutionDropdown != null)
         {
             resolutionDropdown.ClearOptions();
@@ -54,12 +43,12 @@ public class TitleUIConnector : MonoBehaviour
 
             List<string> options = new List<string>();
 
-            // 1. FHD (1920 x 1080)
+            // 1920 x 1080
             Resolution r1 = new Resolution(); r1.width = 1920; r1.height = 1080;
             resolutions.Add(r1);
             options.Add("1920 x 1080");
 
-            // 2. HD (1280 x 720)
+            // 1280 x 720
             Resolution r2 = new Resolution(); r2.width = 1280; r2.height = 720;
             resolutions.Add(r2);
             options.Add("1280 x 720");
@@ -77,9 +66,8 @@ public class TitleUIConnector : MonoBehaviour
             resolutionDropdown.onValueChanged.AddListener(SetResolution);
         }
 
-        // -------------------------------------------------------
-        // B. 화면모드 초기화 (전체, 테두리 없음, 창모드)
-        // -------------------------------------------------------
+        // 화면모드 초기화: 전체, 테두리 없음, 창모드
+ 
         if (screenModeDropdown != null)
         {
             screenModeDropdown.ClearOptions();
@@ -97,7 +85,7 @@ public class TitleUIConnector : MonoBehaviour
         }
     }
 
-    // ★ 해상도 변경 함수
+    //해상도 변경 함수
     public void SetResolution(int index)
     {
         if (index >= resolutions.Count) return;
@@ -111,21 +99,19 @@ public class TitleUIConnector : MonoBehaviour
         PlayerPrefs.SetInt("Resolution_Index", index);
         PlayerPrefs.Save();
 
-        // ★ 이 로그를 추가해서 콘솔창을 확인하세요!
-        // (참고: 코드가 실행된 직후에는 값이 바로 안 바뀔 수도 있어서, 약간의 지연 후 확인하거나 믿으시면 됩니다)
-        Debug.Log($"현재 해상도 변경 요청됨: {resolutions[index].width} x {resolutions[index].height}");
+        Debug.Log($"현재 해상도 변경: {resolutions[index].width} x {resolutions[index].height}");
         
-        // 혹은 코루틴으로 한 프레임 뒤에 찍어보면 확실합니다.
+        // 코루틴으로 한 프레임 뒤에 찍어봄
         StartCoroutine(CheckResolutionNextFrame());
     }
 
     IEnumerator CheckResolutionNextFrame()
     {
-        yield return null; // 한 프레임 대기 (적용 시간 벌기)
-        Debug.Log($"실제 적용된 해상도: {Screen.width} x {Screen.height}");
+        yield return null; // 한 프레임 대기 (적용 시간 필요)
+        Debug.Log($"적용된 해상도: {Screen.width} x {Screen.height}");
     }
 
-    // ★ 화면 모드 변경 함수
+    // 화면 모드 변경 함수
     public void SetScreenMode(int index)
     {
         FullScreenMode mode = FullScreenMode.ExclusiveFullScreen;
@@ -133,13 +119,13 @@ public class TitleUIConnector : MonoBehaviour
         switch (index)
         {
             case 0: mode = FullScreenMode.ExclusiveFullScreen; break; // 전체 화면
-            case 1: mode = FullScreenMode.FullScreenWindow; break;    // 테두리 없음 (전체 창)
+            case 1: mode = FullScreenMode.FullScreenWindow; break;    // 테두리 없음
             case 2: mode = FullScreenMode.Windowed; break;            // 창 모드
         }
 
         Screen.fullScreenMode = mode;
 
-        // 변경 사항 저장 (PlayerPrefs)
+        // 변경 사항 저장 PlayerPrefs
         PlayerPrefs.SetInt("Screen_Mode", index);
         PlayerPrefs.Save();
     }

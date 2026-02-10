@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.Video;
 using UnityEngine.SceneManagement;
 
-public class TitleVideoController : MonoBehaviour
+public class TitleVideoController : MonoBehaviour // 타이틀 화면에서 영상 재생 및 게임 시작 처리, 조금 꼬여서 당장 사용 안함
 {
     [Header("Settings")]
-    public VideoPlayer videoPlayer; // RawImage에 붙은 VideoPlayer 연결
+    public VideoPlayer videoPlayer; // Image에 붙은 VideoPlayer 연결
     public string gameSceneName = "GameScene"; // 넘어갈 게임 씬 이름
     public GameObject startButton;  // 타이틀 시작 버튼
 
@@ -28,7 +28,7 @@ public class TitleVideoController : MonoBehaviour
         }
     }
 
-    // 버튼에 연결할 함수 (On Click)
+    // 버튼에 연결 함수
     public void OnStartButtonClick()
     {
         startButton.SetActive(false); // 버튼 숨김

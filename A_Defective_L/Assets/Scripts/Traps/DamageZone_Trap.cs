@@ -1,12 +1,12 @@
 using System.Collections;
 using UnityEngine;
 
-public class DamageZone_Trap : MonoBehaviour
+public class DamageZone_Trap : MonoBehaviour //필드 함정에서 사용. 낙하구간 함정에 빠지면 지정한 위치로 이동
 {
     [Header("Settings")]
-    [Tooltip("함정에 닿았을 때 플레이어가 이동할 안전한 위치 (빈 오브젝트)")]
+    [Tooltip("함정에 닿았을 때 플레이어가 이동할 위치. 빈 오브젝트")]
     [SerializeField] private Transform respawnPoint; 
-    [SerializeField] private float respawnDelay = 0.5f; // 이동 전 대기 시간 (암전 연출용)
+    [SerializeField] private float respawnDelay = 0.5f; // 이동 전 대기 시간 (연출용)
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -32,28 +32,22 @@ public class DamageZone_Trap : MonoBehaviour
     private IEnumerator RespawnRoutine(Collider2D player)
     {
         Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
-        MonoBehaviour playerScript = player.GetComponent<MonoBehaviour>(); // 플레이어 조작 스크립트 (예: PlayerController)
+        MonoBehaviour playerScript = player.GetComponent<MonoBehaviour>(); // PlayerController
 
-        // A. 플레이어 조작 얼리기 (중요: 이동 중에 또 움직이면 안 됨)
+        //플레이어 조작 중단 (이동 중에 추가 이동 방지)
         if (rb != null) 
         {
             rb.linearVelocity = Vector2.zero; // 가속도 초기화
-            rb.simulated = false; // 물리 연산 잠시 끄기 (추락 방지)
+            rb.simulated = false; // 물리 연산 잠시 중지 (추락 방지)
         }
-        
-        // ★ 여기서 화면 암전(Fade Out) 함수를 호출하면 좋습니다.
-        // ex) UIManager.Instance.FadeOut();
 
-        // B. 대기 (암전되는 시간 벌기)
+        // 대기. 암전되는 시간
         yield return new WaitForSeconds(respawnDelay);
 
-        // C. 플레이어 위치 강제 이동
+        // 플레이어 위치 강제 이동
         player.transform.position = respawnPoint.position;
 
-        // ★ 여기서 화면 밝아짐(Fade In) 함수를 호출하면 좋습니다.
-        // ex) UIManager.Instance.FadeIn();
-
-        // D. 플레이어 조작 풀기
+        // 플레이어 조작 해제
         if (rb != null)
         {
             rb.simulated = true;

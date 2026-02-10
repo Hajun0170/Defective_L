@@ -1,23 +1,23 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // ★ 필수
+using UnityEngine.SceneManagement; 
 
-public class TitleManager : MonoBehaviour
+public class TitleManager : MonoBehaviour //타이틀 화면 관리
 {
    private void Start()
     {
-        // 1. UI 씬 로드 (없으면)
+        // UI 씬 로드 (없을 경우에.)
         if (SceneManager.GetSceneByName("Scene_Gauge").isLoaded == false)
         {
              SceneManager.LoadScene("Scene_Gauge", LoadSceneMode.Additive);
         }
 
-        // 2. ★ 타이틀이니까 HUD(체력바 등)는 숨겨라!
+        // 타이틀이니까 체력바는 숨김
         if (UIManager.Instance != null)
         {
             UIManager.Instance.SetHUDActive(false); 
         }
 
-        // 3. 매니저 설정
+        // 매니저 설정
         if (GameManager.Instance != null)
         {
             GameManager.Instance.currentStageName = SceneManager.GetActiveScene().name;
@@ -49,7 +49,30 @@ public class TitleManager : MonoBehaviour
         if (DataManager.Instance.LoadGame())
         {
             if (GameManager.Instance != null)
-            {
+            {   
+                // ★ [핵심 추가] 저장된 씬 이름 확인 (검문소)
+                string savedScene = DataManager.Instance.currentData.sceneName;
+
+                // "프롤로그", "컷신", "타이틀" 에서 저장된 데이터라면? -> 이어하기 금지!
+                if (savedScene == "Prologue" || savedScene == "Cutscene_Intro" || savedScene == "Title")
+                {
+                    Debug.Log("⚠️ 프롤로그 데이터는 초기화.");
+
+                    // 데이터 싹 비우고 (New Game 상태로)
+                    DataManager.Instance.NewGame(); 
+                    
+                    // 1스테이지로 강제 이동
+                    GameManager.Instance.currentStageName = "Title"; // 현재 위치는 타이틀
+                    GameManager.Instance.ChangeStage("Prologue");      // 목표는 1스테이지
+                    
+                    // HUD 켜기
+                    if (UIManager.Instance != null) UIManager.Instance.SetHUDActive(true);
+                    return; // 함수 종료
+                }
+
+
+                /////
+
                 // ★ 게임 시작하러 가니까 HUD 다시 켜줘!
                 if (UIManager.Instance != null) UIManager.Instance.SetHUDActive(true);
                 
