@@ -76,6 +76,10 @@ private float wallJumpCounter; // 시간 계산용
     void Start()
     {
         defaultGravity = rb.gravityScale; // 시작할 때 설정된 중력값을 기본값으로 기억
+
+        // ★ [추가] 부활하자마자 발소리가 터지는 것을 방지하기 위해 
+    // 다음 발소리 가능 시간을 현재 시간 + 0.1초 정도로 밀어둡니다.
+    nextFootstepTime = Time.time + 0.1f;
     }
 
     private void Update()

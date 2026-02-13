@@ -18,7 +18,7 @@ MonoBehaviour:
   icon: {fileID: -6811478723853040149, guid: 9d5338fa2901ce744a40a36c1047e666, type: 3}
   type: 1
   projectilePrefab: {fileID: 8705499411173304601, guid: 049fb60fa56ea4240a257586dd358b62, type: 3}
-  baseDamage: 1
+  baseDamage: 2
   damagePerLevel: 1
   overrideController: {fileID: 0}
   hitEffectPrefab: {fileID: 0}

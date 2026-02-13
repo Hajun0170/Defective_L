@@ -122,6 +122,14 @@ public class GameManager : MonoBehaviour //게임 진행 사항 저장하는 핵
 
     IEnumerator ProcessSceneChange(string nextSceneName)
     {
+        //씬을 떠나기 전, 현재 플레이어의 스탯(HP, 돈 등)을 데이터 매니저에 백업
+    GameObject player = GameObject.FindGameObjectWithTag("Player");
+    if (player != null)
+    {
+        PlayerStats stats = player.GetComponent<PlayerStats>();
+        if (stats != null) stats.SaveStatsToManager();
+    }
+        
         if (UIManager.Instance != null)
         {
             yield return StartCoroutine(UIManager.Instance.FadeOut());
@@ -151,6 +159,8 @@ public class GameManager : MonoBehaviour //게임 진행 사항 저장하는 핵
 
             yield return StartCoroutine(UIManager.Instance.FadeIn());
         }
+        //씬 로드 완료 후 사운드 설정을 다시 한번 로드
+        if (AudioManager.Instance != null) AudioManager.Instance.LoadVolumeSettings();
     }
 
     public void SaveCurrentStatus(int hp, int gauge, int tickets)
@@ -181,7 +191,6 @@ public class GameManager : MonoBehaviour //게임 진행 사항 저장하는 핵
     IEnumerator ProcessGameOverSequence()
     {
         isGameOverProcessing = true;
-        Debug.Log("사망");
 
         // 슬로우 모션, UI 끄기
         Time.timeScale = 0.2f;
@@ -193,14 +202,38 @@ public class GameManager : MonoBehaviour //게임 진행 사항 저장하는 핵
             yield return StartCoroutine(UIManager.Instance.FadeOut());
         }
 
-        // 화면이 하얘진 연출 먹인 상태에서 자연스럽게 재시작
+        // 2. 분기 처리: 프롤로그 구간인가?
+    bool isPrologue = (currentStageName == "Prologue");
+
+    if (isPrologue)
+    {
+        // [프롤로그 사망] 데이터 리셋 후 프롤로그 1부터 시작
+        Debug.Log("🌿 프롤로그 사망: 데이터를 초기화하고 재시작합니다.");
+        DataManager.Instance.NewGame();
         
+        // 데이터는 밀었지만 설정(사운드)은 다시 불러옴
+        if (AudioManager.Instance != null) AudioManager.Instance.LoadVolumeSettings();
+
+        Time.timeScale = 1f;
+        ChangeStage("Prologue"); 
+    }
+
+        // 화면이 하얘진 연출 먹인 상태에서 자연스럽게 재시작
+        else
+    {
         // 저장된 정보 불러오기
         if (DataManager.Instance.LoadGame()) 
         {
             // 시간 정상화 (슬로우 모션 해제)
             Time.timeScale = 1f;
 
+            //세이브 파일을 로드한 직후, 사운드 설정을 시스템 설정(PlayerPrefs)에서 다시 덮어씌움
+        // 세이브 파일에 사운드 값이 없거나 잘못되어도 현재 설정이 유지하기 위함
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.LoadVolumeSettings();
+        }
+        
             // 저장된 위치를 NextSpawnPoint에 입력
             float x = DataManager.Instance.currentData.playerX;
             float y = DataManager.Instance.currentData.playerY;
@@ -223,7 +256,9 @@ public class GameManager : MonoBehaviour //게임 진행 사항 저장하는 핵
             Time.timeScale = 1f;
             ChangeStage("Title");
         }
+    }
 
+        
         // 페이드 색상 복구
         // ChangeStage가 끝나고 화면이 밝아질 때 검은색으로 돌아와야 함 ChangeStage의 코루틴이 도는 동안 잠시 대기
         yield return new WaitForSeconds(1.0f); 

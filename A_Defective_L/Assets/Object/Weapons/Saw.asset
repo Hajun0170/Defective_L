@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponID: 0
   weaponName: "\uB2E8\uAC80"
-  attackRate: 0.3
+  attackRate: 1.1
   icon: {fileID: 8781108241127489603, guid: e7d5ee0f64b4c1346944d91b1c2f0aa3, type: 3}
   type: 0
   projectilePrefab: {fileID: 0}
@@ -23,10 +23,9 @@ MonoBehaviour:
   overrideController: {fileID: 22100000, guid: 305c19bcfd7872448be4998b17e9c300, type: 2}
   hitEffectPrefab: {fileID: 3831914920178570219, guid: 9fca20edd9d7ed043affbdc90b47115d, type: 3}
   hitSound: {fileID: 8300000, guid: ef18a5a7071e4a54ba749b93057e0864, type: 3}
-  attackRange: 0.8
+  attackRange: 0.5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
   gaugeRecovery: 1
-  hitEffectPrefab: {fileID: 3831914920178570219, guid: 9fca20edd9d7ed043affbdc90b47115d, type: 3}
   effectOffset: {x: 2, y: 1.5}

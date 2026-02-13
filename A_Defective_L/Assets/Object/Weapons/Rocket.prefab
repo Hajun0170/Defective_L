@@ -102,7 +102,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d544c373f41c55f48a3f82e34ecea809, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 15
+  speed: 10
   lifeTime: 3
   hitEffectPrefab: {fileID: 7790824731320521514, guid: 4f6bfe2f8b9c43a499d7f3e5c1902800, type: 3}
 --- !u!61 &-3644904075392679621

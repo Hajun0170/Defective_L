@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponID: 2
   weaponName: "\uC7A5\uCC3D"
-  attackRate: 0.2
+  attackRate: 1
   icon: {fileID: 5123704891437218057, guid: 368c7cf67c1a77044b4bf42910c2ff0a, type: 3}
   type: 0
   projectilePrefab: {fileID: 0}
-  baseDamage: 2
+  baseDamage: 1
   damagePerLevel: 1
   overrideController: {fileID: 22100000, guid: 3c85a6f9338df6848b36329638d7b135, type: 2}
   hitEffectPrefab: {fileID: 3831914920178570219, guid: 9fca20edd9d7ed043affbdc90b47115d, type: 3}
   hitSound: {fileID: 8300000, guid: c2dade153431323449798d5d5fd92ee4, type: 3}
-  attackRange: 3
+  attackRange: 1.5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128

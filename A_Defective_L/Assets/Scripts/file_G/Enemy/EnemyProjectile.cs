@@ -12,17 +12,16 @@ public class EnemyProjectile : MonoBehaviour
     public AudioClip spawnSound; // 인스펙터에 '뿅' 하는 소리 파일 넣기
     public float soundVolume = 0.5f;
 
-    private void Start()
-    {   
-        // 1. 소리 재생 (AudioSource 컴포넌트 없이도 1회성 재생 가능)
-        if (spawnSound != null)
-        {
-            AudioSource.PlayClipAtPoint(spawnSound, transform.position, soundVolume);
-        }
-        
-        // 일정 시간 뒤 자동 삭제 (메모리 관리)
-        Destroy(gameObject, lifeTime);
+   private void Start()
+{   
+    // 1. AudioManager를 통해 재생 (SFX 그룹으로 자동 연결됨)
+    if (spawnSound != null && AudioManager.Instance != null)
+    {
+        AudioManager.Instance.PlaySFX(spawnSound);
     }
+    
+    Destroy(gameObject, lifeTime);
+}
 
     private void Update()
     {

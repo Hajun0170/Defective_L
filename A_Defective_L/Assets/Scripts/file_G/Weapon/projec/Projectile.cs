@@ -11,7 +11,7 @@ public class Projectile : MonoBehaviour
 
     public GameObject hitEffectPrefab; // 이펙트 프리팹
 
-    private AudioClip hitSound; // ★ 전달받은 소리 저장용
+    private AudioClip hitSound; //전달받은 사운드 저장용
 
     private void Awake()
     {
@@ -21,9 +21,9 @@ public class Projectile : MonoBehaviour
     public void Initialize(int damageAmount, AudioClip sound = null, GameObject effectPrefab = null) 
     {
         this.damage = damageAmount;
-        this.hitSound = sound; // ★ 소리 장착!
+        this.hitSound = sound; //소리 삽입
 
-        // ★ 전달받은 이펙트가 있으면 내 변수에 저장
+        // 전달받은 이펙트가 있으면 내 변수에 저장
         if (effectPrefab != null) 
         {
             this.hitEffectPrefab = effectPrefab;
@@ -31,8 +31,7 @@ public class Projectile : MonoBehaviour
 
         if (rb != null)
         {
-            // Unity 6버전은 linearVelocity, 구버전은 velocity
-            // (혹시 에러나면 velocity로 바꾸세요)  
+
             rb.linearVelocity = transform.right * speed; 
         }
 
@@ -41,45 +40,41 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // ====================================================
-        // ★ [핵심 1] 나 자신(플레이어)이나, 다른 투사체, 
-        // 혹은 몬스터의 '감지 범위(Trigger)'는 무시하고 지나가야 함!
-        // ====================================================
+
+        // 플레이어나, 다른 투사체 몬스터의 트리거는 무시하고 지나감
+
         if (collision.CompareTag("Player")) return;
-        if (collision.isTrigger) return; // 트리거끼리는 충돌 무시 (중요!)
+        if (collision.isTrigger) return; // 트리거끼리는 충돌 무시 
 
 
-        // ====================================================
-        // ★ [핵심 2] 충돌 처리 로직 정리 (순서 중요)
-        // ====================================================
-        
-        // 1. 벽이나 땅에 맞았을 때
+        // 충돌 처리 로직 정리        
+        // 벽이나 땅에 맞았을 때
         if (collision.CompareTag("Ground") || collision.CompareTag("Wall"))
         {
             DestroyProjectile();
         }
         
-        // 2. 일반 몬스터에 맞았을 때
+        // 일반 몬스터에 맞았을 때
         else if (collision.GetComponent<EnemyHealth>() != null)
         {
             collision.GetComponent<EnemyHealth>().TakeDamage(damage, transform);
 
-            // ★ [추가] 총알이 가지고 있던 타격음 재생
+            // 총알이 가지고 있던 타격음 재생
                 if (hitSound != null && AudioManager.Instance != null)
                 {
                     AudioManager.Instance.PlaySFX(hitSound);
                 }
 
             SpawnEffect();      // 이펙트 먼저 생성
-            DestroyProjectile(); // 그 다음 삭제
+            DestroyProjectile(); // 삭제
         }
         
-        // 3. 보스에 맞았을 때
+        //보스에 맞았을 때
         else if (collision.GetComponent<BossController>() != null)
         {
             collision.GetComponent<BossController>().TakeDamage(damage);
 
-            // ★ [추가] 총알이 가지고 있던 타격음 재생
+            // 총알이 가지고 있던 타격음 재생
                 if (hitSound != null && AudioManager.Instance != null)
                 {
                     AudioManager.Instance.PlaySFX(hitSound);
@@ -89,8 +84,7 @@ public class Projectile : MonoBehaviour
             DestroyProjectile();
         }
 
-        // 4. (예외 처리) 태그는 없지만 부딪힌 게 '물체(Collider)'라면?
-        // 허공에 멈추지 말고 그냥 삭제해라.
+        // 태그는 없지만 부딪힌 게 물체일 때 허공에 멈추지 말고 그냥 삭제
         else 
         {
              DestroyProjectile();

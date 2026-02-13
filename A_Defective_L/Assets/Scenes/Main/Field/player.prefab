@@ -207,6 +207,8 @@ MonoBehaviour:
   meleeWeapon: {fileID: 0}
   rangedWeapon: {fileID: 0}
   attackPoint: {fileID: 6442233293371789594}
+  inputBufferTime: 0.4
+  comboStartTime: 0.7
 --- !u!95 &6744767828669284206
 Animator:
   serializedVersion: 7

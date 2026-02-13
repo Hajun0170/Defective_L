@@ -327,3 +327,6 @@ MonoBehaviour:
   damage: 1
   lifeTime: 5
   hitEffect: {fileID: 7790824731320521514, guid: 4f6bfe2f8b9c43a499d7f3e5c1902800, type: 3}
+  spawnSound: {fileID: 0}
+  soundVolume: 0.5
+  owner: {fileID: 2723707299577437634, guid: daa3311307acfbd44b3a50cdc65ae5b8, type: 3}

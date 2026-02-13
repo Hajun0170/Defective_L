@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic; //리스트를 쓰려면 필요
+using System.Collections.Generic; //리스트를 사용
 
-[Serializable] // 저장용
+[Serializable] //직렬화 가능하도록 설정
 public class SaveData
 {
     // 1. 씬 및 위치 정보
@@ -29,27 +29,22 @@ public class SaveData
     public List<string> defeatedBosses = new List<string>();
 
     public int gold = 0;              // 재화
-    public int[] weaponLevels = new int[6]; // 무기별 레벨 (0~5)
+    public int[] weaponLevels = new int[6]; // 무기별 레벨 (0~5, 실제로는 1레벨로 표기)
 
     // 캐릭터 성장 요소
     public int potionCapacity = 1; // 회복 키트 최대 소지량 (기본 1개)
     public int currentPotions = 1; // 현재 가지고 있는 키트 개수
     
-    // 먹은 아이템 ID 목록: (중복 획득 방지)
+    // 먹은 아이템 목록: (중복 획득 방지)
     public List<string> collectedItems = new List<string>();
-    //public List<string> defeatedBosses = new List<string>(); // 잡은 보스 
-
     public int equippedMeleeIndex = 0; //장착 중인 무기의 번호, 근접
     public int equippedRangedIndex = 0; //원거리
 
-    // 무기 획득 여부를 저장하는 배열 (0번 or 1번)
+    // 무기 획득 여부를 저장하는 배열 (임시: 최대 20개 무기)
     public bool[] hasWeapons = new bool[20];
 
-    //추가 조작키 표시 여부: 옵션
+    //추가 조작키 표시 여부
     public bool showKeyHints = false;
 
-    // 사운드 볼륨 설정 
-    public float bgmVolume = 0.5f;
-    public float sfxVolume = 0.5f;
     
 }

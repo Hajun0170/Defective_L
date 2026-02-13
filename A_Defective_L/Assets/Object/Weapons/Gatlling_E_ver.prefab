@@ -217,3 +217,4 @@ MonoBehaviour:
   hitEffect: {fileID: 8690950337773083281, guid: 803b96fa8ebd5a749bdf32bd0e553139, type: 3}
   spawnSound: {fileID: 8300000, guid: 2203773368e4340d98c114f55c2dd7fd, type: 3}
   soundVolume: 0.5
+  owner: {fileID: 2723707299577437634, guid: f063e6dec2aa3b34481c5ca141bda457, type: 3}

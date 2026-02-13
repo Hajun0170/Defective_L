@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponID: 4
   weaponName: "\uB85C\uCF13 \uD380\uCE58"
-  attackRate: 0
+  attackRate: 0.4
   icon: {fileID: -6407423723379340377, guid: e5f4d541205e71f4585689e26bb8791d, type: 3}
   type: 1
   projectilePrefab: {fileID: 1366710626536539476, guid: d2c694b2fe8e315478b10276dcbd5d10, type: 3}

@@ -1,7 +1,7 @@
 using UnityEngine;
 public class ItemPickup : MonoBehaviour
 {
-    public Weapon weaponData; // 이 아이템이 무슨 무기인지
+    public Weapon weaponData; // 이 아이템이 무슨 무기인지를 저장
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

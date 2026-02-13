@@ -37,19 +37,19 @@ public class UIManager : MonoBehaviour
     public Image fadeImage; // ★ [추가] 색깔을 바꾸기 위해 Image 컴포넌트 필요
     public float fadeDuration = 0.5f;
 
-    [Header("★ Audio Settings")]
-    public AudioMixer mainMixer;     // 오디오 믹서 연결
+    //[Header("★ Audio Settings")]
+    //public AudioMixer mainMixer;     // 오디오 믹서 연결
    // public Slider bgmSlider;         // BGM 슬라이더 연결
     //public Slider sfxSlider;         // SFX 슬라이더 연결
 
-    [Header("★ Video Settings")]
+   // [Header("★ Video Settings")]
   // 기존: public Dropdown resolutionDropdown; 
     // ▼ 아래처럼 바꾸세요 ▼
-    public TMP_Dropdown resolutionDropdown; 
+   // public TMP_Dropdown resolutionDropdown; 
     
     // 기존: public Dropdown screenModeDropdown;
     // ▼ 아래처럼 바꾸세요 ▼
-    public TMP_Dropdown screenModeDropdown;
+   // public TMP_Dropdown screenModeDropdown;
 
     [Header("★ Boss UI")]
     public GameObject bossHudGroup;  // 아까 만든 Boss_HUD 연결
@@ -101,7 +101,7 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        InitVideoSettings(); // ★ 시작할 때 해상도 목록 채우기
+       // InitVideoSettings(); // ★ 시작할 때 해상도 목록 채우기
        // InitAudioUI();       // ★ 슬라이더 위치 초기화
 
         // 게임 시작 시 저장된 설정대로 초기화
@@ -236,35 +236,18 @@ public class UIManager : MonoBehaviour
         if (GameManager.Instance != null) GameManager.Instance.TogglePause();
     }
 
-    public void OnClickOptions()
+    // UIManager.cs의 OnClickOptions 수정
+public void OnClickOptions()
+{
+    if(pauseGroup != null) pauseGroup.SetActive(false);
+    if(optionsPopup != null) 
     {
-        if(pauseGroup != null) pauseGroup.SetActive(false);
-        if(optionsPopup != null) 
-        {
-            optionsPopup.SetActive(true);
-
-            // ★ [추가] 옵션창 열 때 슬라이더 위치 재동기화 (Sync)
-           // SyncAudioSliders();
-        }
+        optionsPopup.SetActive(true); 
+        // optionsPopup이 켜지면서 그 자식에 붙은 SettingsUI의 OnEnable()이 실행됩니다.
     }
+}
 
-    // 슬라이더 동기화용 헬퍼 함수
-    /*void SyncAudioSliders()
-    {
-        // 저장된 값 다시 읽어오기
-        float savedBGM = PlayerPrefs.GetFloat("BGM_Volume", 1.0f);
-        float savedSFX = PlayerPrefs.GetFloat("SFX_Volume", 1.0f);
-
-        // 슬라이더에 반영 (이벤트 트리거 없이 값만 변경하고 싶다면 SetValueWithoutNotify 사용 가능하지만, 
-        // 여기선 그냥 value 대입해도 괜찮습니다. 어차피 같은 값이라 소리 변화 없음)
-        if (bgmSlider != null) bgmSlider.value = savedBGM;
-        if (sfxSlider != null) sfxSlider.value = savedSFX;
-        
-        // 해상도 UI도 같이 동기화하고 싶다면?
-        // if (resolutionDropdown != null) resolutionDropdown.value = PlayerPrefs.GetInt("Resolution_Index", 0);
-        // if (screenModeDropdown != null) screenModeDropdown.value = PlayerPrefs.GetInt("Screen_Mode", 0);
-    }
-    */
+   
 
     public void OnClickCloseOptions()
     {
@@ -284,97 +267,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // 3. 오디오 설정
-    public void SetBGMVolume(float volume)
-    {
-        if(mainMixer != null) mainMixer.SetFloat("BGM", volume);
-    }
-
-    public void SetSFXVolume(float volume)
-    {
-        if (mainMixer != null) mainMixer.SetFloat("SFX", volume);
-    }
-
-    // 4. 비디오 설정
-   // 4. 비디오 설정 (수정됨: 고정 해상도 사용)
-    void InitVideoSettings()
-    {
-        // -------------------------------------------------------
-        // A. 해상도 초기화 (1920x1080, 1280x720 고정)
-        // -------------------------------------------------------
-        if (resolutionDropdown != null)
-        {
-            resolutionDropdown.ClearOptions();
-            resolutions.Clear();
-
-            List<string> options = new List<string>();
-
-            // 1. FHD (1920 x 1080) 추가
-            Resolution r1 = new Resolution();
-            r1.width = 1920; 
-            r1.height = 1080;
-            resolutions.Add(r1);
-            options.Add("1920 x 1080");
-
-            // 2. HD (1280 x 720) 추가
-            Resolution r2 = new Resolution();
-            r2.width = 1280; 
-            r2.height = 720;
-            resolutions.Add(r2);
-            options.Add("1280 x 720");
-
-            resolutionDropdown.AddOptions(options);
-
-            // ★ 저장된 해상도 불러오기 (없으면 0번: 1920x1080 기본)
-            int savedResIdx = PlayerPrefs.GetInt("Resolution_Index", 0);
-            
-            // 인덱스 안전 장치 (혹시 목록보다 큰 값이 저장되어 있을까봐)
-            if (savedResIdx >= resolutions.Count) savedResIdx = 0;
-
-            resolutionDropdown.value = savedResIdx;
-            resolutionDropdown.RefreshShownValue();
-
-            // 실제로 적용도 한번 해줍니다 (게임 켜자마자 적용되게)
-            SetResolution(savedResIdx);
-        }
-
-        // -------------------------------------------------------
-        // B. 화면모드 초기화 (전체, 테두리 없음, 창모드)
-        // -------------------------------------------------------
-        if (screenModeDropdown != null)
-        {
-            screenModeDropdown.ClearOptions();
-            List<string> modeOptions = new List<string> { "전체 화면", "테두리 없음", "창 모드" };
-            screenModeDropdown.AddOptions(modeOptions);
-
-            // ★ 저장된 화면모드 불러오기 (없으면 0번: 전체화면 기본)
-            int savedModeIdx = PlayerPrefs.GetInt("Screen_Mode", 0);
-            
-            screenModeDropdown.value = savedModeIdx;
-            screenModeDropdown.RefreshShownValue();
-
-            // 실제로 적용
-            SetScreenMode(savedModeIdx);
-        }
-    }
-
-    public void SetResolution(int resolutionIndex)
-    {
-        if (resolutions.Count > resolutionIndex)
-        {
-            Resolution resolution = resolutions[resolutionIndex];
-            Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreenMode);
-
-            // ★ 변경 시 저장
-            PlayerPrefs.SetInt("Resolution_Index", resolutionIndex);
-            PlayerPrefs.Save();
-        }
-    }
-
-    public void SetScreenMode(int modeIndex)
-    {
-        Screen.SetResolution(Screen.width, Screen.height, screenModes[modeIndex]);
-    }
 
     // ★ [추가] 페이드 색깔 바꾸기 (검정 <-> 흰색)
     public void SetFadeColor(Color color)
@@ -493,26 +385,6 @@ public class UIManager : MonoBehaviour
             }
         }
     }
-
-    // 1. 오디오 UI 초기화 (저장된 값으로 슬라이더 맞추기)
-    /*void InitAudioUI()
-    {
-        float savedBGM = PlayerPrefs.GetFloat("BGM_Volume", 1.0f);
-        float savedSFX = PlayerPrefs.GetFloat("SFX_Volume", 1.0f);
-
-        if (bgmSlider != null) 
-        {
-            bgmSlider.value = savedBGM;
-            // 슬라이더 움직일 때 AudioManager 호출 연결
-            bgmSlider.onValueChanged.AddListener((val) => AudioManager.Instance.SetBGMVolume(val));
-        }
-
-        if (sfxSlider != null)
-        {
-            sfxSlider.value = savedSFX;
-            sfxSlider.onValueChanged.AddListener((val) => AudioManager.Instance.SetSFXVolume(val));
-        }
-    }*/
 
     // 보상 패널 띄우기 함수
     public void ShowRewardPanel(Weapon weapon)

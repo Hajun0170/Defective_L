@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class RocketBoss : MonoBehaviour
 {
@@ -27,6 +28,9 @@ public class RocketBoss : MonoBehaviour
 
     [Header("Aim Offset")]
     public float aimOffset = 0.75f; // ★ [추가] 0.75만큼 위를 조준함 (가슴 높이)
+
+    // 발사된 투사체들을 담아둘 리스트
+private List<GameObject> activeProjectiles = new List<GameObject>();
     
     private void Start()
     {
@@ -113,6 +117,9 @@ public class RocketBoss : MonoBehaviour
         // 1. 뜸 들이기 (이때도 Update에서 계속 조준함)
         yield return new WaitForSeconds(castTime);
 
+        // [체크] 대기 시간이 끝난 직후 보스가 이미 죽었거나 비활성화되었다면 중단!
+    if (this == null || !gameObject.activeInHierarchy) yield break;
+
         // 2. 발사!
         FireRocket();
 
@@ -120,7 +127,12 @@ public class RocketBoss : MonoBehaviour
         yield return new WaitForSeconds(reloadTime);
 
         // 4. 재장전 완료
-        if (visualRocketArm != null) visualRocketArm.SetActive(true);
+        //if (visualRocketArm != null) visualRocketArm.SetActive(true);
+        // [체크] 재장전 시점에도 보스가 살아있을 때만 팔을 다시 켬
+    if (this != null && visualRocketArm != null)
+    {
+        visualRocketArm.SetActive(true);
+    }
         
         isAttacking = false;
     }
@@ -139,8 +151,61 @@ public class RocketBoss : MonoBehaviour
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             Quaternion rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
-            Instantiate(rocketProjectilePrefab, firePoint.position, rotation);
+           // Instantiate(rocketProjectilePrefab, firePoint.position, rotation);
+
+           // 생성된 투사체를 변수에 담고 리스트에 추가
+        GameObject projectile = Instantiate(rocketProjectilePrefab, firePoint.position, rotation);
+
+        
+
+        activeProjectiles.Add(projectile);
+
+        // ★ [추가] 리스트 청소 로직 (리스트에 쌓인 null 제거)
+            // 발사할 때마다 한 번씩 죽은 미사일들을 리스트에서 치워줍니다.
+            activeProjectiles.RemoveAll(item => item == null);
             Debug.Log("보스: 로켓 발사!");
         }
+    }
+
+    
+
+// ★ [보강] OnDisable에서도 처리 (씬 전환이나 비활성화 시 유령 판정 방지)
+    private void OnDisable()
+    {
+        ClearAllProjectiles();
+    }
+
+    // RocketBoss.cs 하단에 추가
+private void OnDestroy()
+    {
+        ClearAllProjectiles();
+    }
+
+    
+    // ★ [분리] 중복되는 삭제 로직을 하나로 묶음
+    private void ClearAllProjectiles()
+    {
+        StopAllCoroutines();
+        
+        if (activeProjectiles != null)
+        {
+            foreach (GameObject proj in activeProjectiles)
+            {
+                if (proj != null) 
+            {
+                // 1. 물리 판정부터 즉시 제거 (가장 빠름)
+                if (proj.TryGetComponent(out Collider2D col)) col.enabled = false;
+                
+                // 2. 시각적으로 즉시 숨김
+                proj.SetActive(false);
+                
+                // 3. 실제 파괴 명령
+                Destroy(proj);
+            }
+            }
+            activeProjectiles.Clear();
+        }
+// 보스의 팔 오브젝트도 확실히 비활성화
+        if (visualRocketArm != null) visualRocketArm.SetActive(false);
     }
 }

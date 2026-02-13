@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class VolumeSlider : MonoBehaviour //UI 매니저에서 있던 기능을 옮김: 연동 문제와 매니저가 비대해진 문제
+public class VolumeSlider : MonoBehaviour 
 {
     public enum VolumeType { BGM, SFX }
     public VolumeType type; 
@@ -11,42 +11,29 @@ public class VolumeSlider : MonoBehaviour //UI 매니저에서 있던 기능을 
     private void Awake()
     {
         slider = GetComponent<Slider>();
+        // 인스펙터 연결 대신 코드로 직접 이벤트를 추가하여 실수 방지
+    slider.onValueChanged.AddListener(OnSliderChanged);
     }
 
     private void OnEnable()
     {
-        // DataManager가 없으면 타이틀부터 실행 안 한 것이라 무시
-        if (DataManager.Instance == null) return;
+        // DataManager를 보지 않고 PlayerPrefs에서 직접 가져옴
+        // 저장된 값이 없으면 0.5f를 기본값으로 사용
+        float savedVolume = PlayerPrefs.GetFloat(type.ToString(), 0.5f);
 
-        float savedVolume = 1f;
-
-        if (type == VolumeType.BGM)
-        {
-            savedVolume = DataManager.Instance.currentData.bgmVolume;
-        }
-        else if (type == VolumeType.SFX)
-        {
-            savedVolume = DataManager.Instance.currentData.sfxVolume;
-        }
-
-        // 저장된 값으로 슬라이더 이동: 소리 재생 X
+        // 저장된 값으로 슬라이더 위치 세팅 (이벤트 호출 안 함)
         if (slider != null)
         {
             slider.SetValueWithoutNotify(savedVolume);
         }
     }
 
-    public void OnSliderChanged(float value)
-    {
-        if (AudioManager.Instance == null) return;
+    // 슬라이더 조절 시 실행 (인스펙터의 OnValueChanged에 연결)
+   public void OnSliderChanged(float value)
+{
+   if (AudioManager.Instance == null) return;
 
-        if (type == VolumeType.BGM)
-        {
-            AudioManager.Instance.SetBGMVolume(value);
-        }
-        else
-        {
-            AudioManager.Instance.SetSFXVolume(value);
-        }
-    }
+    // 공통 함수인 SetVolume을 사용하도록 통일 (매개변수 2개)
+    AudioManager.Instance.SetVolume(type.ToString(), value);
+}
 }

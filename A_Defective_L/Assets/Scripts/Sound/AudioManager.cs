@@ -14,6 +14,8 @@ public class AudioManager : MonoBehaviour //타이틀에 넣어두고 씬에 따
     private const string BGM_PARAM = "BGM";
     private const string SFX_PARAM = "SFX";
 
+    private const string MASTER_PARAM = "Master"; // 마스터 볼륨 파라미터 추가
+
     [Header("Sources")]
     public AudioSource bgmSource;
     public AudioSource sfxSource;
@@ -29,7 +31,9 @@ public class AudioManager : MonoBehaviour //타이틀에 넣어두고 씬에 따
     // ★ 보스전 BGM 복귀를 위한 변수
     private AudioClip savedBGM; 
 
-    
+    [Header("Master Volume Settings (0 ~ 1)")]
+    // 에러 해결: 변수명을 masterSFXScale로 통일합니다.
+    [Range(0f, 1f)] public float masterSFXScale = 0.5f;
 
     private void Awake()
     {
@@ -38,6 +42,7 @@ public class AudioManager : MonoBehaviour //타이틀에 넣어두고 씬에 따
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded; // 이벤트 등록
         }
         else
         {
@@ -48,11 +53,10 @@ public class AudioManager : MonoBehaviour //타이틀에 넣어두고 씬에 따
 
     private void Start()
     {
-        // 씬이 로드될 때마다 BGM 재생
-        SceneManager.sceneLoaded += OnSceneLoaded;
+ 
         
         // 게임을 켜자마자 저장된 설정(볼륨) 불러오기
-        LoadVolumeSettings();
+        LoadAllSettings(); // 볼륨 및 해상도 설정 통합 로드
 
         // 맨 처음 시작할 때 현재 씬 음악 틀기 (Start 시점)
         PlayMusicForScene(SceneManager.GetActiveScene().name);
@@ -69,7 +73,8 @@ public class AudioManager : MonoBehaviour //타이틀에 넣어두고 씬에 따
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        PlayMusicForScene(scene.name);
+        // 씬 로드 시마다 볼륨을 다시 확인하여 믹서 튐 방지
+        LoadVolumeSettings();
 
         // 씬 이름에 따라 BGM 자동 재생 
         PlayMusicForScene(scene.name);
@@ -112,8 +117,7 @@ public class AudioManager : MonoBehaviour //타이틀에 넣어두고 씬에 따
     //BGM 관리
     public void PlayBGM(AudioClip clip)
     {
-        if (clip == null) return;
-        if (bgmSource.clip == clip) return; // 이미 재생 중이면 넘어감
+       if (clip == null || bgmSource.clip == clip) return;
 
         bgmSource.clip = clip;
         bgmSource.loop = true;
@@ -138,56 +142,42 @@ public class AudioManager : MonoBehaviour //타이틀에 넣어두고 씬에 따
     }
 
 
-    // SFX그룹: 효과음
+    // 효과음
     public void PlaySFX(AudioClip clip)
     {
-        if (clip == null) return;
-        // 효과음은 중첩될 수 있으므로 PlayOneShot 사용
-        sfxSource.PlayOneShot(clip); 
+     if (clip == null) return;
+        // 저장된 SFX 설정값과 마스터 스케일을 곱해 2중 잠금
+        float savedVol = PlayerPrefs.GetFloat(SFX_PARAM, 0.5f);
+        sfxSource.PlayOneShot(clip, savedVol * masterSFXScale);
     }
     
-    // 볼륨 조절 & 저장 (믹서 연동)
-    public void SetBGMVolume(float volume) // 슬라이더 값 (0.0001 ~ 1.0)
+    // SettingsUI와 VolumeSlider에서 공통으로 사용할 함수
+    public void SetVolume(string parameterName, float volume) 
     {
- 
-        // 믹서 볼륨 조절 (로그 스케일 요소 사용)
-        float db = (volume <= 0.0001f) ? -80f : Mathf.Log10(volume) * 20; 
-        mainMixer.SetFloat(BGM_PARAM, db);
-        
-        // DataManager에 저장
-        if (DataManager.Instance != null)
-        {
-            DataManager.Instance.currentData.bgmVolume = volume;
-        }
+        float db = (volume <= 0.0001f) ? -80f : Mathf.Log10(volume) * 20f;
+        mainMixer.SetFloat(parameterName, db);
+
+        PlayerPrefs.SetFloat(parameterName, volume);
+        PlayerPrefs.Save();
     }
 
-    public void SetSFXVolume(float volume)
-    {
-        float db = (volume <= 0.0001f) ? -80f : Mathf.Log10(volume) * 20;
-        mainMixer.SetFloat(SFX_PARAM, db);
+    // 기존 VolumeSlider.cs 함수 가져옴
+    public void SetBGMVolume(float volume) => SetVolume(BGM_PARAM, volume);
+public void SetSFXVolume(float volume) => SetVolume(SFX_PARAM, volume);
 
-        if (DataManager.Instance != null)
-        {
-            DataManager.Instance.currentData.sfxVolume = volume;
-        }
-    }
+public void LoadAllSettings() => LoadVolumeSettings();
 
     // 초기 실행 시 저장된 볼륨 적용
-    public void LoadVolumeSettings()
+   public void LoadVolumeSettings()
     {
-        if (DataManager.Instance == null) return;
-
-    // DataManager에서 값 가져오기
-        float bgmVol = DataManager.Instance.currentData.bgmVolume;
-        float sfxVol = DataManager.Instance.currentData.sfxVolume;
-
-        // 믹서에 적용 (Set 함수 재사용 시 저장 로직이 중복되는 문제가 있어 직접 설정)
-        float bgmDb = Mathf.Log10(bgmVol) * 20;
-        if (bgmVol <= 0.0001f) bgmDb = -80f;
-        mainMixer.SetFloat("BGM", bgmDb);
-
-        float sfxDb = Mathf.Log10(sfxVol) * 20;
-        if (sfxVol <= 0.0001f) sfxDb = -80f;
-        mainMixer.SetFloat("SFX", sfxDb);
+       
+  string[] paramsToLoad = { "Master", "BGM", "SFX" };
+        foreach (var param in paramsToLoad)
+        {
+            float vol = PlayerPrefs.GetFloat(param, 0.5f);
+            float db = (vol <= 0.0001f) ? -80f : Mathf.Log10(vol) * 20f;
+            mainMixer.SetFloat(param, db);
+        }
+        Debug.Log("[Mixer] 모든 볼륨 설정 복구 완료");
     }
 }

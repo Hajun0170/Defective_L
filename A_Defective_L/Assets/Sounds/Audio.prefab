@@ -268,6 +268,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3786641693725284568}
   - component: {fileID: 6619471043593056638}
+  - component: {fileID: -3371964974597541047}
   m_Layer: 0
   m_Name: Audio
   m_TagString: Untagged
@@ -314,3 +315,12 @@ MonoBehaviour:
   stageBGM: {fileID: 8300000, guid: 10b9e1a2fbca779428f8a2dc52e9ece2, type: 3}
   bossBGM: {fileID: 0}
   EndingBGM: {fileID: 8300000, guid: 277c67e28a760a845b6e2982fb871d8a, type: 3}
+  masterSFXScale: 0.5
+--- !u!81 &-3371964974597541047
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8660046464605588120}
+  m_Enabled: 1

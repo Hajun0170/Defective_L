@@ -23,6 +23,14 @@ public class BossWallPattern : MonoBehaviour
     [SerializeField] private float clingDuration = 1.0f;
     [SerializeField] private Transform[] wallPoints;
 
+    // ★ [추가] 내려찍기 물리 속도
+    [SerializeField] private float slamHorizontalForce = 8.0f; // 플레이어 쪽으로 덮치는 X축 힘
+    [SerializeField] private float slamDownwardForce = 25.0f;  // 아래로 내리꽂는 Y축 중력 가속도
+
+    [Header("Hitboxes")]
+    // ★ [추가] 자식 오브젝트로 만든 내려찍기 전용 히트박스
+    [SerializeField] private GameObject slamHitbox;
+
     [Header("References")]
     private Transform player;
     private Animator anim;
@@ -123,42 +131,60 @@ public class BossWallPattern : MonoBehaviour
     {
         isSpecialAttacking = true; 
         rb.linearVelocity = Vector2.zero;
-        rb.bodyType = RigidbodyType2D.Kinematic; 
-        anim.SetTrigger("Jump"); 
+        rb.bodyType = RigidbodyType2D.Kinematic; // 올라갈 땐 물리 끔
+           anim.SetBool("Jump",true);
 
         Transform targetWall = wallPoints[Random.Range(0, wallPoints.Length)];
         
-        // 벽으로 이동
+        // 1. 벽으로 점프 (기존과 동일)
         while (Vector2.Distance(transform.position, targetWall.position) > 0.5f)
         {
             transform.position = Vector2.MoveTowards(transform.position, targetWall.position, jumpSpeed * Time.deltaTime);
             yield return null;
         }
 
-        anim.SetBool("WallCling", true);
+        // 2. 벽에 매달리기
         FlipTowards(player.position);
         yield return new WaitForSeconds(clingDuration);
 
-        Vector3 slamTarget = player.position;
-        anim.SetBool("WallCling", false);
-        anim.SetTrigger("Slam"); 
+        // 3. ★ 내려찍기 시작!
+        anim.SetBool("Jump", false);
 
-        // 내려찍기
-        while (Vector2.Distance(transform.position, slamTarget) > 0.5f)
+        // ★ [핵심 1] 물리를 다시 켜서 중력의 영향을 받게 함
+        rb.bodyType = RigidbodyType2D.Dynamic; 
+
+        // ★ [핵심 2] 플레이어 방향 계산 (X축 방향만)
+        float dirX = (player.position.x > transform.position.x) ? 1f : -1f;
+        
+        // 대각선 아래로 강력하게 꽂아버림 (중력 + 강제 하강 속도)
+        rb.linearVelocity = new Vector2(dirX * slamHorizontalForce, -slamDownwardForce);
+
+        // ★ [핵심 3] 내려찍기 전용 히트박스 ON!
+        if (slamHitbox != null) slamHitbox.SetActive(true);
+
+        // ★ 0.1초 대기 (무조건 조금은 떨어지도록)
+        yield return new WaitForSeconds(0.1f);
+        anim.SetTrigger("DashGo"); 
+        // ★ [핵심 4] 바닥에 닿았는지 확인 (Y축 속도가 0에 수렴하면 땅에 부딪힌 것)
+        // 공중에서 떨어지는 중이면 velocity.y는 마이너스 값입니다.
+        while (rb.linearVelocity.y < -0.1f)
         {
-            transform.position = Vector2.MoveTowards(transform.position, slamTarget, slamSpeed * Time.deltaTime);
             yield return null;
         }
 
-        DealAreaDamage(attackRange * 2.0f); 
+        // 4. 바닥에 닿음 (쿵!)
+        rb.linearVelocity = Vector2.zero; // 착지 후 미끄러짐 방지
+        
+        // ★ 히트박스 OFF!
+        if (slamHitbox != null) slamHitbox.SetActive(false);
+
+        // (선택) 만약 착지할 때 바닥 전체에 충격파 데미지를 주고 싶다면 여기서 DealAreaDamage 호출
 
         yield return new WaitForSeconds(attackAfterDelay);
 
-        rb.bodyType = RigidbodyType2D.Dynamic; 
         nextWallPatternTime = Time.time + wallPatternCooldown; 
         isSpecialAttacking = false; 
     }
-
     private void ChasePlayer()
     {
         Vector2 direction = (player.position - transform.position).normalized;

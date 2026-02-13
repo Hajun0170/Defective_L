@@ -58,6 +58,8 @@ public class PlayerStats : MonoBehaviour
 
     [Header("3. Economy")]
     public int currentGold = 0;    // ★ [추가] 현재 재화
+    
+    private bool isDead = false; // 사망 여부 체크용 변수 추가
 
     private void Awake()
     {
@@ -71,7 +73,8 @@ public class PlayerStats : MonoBehaviour
     }
 
    private void Start()
-    {
+    {   
+        isDead = false;
         // 1. DataManager가 있으면 저장된 값으로 내 스탯을 덮어씌움 (Load)
         if (DataManager.Instance != null)
         {
@@ -123,32 +126,34 @@ public class PlayerStats : MonoBehaviour
     // --- 데미지 처리 ---
     public void TakeDamage(int amount, Transform attacker)
     {
-        if (isInvincible) return;
+        // 이미 무적이거나 '이미 죽었다면' 로직 실행 안 함
+        if (isInvincible || isDead) return;
         
         // 2. 체력 감소 (1 대신 들어온 데미지 amount를 쓰는 게 더 유연합니다)
         currentHealth -= amount;
         
-        // ★ [추가] 피격 소리 재생
-        AudioManager.Instance.PlaySFX(hitSound);
+ if (currentHealth <= 0)
+        {
+            isDead = true; // 죽음 확정
+        currentHealth = 0;
+        AudioManager.Instance.PlaySFX(hitSound); // 사망음 딱 한 번 재생
+            Die();
+            return;
+        }
         
+        
+    // 살아있을 때만 피격음 재생
+    AudioManager.Instance.PlaySFX(hitSound);
+
         // 3. 피격 애니메이션
         if(anim != null) anim.SetTrigger("Hit");
-
-       // anim.SetTrigger("Hit");
-       // currentHealth -= 1; // 데미지 적용
-       
 
         // ★ [핵심 2] 스탯이 변할 때마다 즉시 DataManager에 보고!
         SyncDataToManager();
 
         UpdateAllUI(); // UI 갱신
 
-        if (currentHealth <= 0)
-        {
-            Die();
-            return;
-        }
-        
+       
         //GetComponent<PlayerMovement>()?.ApplyKnockback(attacker);
 
         // 5. 넉백 (밀려남) 효과
