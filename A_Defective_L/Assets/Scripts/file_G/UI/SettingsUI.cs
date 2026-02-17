@@ -11,21 +11,21 @@ public class SettingsUI : MonoBehaviour
     
     public Slider bgmSlider;
     public Slider sfxSlider;
-    // ★ [핵심 방어막] 코드가 UI를 맞추는 중인지 확인하는 변수
+    // 코드가 UI를 맞추는 중인지 확인하는 변수
     private bool isSyncing = false; 
 
     private void Awake()
     {
-        // 1. 드롭다운 글씨(Option A...) 세팅
+        // 드롭다운 글씨 세팅
         SetupDropdownOptions();
 
-        // 2. UI 이벤트 연결 (Awake에서 최초 1번만 연결합니다)
+        // UI 이벤트 연결 (Awake에서 최초 1번만 연결)
         if(resolutionDropdown != null) 
             resolutionDropdown.onValueChanged.AddListener(OnVideoChanged);
         if(screenModeDropdown != null) 
             screenModeDropdown.onValueChanged.AddListener(OnVideoChanged);
 
-        // ★ [중요] AudioManager를 직접 호출하도록 변경
+        // AudioManager를 직접 호출
         if(bgmSlider != null) 
             bgmSlider.onValueChanged.AddListener(v => {
                 if (!isSyncing && AudioManager.Instance != null) 
@@ -38,11 +38,10 @@ public class SettingsUI : MonoBehaviour
                     AudioManager.Instance.SetVolume("SFX", v);
             });
 
-    }// SettingsUI.cs 수정
+    }
 private void OnEnable()
 {
-    // 씬이 바뀌어도 SettingsManager가 있으면 거기서 값을 가져오고, 
-    // 없으면 PlayerPrefs에서 직접 가져옵니다.
+    // 씬이 바뀌어도 SettingsManager가 있으면 값을 가져오고, 없으면 PlayerPrefs에서 직접 가져옴
     SyncUIWithSettings();
 }
 
@@ -75,7 +74,7 @@ private void OnEnable()
     if(bgmSlider != null) bgmSlider.value = bgm;
     if(sfxSlider != null) sfxSlider.value = sfx;
 
-    // 해상도/화면모드도 동일하게 처리
+    // 해상도/화면모드 동일하게 처리
     if(resolutionDropdown != null) 
         resolutionDropdown.value = PlayerPrefs.GetInt("ResIndex", 0);
     if(screenModeDropdown != null) 
@@ -95,11 +94,11 @@ private void OnEnable()
         int resIdx = resolutionDropdown != null ? resolutionDropdown.value : 0;
         int modeIdx = screenModeDropdown != null ? screenModeDropdown.value : 0;
         
-       // 해상도 설정은 간단하므로 여기서 직접 처리하거나 AudioManager에 넣어도 됩니다.
+       // 해상도 설정
         SetResolution(resIdx, modeIdx);
     }
 
-    // SettingsManager가 하던 해상도 기능을 이쪽으로 옮기거나 전용 매니저를 만드세요.
+    // SettingsManager가 하던 해상도 기능 이관
     private void SetResolution(int resIdx, int modeIdx)
     {
         Vector2Int[] res = { new Vector2Int(1920, 1080), new Vector2Int(1280, 720) };

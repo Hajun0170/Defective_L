@@ -3,11 +3,11 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class DemoEndTrigger : MonoBehaviour //엔딩을 위해 띄운 트리거인데 변경 후 사용 안 함
+public class DemoEndTrigger : MonoBehaviour //엔딩을 위해 띄운 트리거인데 조정 후 사용 안 함
 {
     [Header("UI 연결")]
-    public GameObject endScreenPanel; // 검은 배경, 텍스트가 있는 패널
-    public CanvasGroup uiCanvasGroup; // 페이드 효과를 위해 패널에 CanvasGroup 컴포넌트 추가
+    public GameObject endScreenPanel; // 검은 배경, 텍스트 패널
+    public CanvasGroup uiCanvasGroup; // 페이드 효과를 위해 패널에 캔버스 그룹 컴포넌트 추가
 
     [Header("설정")]
     public string titleSceneName = "Title"; // 타이틀 씬
@@ -30,12 +30,12 @@ public class DemoEndTrigger : MonoBehaviour //엔딩을 위해 띄운 트리거�
     {
         isTriggered = true;
 
-        //UI 패널 온
+        //UI 패널
         if (endScreenPanel != null)
         {
             endScreenPanel.SetActive(true);
 
-            // 페이드 인 활성화
+            // 페이드 인 
             if (uiCanvasGroup != null)
             {
                 uiCanvasGroup.alpha = 0f;

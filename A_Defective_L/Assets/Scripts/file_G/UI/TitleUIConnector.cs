@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TitleUIConnector : MonoBehaviour
+public class TitleUIConnector : MonoBehaviour //타이틀과 인게임의 옵션창 연동. 대부분의 기능은 SettingsU으로 옮김
 {
     [Header("Window Control")]
     public GameObject optionWindowPanel; 

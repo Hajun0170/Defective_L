@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float knockbackForce = 10f;
     [SerializeField] private float knockbackDuration = 0.2f;
 
-    [SerializeField] private float sprintSpeed = 8f; // ★ 달리기 속도 (추가)
+    [SerializeField] private float sprintSpeed = 8f; // 달리기 속도 
 
     [Header("Dash (Evasion) Settings")]
     [SerializeField] private float dashSpeed = 20f;
@@ -23,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
 
-    // ★ [추가] 벽 관련 설정
+    // 벽 관련 설정
     [Header("Wall Detection & Movement")]
     [SerializeField] private LayerMask wallLayer;       // 벽 레이어
     [SerializeField] private Transform wallCheck;       // 벽 감지 위치 (오브젝트 필요)
@@ -32,20 +32,20 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Wall Jump Settings")]
   private bool isWallJumping; // 벽 점프 중인지 확인
-private float wallJumpDirection; // (선택) 튕겨나가는 방향
+private float wallJumpDirection; // 튕겨나가는 방향
 private float wallJumpTime = 0.2f; // 방향키 무시할 시간
 private float wallJumpCounter; // 시간 계산용
-[SerializeField] private Vector2 wallJumpPower = new Vector2(8f, 16f); // 점프 파워
+[SerializeField] private Vector2 wallJumpPower = new Vector2(8f, 16f); // 점프 힘
     
     [Header("Effects")]
-    public GameObject dodgeEffectPrefab; // ★ 회피 이펙트 프리팹 연결
-    public Vector2 dodgeEffectOffset;    // ★ 위치 미세 조정용 (발밑, 등뒤 등)
+    public GameObject dodgeEffectPrefab; // 회피 이펙트 프리팹 연결
+    public Vector2 dodgeEffectOffset;    // 위치 미세 조정용 
     
     [Header("Audio")]
     public AudioClip footstepSound;
 
-    public AudioClip dashSound; // ★ [추가] 대시 사운드 (인스펙터에서 연결하세요!)
-    public float footstepRate = 0.4f; // 0.4초마다 발소리
+    public AudioClip dashSound; // 대시 사운드 인스펙터에서 연결
+    public float footstepRate = 0.4f; // 0.4초마다 발소리 (재생 빈도)
     private float nextFootstepTime;
     public float SprintStepRate = 0.2f;
 
@@ -77,8 +77,7 @@ private float wallJumpCounter; // 시간 계산용
     {
         defaultGravity = rb.gravityScale; // 시작할 때 설정된 중력값을 기본값으로 기억
 
-        // ★ [추가] 부활하자마자 발소리가 터지는 것을 방지하기 위해 
-    // 다음 발소리 가능 시간을 현재 시간 + 0.1초 정도로 밀어둡니다.
+        // 부활하자마자 발소리가 터지는 것을 방지하기 위해 다음 재생 시간을 현재 시간 + 0.1초 정도로 밀어둡니다.
     nextFootstepTime = Time.time + 0.1f;
     }
 
