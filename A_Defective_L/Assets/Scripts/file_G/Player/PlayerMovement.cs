@@ -26,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
     // 벽 관련 설정
     [Header("Wall Detection & Movement")]
     [SerializeField] private LayerMask wallLayer;       // 벽 레이어
-    [SerializeField] private Transform wallCheck;       // 벽 감지 위치 (오브젝트 필요)
+    [SerializeField] private Transform wallCheck;       // 벽 감지 위치 (오브젝트에 태그 부착 필요)
     [SerializeField] private float wallCheckRadius = 0.2f;
     [SerializeField] private float wallSlideSpeed = 2f; // 벽 타고 내려오는 속도
 
@@ -45,7 +45,7 @@ private float wallJumpCounter; // 시간 계산용
     public AudioClip footstepSound;
 
     public AudioClip dashSound; // 대시 사운드 인스펙터에서 연결
-    public float footstepRate = 0.4f; // 0.4초마다 발소리 (재생 빈도)
+    public float footstepRate = 0.4f; // 0.4초마다 발소리 재생
     private float nextFootstepTime;
     public float SprintStepRate = 0.2f;
 
@@ -64,7 +64,7 @@ private float wallJumpCounter; // 시간 계산용
 
     private float horizontalInput;
     private bool isFacingRight = true;
-    private float defaultGravity; // 원래 중력값 저장용
+    private float defaultGravity; // 중력값 저장용
 
     private void Awake()
     {
@@ -77,7 +77,7 @@ private float wallJumpCounter; // 시간 계산용
     {
         defaultGravity = rb.gravityScale; // 시작할 때 설정된 중력값을 기본값으로 기억
 
-        // 부활하자마자 발소리가 터지는 것을 방지하기 위해 다음 재생 시간을 현재 시간 + 0.1초 정도로 밀어둡니다.
+        // 부활하자마자 발소리가 터지는 것을 방지하기 위해 재생 시간을 0.1초 뒤로 밀어둠.
     nextFootstepTime = Time.time + 0.1f;
     }
 
@@ -88,21 +88,20 @@ private float wallJumpCounter; // 시간 계산용
         if (Time.timeScale == 0) return;
         if (isDashing || isKnockback) return;
 
-        // 1. 입력 감지
+        // 입력 감지
         horizontalInput = Input.GetAxisRaw("Horizontal");
 
-       // ★ [수정] 발소리 재생 부분 (Null 체크 추가)
+       // 발소리 재생 부분 
        if (isGrounded && Mathf.Abs(horizontalInput) > 0.1f)
         {
-            // 1. 현재 달리기(Sprint) 상태인지 확인
-            // 조건: 스프린트 능력 보유 + C키 누름
+            // 현재 달리기(Sprint) 상태인지 확인
+            // 달리기 능력 보유 + C키 누름
             bool isSprinting = DataManager.Instance.currentData.hasSprint && Input.GetKey(KeyCode.C);
 
-            // 2. 상태에 따른 발소리 간격 결정
             // 달리면 0.2초(빠름), 걸으면 0.4초(보통)
             float currentStepRate = isSprinting ? SprintStepRate : footstepRate;
 
-            // 3. 시간 체크 및 소리 재생
+            // 시간 체크 및 소리 재생
             if (Time.time >= nextFootstepTime)
             {
                 if (AudioManager.Instance != null)
@@ -119,18 +118,16 @@ private float wallJumpCounter; // 시간 계산용
             // 멈춰있을 때는 즉시 소리가 날 준비를 함
             nextFootstepTime = 0f;
         }
-
-        // 2. 점프 (땅에 있을 때만)
-        // (나중에 벽 점프를 추가하려면 여기에 || isTouchingWall 조건 추가 필요)
+        // 점프 (땅에 있을 때만)
         if (Input.GetKeyDown(KeyCode.Space))
 {
-    // 1. 땅에 있으면 -> 일반 점프
+    // 땅에 있으면 일반 점프
     if (isGrounded)
     {
         Jump();
         anim.SetBool("IsJump", true);
     }
-    // 2. 땅은 아닌데 벽에 붙어있으면 -> 벽 점프!
+    // 땅은 아닌데 벽에 붙어있으면 벽 점프
     else if (isTouchingWall)
     {
         WallJump(); // 새로 만들 함수
@@ -144,11 +141,11 @@ private float wallJumpCounter; // 시간 계산용
             if(isGrounded) anim.SetBool("IsJump", false);
         }
 
-        // 3. 회피 돌진 (C키)
+        // 회피 돌진 (C키)
         if (Input.GetKeyDown(KeyCode.C) && canDash)
         {
             StartCoroutine(DashProcess());
-            // 대시 애니메이션 처리 (기존 유지)
+            // 대시 애니메이션 처리 
             if (anim.GetBool("IsRun")) anim.SetBool("Dash_R", true);
             else anim.SetBool("Dash_I", true);
         }
@@ -161,8 +158,8 @@ private float wallJumpCounter; // 시간 계산용
             anim.SetBool("Dash_I", false);
         }
 
-        // 4. 애니메이션 및 방향 전환
-        // (벽에 매달려 있을 때는 방향 전환 금지 - 어색함 방지)
+        // 애니메이션 및 방향 전환
+        // 벽에 매달려 있을 때는 방향 전환 금지 
         if (!isWallClinging) 
         {
             if (horizontalInput == 0) anim.SetBool("IsRun", false);
@@ -173,7 +170,7 @@ private float wallJumpCounter; // 시간 계산용
             }
         }
         
-        // ★ [추가] 벽 애니메이션 업데이트
+        // 벽 애니메이션 업데이트
         UpdateWallAnimation();
     }
 
@@ -182,12 +179,12 @@ private float wallJumpCounter; // 시간 계산용
         if (isDashing || isKnockback) return;
 
         CheckGround(); // 땅 체크
-        CheckWall();   // ★ 벽 체크 추가
+        CheckWall();   // 벽 체크 추가
 
-        // ★ [수정] 벽 점프 중이면 아무것도 안 함 (힘 보존)
+        // 벽 점프 중이면 아무것도 안 함 (벽 점프 로직이 자체적으로 이동과 중력 제어를 하기 때문)
     if (isWallJumping) return;
     
-        // ★ 벽 타기 로직이 먼저 계산되어야 함 (중력을 제어하므로)
+        // 벽 타기 로직이 먼저 계산되어야 함 (중력을 제어 문제)
         if (CheckWallInteraction()) 
         {
             // 벽 타기 중이면 Move()를 호출하지 않거나 제한적으로 호출
@@ -202,24 +199,16 @@ private float wallJumpCounter; // 시간 계산용
 
     private void Move()
     {
-       // rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
         float currentSpeed = moveSpeed;
 
-        // ★ [질주 로직]
-        // 1. 질주 능력을 배웠고 (hasSprint)
-        // 2. C키를 누르고 있고 (GetKey)
-        // 3. 땅에 있을 때만 (취향에 따라 공중 질주 허용 가능)
+        // 질주 능력을 배웠고 (hasSprint) C키를 누르고 있고 (GetKey) 땅에 있을 때만 질주 속도 적용
         if (DataManager.Instance.currentData.hasSprint && Input.GetKey(KeyCode.C))
         {
             currentSpeed = sprintSpeed;
             
         }
-
         // 실제 이동 적용
-        rb.linearVelocity = new Vector2(horizontalInput * currentSpeed, rb.linearVelocity.y);
-        
-        // 애니메이션 (걷기/달리기 구분 없이 IsRun 하나라면 그대로 둠)
-        // 만약 질주 모션을 따로 만들었다면 anim.SetBool("IsSprint", currentSpeed > moveSpeed); 추가
+        rb.linearVelocity = new Vector2(horizontalInput * currentSpeed, rb.linearVelocity.y);   
     }
 
     private void Jump()
@@ -228,7 +217,7 @@ private float wallJumpCounter; // 시간 계산용
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
     }
 
-    // ★ [핵심] 벽 타기 및 슬라이딩 로직
+    // 벽 타기 및 슬라이딩 로직
     private bool CheckWallInteraction()
     {
         // 땅에 있거나 벽이 없으면 벽 타기 안 함
@@ -239,22 +228,22 @@ private float wallJumpCounter; // 시간 계산용
         }
 
         // 벽 쪽으로 방향키를 누르고 있는지 확인
-        // (오른쪽 보고 있을 때 오른쪽 키 OR 왼쪽 보고 있을 때 왼쪽 키)
+        //오른쪽 보고 있을 때 오른쪽 키, 왼쪽 보고 있을 때 왼쪽 키
         bool isPushingWall = (isFacingRight && horizontalInput > 0) || (!isFacingRight && horizontalInput < 0);
 
         if (isPushingWall)
         {
-            // [매달리기] 키를 꾹 누르면 -> 멈춤
+            //매달리기 키를 꾹 누르면 -> 멈춤
             isWallClinging = true;
             rb.gravityScale = 0; 
             rb.linearVelocity = Vector2.zero; 
         }
         else
         {
-            // [슬라이딩] 키를 안 누르면 -> 천천히 내려감
+            // 키를 안 누르면 -> 천천히 내려감 ... 작동 문제로 슬라이드는 적용은 안됨
             isWallClinging = false;
             
-            // 떨어지는 중일 때만 속도 제어 (올라갈 땐 제어 X)
+            // 떨어지는 중일 때만 속도 제어 
             if (rb.linearVelocity.y < 0)
             {
                 rb.gravityScale = wallSlideSpeed; 
@@ -269,18 +258,16 @@ private float wallJumpCounter; // 시간 계산용
         // 매달리기 애니메이션
         anim.SetBool("IsWallClinging", isWallClinging);
         
-        // 슬라이딩 애니메이션 (벽엔 닿았는데, 땅은 아니고, 매달린 건 아닐 때)
+        // 슬라이딩 애니메이션 벽엔 닿고, 땅은 아니며, 매달린 건 아닌 경우)
         anim.SetBool("IsWallSliding", isTouchingWall && !isGrounded && !isWallClinging);
     }
-
-    // --- 유틸리티 ---
 
     private void CheckGround()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
-    // ★ 벽 감지 함수
+    // 벽 감지 함수
     private void CheckWall()
     {
         if (wallCheck != null)
@@ -301,31 +288,30 @@ private float wallJumpCounter; // 시간 계산용
         transform.localScale = scale;
     }
 
-    // --- 대시 & 넉백 (기존 유지) ---
+    // 대시넉백
 
     private IEnumerator DashProcess()
     {
         canDash = false;
         isDashing = true;
 
-        // ★ [수정] 대시 시작하자마자 소리 '딱 한 번' 재생
+        // 대시 시작하자마자 소리 1번 재생
         if (AudioManager.Instance != null && dashSound != null)
         {
             AudioManager.Instance.PlaySFX(dashSound); 
         }
 
-        // ★ [추가] 회피 이펙트 생성 로직
-        // ====================================================
+        // 회피 이펙트 생성 로직
         if (dodgeEffectPrefab != null)
         {
-            // 1. 위치 설정: 플레이어 위치 + 오프셋
+            // 위치 설정: 플레이어 위치 + 오프셋
             // (참고: 발밑 먼지라면 offset y를 조금 내리세요)
             Vector3 spawnPos = transform.position + (Vector3)dodgeEffectOffset;
 
-            // 2. 생성
+            // 생성
             GameObject effect = Instantiate(dodgeEffectPrefab, spawnPos, Quaternion.identity);
 
-            // 3. 좌우 반전 (플레이어가 보는 방향에 맞춤)
+            // 좌우 반전 (플레이어가 보는 방향에 맞춤)
             // 플레이어의 scale.x가 -1이면 이펙트도 -1로 뒤집기
             Vector3 playerScale = transform.localScale;
             Vector3 effectScale = effect.transform.localScale;
@@ -399,7 +385,7 @@ private float wallJumpCounter; // 시간 계산용
     // 벽 반대 방향 구하기
     wallJumpDirection = -transform.localScale.x; 
 
-    // 1. 잠시 조작 불능 상태로 만듦 (Move 함수 차단용)
+    // 잠시 조작 불능 상태로 만듦 (Move 함수 차단용)
     StartCoroutine(WallJumpCoroutine());
 }
 
@@ -408,11 +394,11 @@ private IEnumerator WallJumpCoroutine()
 {
     isWallJumping = true; // 이동 막기 시작
     
-    // 2. 힘 가하기 (기존 속도 리셋 후 적용)
+    // 힘 가하기 (기존 속도 리셋 후 적용)
     rb.linearVelocity = Vector2.zero; 
     rb.AddForce(new Vector2(wallJumpDirection * wallJumpPower.x, wallJumpPower.y), ForceMode2D.Impulse);
 
-    // 3. 캐릭터 뒤집기
+    // 캐릭터 뒤집기
     if (transform.localScale.x != wallJumpDirection)
     {
         isFacingRight = !isFacingRight;
@@ -421,23 +407,21 @@ private IEnumerator WallJumpCoroutine()
         transform.localScale = localScale;
     }
 
-    // 4. 0.2초 대기 (이 시간 동안은 방향키가 안 먹힘 -> 벽에서 멀어질 수 있음)
+    // 0.2초 대기 (이 시간 동안 방향키가 안 먹혀서 벽에서 멀어질 수 있음)
     yield return new WaitForSeconds(wallJumpTime);
 
     isWallJumping = false; // 이동 허용
 }
-// PlayerMovement.cs 안에 추가
-// ★ 이 함수를 추가해야 승강기에서 호출할 수 있습니다.
+
+// 승강기에서 호출
     public void StopImmediately()
     {
-        // rb는 Rigidbody2D 변수 이름입니다. 
-        // 만약 변수 이름이 rigid나 rBody라면 그 이름에 맞춰주세요.
+
         if (GetComponent<Rigidbody2D>() != null)
         {
             GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
         }
-        
-        // 혹시 걷기 입력값 변수가 있다면 0으로 초기화 (선택사항)
-        // moveInput = 0; 
+       
+
     }
 }

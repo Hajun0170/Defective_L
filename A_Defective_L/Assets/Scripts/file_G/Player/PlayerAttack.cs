@@ -14,16 +14,9 @@ public class PlayerAttack : MonoBehaviour
     private WeaponManager weaponManager;
     private Animator anim;
     
-    // ★ 상태 관리 변수
-   // private bool isAttacking = false; 
     
-    // 쿨타임 관리
-    //private float lastAttackTime = 0f;
+    // 선입력 시스템 변수
 
-    
-    // =========================================================
-    // ★ [핵심 1] 선입력 시스템 변수
-    // =========================================================
     [Header("Combo & Input Buffer")]
     public float inputBufferTime = 0.4f; // 0.4초까지는 미리 눌러도 봐줌
     private float lastInputTime = -99f;  // 마지막으로 키 누른 시간
@@ -35,10 +28,7 @@ public class PlayerAttack : MonoBehaviour
     // 콤보 가능 시점 (모션의 60%가 지나면 다음 공격 허용)
     [Range(0f, 1f)] public float comboStartTime = 0.6f;
 
-    // ★ isAttacking 변수는 삭제하거나, 단순 정보용으로만 씁니다.
-    // (애니메이션 상태를 직접 확인하는 게 더 정확함)
-
-    // ★ 안전장치: 너무 빠른 중복 실행 방지
+    // 빠른 중복 실행 방지
     private float lastExecuteTime = -99f; 
     private const float MIN_ATTACK_INTERVAL = 0.1f; // 0.1초 내 재실행 금지
 
@@ -58,17 +48,17 @@ public class PlayerAttack : MonoBehaviour
         CaptureInput();
         TryExecuteAttack();
 
-        // ★ [핵심 추가] 공격 중이 아니면 속도 정상화
+        // 공격 중이 아니면 속도 정상화
         RestoreAnimationSpeed();
     }
 
-    // ★ 속도 관리 전용 함수
+    // 속도 관리 전용 함수
     private void RestoreAnimationSpeed()
     {
         // 현재 애니메이션 상태 확인
         AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
 
-        // "Attack" 태그가 붙은 동작(공격)을 하는 중이 아니라면?
+        // Attack 태그가 붙은 동작(공격)을 하는 중이 아닌 경우
         if (!stateInfo.IsTag("Attack")) 
         {
             // 속도가 1이 아니라면 강제로 1로 맞춤 (걷기, 대기 등 정상 속도)
@@ -78,11 +68,9 @@ public class PlayerAttack : MonoBehaviour
             }
         }
         
-        // (참고) 만약 공격 중이라면? 
-        // ExecuteMelee에서 설정한 속도(예: 2.0)가 유지되어야 하므로 건드리지 않음
     }
     
-    // 1. 입력 감지
+    // 입력 감지
     private void CaptureInput()
     {
         if (Input.GetKeyDown(KeyCode.Z))
@@ -99,13 +87,13 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    // 2. 공격 실행 판단
+    // 공격 실행 판단
     private void TryExecuteAttack()
     {
         // 입력 유효성 검사
         if (Time.time - lastInputTime > inputBufferTime) return;
 
-        // ★ 안전장치: 방금 막 공격 명령 내렸으면 잠시 대기
+        // 방금 막 공격 명령 내렸으면 잠시 대기
         if (Time.time - lastExecuteTime < MIN_ATTACK_INTERVAL) return;
 
         AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
@@ -135,14 +123,14 @@ public class PlayerAttack : MonoBehaviour
             }
             else if (bufferedAttackType == AttackType.Ranged)
             {
-                // ★ 원거리는 쿨타임이 별도로 필요할 수 있음 (여기선 그냥 실행)
+                // 원거리는 쿨타임이 별도로 필요할 수 있음 (여기선 그냥 실행)
                 ExecuteRanged();
             }
 
             // 실행 후 정리
             lastInputTime = -99f; 
             bufferedAttackType = AttackType.None;
-            lastExecuteTime = Time.time; // ★ 실행 시간 기록
+            lastExecuteTime = Time.time; // 실행 시간 기록
         }
     }
 
@@ -150,17 +138,17 @@ public class PlayerAttack : MonoBehaviour
     {
         if (meleeWeapon == null) return;
 
-        // 1. 공격 속도 조절 (무기 딜레이를 애니메이션 속도로 변환)
+        // 공격 속도 조절 (무기 딜레이를 애니메이션 속도로 변환)
         float attackSpeedMultiplier = 1.0f;
         if (meleeWeapon.attackRate > 0)
         {
-            // 딜레이가 짧을수록(0.2) -> 속도는 빨라짐(5배)
-            // 너무 빠르거나 느려지지 않게 Clamp (0.5배 ~ 3배)
+            // 딜레이가 짧을수록(0.2) 속도는 빨라짐(5배)
+            // 너무 빠르거나 느려지지 않게 Clamp (0.5배 ~ 3배 사이 설정)
             attackSpeedMultiplier = Mathf.Clamp(1f / meleeWeapon.attackRate, 0.5f, 3.0f);
         }
         anim.speed = attackSpeedMultiplier;
 
-        // 2. 실행
+        // 실행
         anim.SetTrigger("A1"); 
         meleeWeapon.PerformAttack(attackPoint, playerStats, null);
     }
@@ -182,18 +170,17 @@ public class PlayerAttack : MonoBehaviour
             else
             {
                 // 게이지 부족하면 입력 취소
-                // Debug.Log("게이지 부족!");
                 lastInputTime = -99f; 
             }
         }
     }
 
-    // ★ 범위 확인용 기즈모 (에디터 전용)
+    // 범위 확인용 기즈모 (에디터용)
     private void OnDrawGizmosSelected()
     {
         if (attackPoint == null) return;
 
-        // 현재 들고 있는 무기가 '차지 웨폰'이면 빨간 원 그리기
+        // 현재 들고 있는 무기가 차지 웨폰이면 빨간 원 그리기 // 차지형 무기는 폐기해서 존재하지 않으므로 작동은 안 함
         if (meleeWeapon is ChargeWeapon chargeData)
         {
             Gizmos.color = Color.red;
