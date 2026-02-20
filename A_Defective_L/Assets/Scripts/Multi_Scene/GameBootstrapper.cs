@@ -16,7 +16,7 @@ public class GameBootstrapper : MonoBehaviour //멀티씬 테스트용: 사용 �
         // 1번째 스테이지 로드: 스테이지 진행에 따라 교체
        yield return SceneManager.LoadSceneAsync(GaugeSceneName, LoadSceneMode.Additive);
 
-        // 2. 그 다음 스테이지 로드
+        // 그 다음 스테이지 로드
         yield return SceneManager.LoadSceneAsync(firstStageName, LoadSceneMode.Additive);
 
         

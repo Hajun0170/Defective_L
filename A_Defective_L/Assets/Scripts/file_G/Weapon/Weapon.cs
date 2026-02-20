@@ -45,7 +45,7 @@ public abstract class Weapon : ScriptableObject
             level = DataManager.Instance.currentData.weaponLevels[weaponID];
         }
 
-        // 1. 깡뎀 (기본 + 레벨)
+        // 데미지
         int rawDamage = baseDamage + (level * damagePerLevel);
 
         // 교체 버프: 교체 시 일시적으로 데미지 증가

@@ -3,21 +3,20 @@ using UnityEngine;
 
 public class BossBattleManager : MonoBehaviour
 {
-    [Header("보스 식별자")]
+    [Header("보스 식별 코드")]
     public string bossID = "Stage1_Boss";
 
-    [Header("1. 연결할 오브젝트")]
-    // ★ GameObject가 아니라 스크립트를 직접 연결합니다.
+    [Header("연결할 오브젝트")]
     public BossController bossScript; 
     public Transform entryDoor;    
     public Transform exitDoor;     
     public GameObject abilityPanel; // 클리어 보상 UI (스킬 해금용)
     public GameObject deathEffect;
 
-    [Header("★ [추가] 무기 보상 설정")]
-    public Weapon dropWeapon; // 보스가 드랍할 무기 데이터 (없으면 안 줌)
+    [Header("무기 보상")]
+    public Weapon dropWeapon; // 보스가 드랍할 무기 데이터 (없으면 지급 X)
 
-    [Header("2. 설정값")]
+    [Header("설정값")]
     public float doorMoveDistance = 3.0f;
     public float doorMoveSpeed = 2.0f;
     public float bossCameraSize = 8f; 
@@ -29,7 +28,7 @@ public class BossBattleManager : MonoBehaviour
     private bool isBattleStarted = false;
 
     [Header("스킬 해금 설정")]
-    public string unlockAbilityName = "Sprint";
+    public string unlockAbilityName = "Sprint"; //질주 능력
 
     public Vector2 deathEffectOffset = new Vector2(0, 1.0f);
     private bool isRewardActive = false;
@@ -97,7 +96,7 @@ public class BossBattleManager : MonoBehaviour
         }
     }
 
-    // ★ 보스가 죽었을 때 (BossController가 호출)
+    // 보스가 죽었을 때 BossController가 호출
     public void OnBossDefeated()
     {
         DataManager.Instance.RegisterBossKill(bossID);
@@ -105,11 +104,11 @@ public class BossBattleManager : MonoBehaviour
         // 스킬 해금 (벽타기, 대시 등)
         UnlockAbility();
 
-        // ★ [추가] 무기 보상 지급 (GameManager에게 요청)
+        // 무기 보상 지급 - GameManager에게 요청
         if (dropWeapon != null && GameManager.Instance != null)
         {
             GameManager.Instance.GetWeaponReward(dropWeapon);
-            Debug.Log($"🎁 보스 처치 보상 지급: {dropWeapon.weaponName}");
+            Debug.Log($"보스 처치 보상: {dropWeapon.weaponName}");
         }
 
         StartCoroutine(VictorySequence());
@@ -139,24 +138,20 @@ public class BossBattleManager : MonoBehaviour
 
             abilityPanel.SetActive(true);
 
-            // ★ [수정] 바로 isRewardActive = true 하지 않음 (입력 잠금)
+            // 입력 잠금
             isRewardActive = false;
 
             Time.timeScale = 0;
 
-            // ★ 1초 대기 (TimeScale이 0이므로 Realtime 사용 필수!)
+            // 1초 대기: imeScale이 0이므로 Realtime 사용이 필수적임
             yield return new WaitForSecondsRealtime(1.0f);
 
-            // ★ 이제 입력 받기 시작
+            // 재입력 받아짐
             isRewardActive = true;
         }
         else
         {
             // 스킬 UI가 없으면 바로 문 염
-           // CloseAbilityPanel();
-
-           // ★ [수정] 패널이 없으면 '닫기 함수'를 부르는 게 아니라
-            // 바로 문 여는 시퀀스를 시작합니다.
             StartCoroutine(EndBattleSequence());
         }
     }
