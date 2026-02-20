@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CurrencyPickup : MonoBehaviour
+public class CurrencyPickup : MonoBehaviour //돈 획득
 {
     [Header("설정")]
     public int goldAmount = 1;   // 획득량
@@ -21,22 +21,21 @@ public class CurrencyPickup : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            // ★ [수정] 직접 DataManager에 넣지 말고, 플레이어에게 전달!
+            // 플레이어에게 전달
             PlayerStats stats = collision.GetComponent<PlayerStats>();
             
             if (stats != null)
             {
-                // "플레이어야, 여기 돈 주웠어. 네가 처리해."
                 stats.AddGold(goldAmount); 
                 
-                // 이펙트 생성
+                // 획득 이펙트 생성
                 if (pickupEffect != null)
                 {
                     Instantiate(pickupEffect, transform.position, Quaternion.identity);
                 }
 
-                // ★ [추가] 획득 사운드 재생
-                // (오브젝트가 사라지더라도 소리는 남아야 하므로 AudioManager나 PlayClipAtPoint 사용)
+                // 획득 사운드 재생
+                // AudioManager나 PlayClipAtPoint 사용(오브젝트가 사라져도 소리 재생 가능)
                 if (AudioManager.Instance != null && pickupSound != null)
                 {
                     AudioManager.Instance.PlaySFX(pickupSound);

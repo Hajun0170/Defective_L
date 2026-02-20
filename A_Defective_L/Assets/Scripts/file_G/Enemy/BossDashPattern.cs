@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class BossDashPattern : MonoBehaviour
+public class BossDashPattern : MonoBehaviour //2스테이지에서 쓸 대쉬형 보스, 그 외 나머지 패턴은 기본 몬스터와 동일
 {
     [Header("Basic Stats")]
     [SerializeField] private float moveSpeed = 2.5f;
@@ -16,15 +16,15 @@ public class BossDashPattern : MonoBehaviour
     [Header("★ Dash Pattern (Phase 2)")]
     [SerializeField] private float phaseTwoRatio = 0.5f; // 체력 50% 이하
     [SerializeField] private float dashCooldown = 5.0f;  // 돌진 빈도
-    [SerializeField] private float dashWarningTime = 1.0f; // 돌진 전 뜸 들이기 (경고)
+    [SerializeField] private float dashWarningTime = 1.0f; // 돌진 전 대기
     [SerializeField] private float dashSpeed = 12.0f;    // 돌진 속도
     [SerializeField] private float dashDuration = 0.5f;  // 돌진 지속 시간
-    [SerializeField] private int dashDamage = 2;         // 돌진은 더 아프게
+    [SerializeField] private int dashDamage = 2;         // 돌진은 데미지... 1로 변경함. 2칸 씩 닳으면 대처가 안 되는 문제
 
     [Header("Effects & Sound")]
-    [SerializeField] private GameObject warningEffect;   // 돌진 전 경고 이펙트 (! 표시 등)
-    [SerializeField] private GameObject dashDustEffect;  // 달릴 때 먼지
-    [SerializeField] private AudioClip dashSound;        // 콰광! 소리
+    [SerializeField] private GameObject warningEffect;   // 돌진 전 경고 이펙트 (현재는 사용은 안함)
+    [SerializeField] private GameObject dashDustEffect;  // 달릴 때 효과
+    [SerializeField] private AudioClip dashSound;        // 사운드
 
     [Header("References")]
     private Transform player;
@@ -65,9 +65,8 @@ public class BossDashPattern : MonoBehaviour
         Vector2 centerPos = (Vector2)transform.position + rangeCenterOffset;
         float distanceToPlayer = Vector2.Distance(centerPos, player.position);
 
-        // ====================================================
-        // ★ 2페이즈 체크: 체력 50% 이하 & 쿨타임 완료
-        // ====================================================
+        // 2페이즈 진입. 체력 50% 이하와 쿨타임 완료 기준
+  
         bool isPhaseTwo = false;
         if (bossController != null && bossController.GetHealthPercentage() <= phaseTwoRatio)
         {
@@ -80,7 +79,7 @@ public class BossDashPattern : MonoBehaviour
             return;
         }
 
-        // --- 기본 AI (1페이즈 및 쿨타임 중) ---
+        // 기본 AI 
         if (distanceToPlayer <= attackRange)
         {
             AttackPlayer();
@@ -95,34 +94,26 @@ public class BossDashPattern : MonoBehaviour
         }
     }
 
-    // ================================================================
-    // ★ [핵심] 돌진 코루틴
-    // ================================================================
+    // 돌진 코루틴
     private IEnumerator DashRoutine()
     {
         isDashing = true;
         StopMoving(); // 일단 멈춤
 
-        // 1. [경고] 뜸 들이기 (플레이어 바라보기)
+        // 플레이어 바라봄
         FlipTowards(player.position);
-        anim.SetTrigger("DashReady"); // 준비 자세 (없으면 Idle)
+        anim.SetTrigger("DashReady"); // 대기 자세
         
-        // 경고 이펙트
+        // 경고 이펙트. 현재는 표시 안함
         if (warningEffect != null) Instantiate(warningEffect, transform.position + Vector3.up, Quaternion.identity);
-        
-        // 붉게 깜빡이거나 하는 연출 (선택)
-        // StartCoroutine(FlashWarningColor()); 
 
         yield return new WaitForSeconds(dashWarningTime);
 
-        // 2. [조준] 발사 직전 방향 확정
+        // 돌진 직전 방향 결정
         Vector2 dashDir = (player.position - transform.position).normalized;
         
-        // Y축 보정 (너무 위아래로 날아다니면 이상하니까 X축 위주로 하려면 아래 주석 해제)
-        // dashDir.y = 0; dashDir.Normalize(); 
-
-        // 3. [돌진] 발사!
-        anim.SetTrigger("DashGo"); // 달리기/돌진 애니메이션
+        //  돌진 실행
+        anim.SetTrigger("DashGo"); // 돌진 애니메이션
         if (AudioManager.Instance != null) AudioManager.Instance.PlaySFX(dashSound);
         if (dashDustEffect != null) Instantiate(dashDustEffect, transform.position, Quaternion.identity);
 
@@ -132,20 +123,20 @@ public class BossDashPattern : MonoBehaviour
             // 속도 적용
             rb.linearVelocity = dashDir * dashSpeed;
             
-            // ★ 돌진 중 충돌 판정 (몸통 박치기)
+            // 돌진 중 충돌 판정 
             CheckDashCollision();
 
             timer += Time.deltaTime;
             yield return null;
         }
 
-        // 4. [정지 및 후딜레이]
+        // 정지 및 후딜레이
         rb.linearVelocity = Vector2.zero;
-        anim.SetTrigger("DashEnd"); // 멈추는 동작 (없으면 Idle)
+        anim.SetTrigger("DashEnd"); // 멈추는 동작... 지정은 안해서 출력은 X
         
-        yield return new WaitForSeconds(1.0f); // 1초간 헉헉거림
+        yield return new WaitForSeconds(1.0f); // 1초간 대기 상태
 
-        // 5. 복귀
+        // 다시 반복함 - 원래 상태로 돌림
         nextDashTime = Time.time + dashCooldown;
         isDashing = false;
     }
@@ -154,15 +145,15 @@ public class BossDashPattern : MonoBehaviour
     private void CheckDashCollision()
     {
         Vector2 centerPos = (Vector2)transform.position + rangeCenterOffset;
-        // 몸체 크기만큼 검사 (약 1.0f ~ 1.5f)
+        // 몸체 크기만큼 검사 1.0f ~ 1.5f
         if (Vector2.Distance(centerPos, player.position) <= 1.0f)
         {
-            // 데미지 입히고 밀쳐내기
+            // 데미지 입히고 밀쳐냄
             player.GetComponent<PlayerStats>()?.TakeDamage(dashDamage, transform);
         }
     }
 
-    // --- 기본 AI 함수들 (이전과 동일) ---
+    //기본 추격 로직
 
     private void ChasePlayer()
     {

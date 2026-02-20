@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class EnemyAI : MonoBehaviour
+public class EnemyAI : MonoBehaviour //필드 몬스터의 기본적인 ai. 거리 감지로 추격.
 {
     [Header("Stats")]
     [SerializeField] private float moveSpeed = 2.0f;
@@ -12,9 +12,9 @@ public class EnemyAI : MonoBehaviour
     [Header("Combat Settings")]
     [SerializeField] private float attackRate = 1.5f; // 공격 간격 (쿨타임)
     [Tooltip("공격 동작이 끝나고 멍하니 서있는 시간")]
-    [SerializeField] private float attackAfterDelay = 1.0f; // ★ 추가: 재공격 전 대기 시간 (후딜레이)
+    [SerializeField] private float attackAfterDelay = 1.0f; // 재공격 전 대기 시간 (후딜레이)
     [Tooltip("감지 및 공격 범위의 중심점 위치 보정 (x, y)")]
-    [SerializeField] private Vector2 rangeCenterOffset; // ★ 추가: 범위 중심점 보정용 변수
+    [SerializeField] private Vector2 rangeCenterOffset; // 범위 중심 보정용 변수
 
     [Header("References")]
     [SerializeField] private LayerMask playerLayer;
@@ -49,21 +49,21 @@ public class EnemyAI : MonoBehaviour
     {
         if (isDead || player == null || isHit) return;
 
-        // ★ 수정: 거리 계산 시 Offset을 적용한 위치(centerPos)를 사용
+        // 거리 계산 시 Offset을 적용한 위치(centerPos)를 사용
         Vector2 centerPos = (Vector2)transform.position + rangeCenterOffset;
         float distanceToPlayer = Vector2.Distance(centerPos, player.position);
 
-        // 1. 공격 범위 안에 들어옴 -> 공격
+        // 공격 범위 안에 들어옴, 공격
         if (distanceToPlayer <= attackRange)
         {
             AttackPlayer();
         }
-        // 2. 감지 범위 안에 들어옴 -> 추적
+        // 감지 범위 안에 들어옴, 추적
         else if (distanceToPlayer <= detectRange && !isAttacking)
         {
             ChasePlayer();
         }
-        // 3. 멈춤
+        // 멈춤
         else
         {
             StopMoving();
@@ -109,8 +109,8 @@ public class EnemyAI : MonoBehaviour
 
         DealDamage();
 
-        // ★ 수정: 하드코딩된 1f 대신 인스펙터 변수(attackAfterDelay) 사용
-        // 이 시간 동안 적은 움직이지 않고 제자리에 멈춰 있습니다.
+        // 인스펙터 변수(attackAfterDelay) 사용
+        // 이 시간 동안 적은 움직이지 않고 제자리에 멈춰 있음.
         yield return new WaitForSeconds(attackAfterDelay);
 
         isAttacking = false; // 이제 다시 추적 가능
@@ -120,7 +120,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (isDead) return;
 
-        // ★ 수정: 데미지 판정 거리 계산에도 Offset 적용
+        // 데미지 판정 거리 계산에 Offset 적용
         Vector2 centerPos = (Vector2)transform.position + rangeCenterOffset;
         
         // 공격 사거리 체크
@@ -138,7 +138,7 @@ public class EnemyAI : MonoBehaviour
         Destroy(gameObject, 2.0f);
     }
 
-    // ★ 수정: 기즈모(범위 표시)도 Offset이 적용된 위치에 그려짐
+    // 기즈모(범위 표시)는 Offset이 적용된 위치에 그려짐, 직관적으로 보기 위함
     private void OnDrawGizmosSelected()
     {
         // 보정된 중심점 위치 계산
@@ -150,7 +150,7 @@ public class EnemyAI : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(centerPos, attackRange); // 공격 범위
         
-        // 중심점이 어디인지 눈으로 확인하기 위해 작은 점 하나 찍기
+        // 중심점
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(centerPos, 0.1f); 
     }
