@@ -73,13 +73,13 @@ public class PlayerAttack : MonoBehaviour
     // 입력 감지
     private void CaptureInput()
     {
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.Z)) //기본 공격 입력
         {
             lastInputTime = Time.time;
             bufferedAttackType = AttackType.Melee;
-            if (weaponManager != null) weaponManager.TrySwapMeleeOnAttack();
+            if (weaponManager != null) weaponManager.TrySwapMeleeOnAttack(); //매니저 코드에 무기 리스트에서 무기 변경
         }
-        else if (Input.GetKeyDown(KeyCode.X))
+        else if (Input.GetKeyDown(KeyCode.X)) //원거리 공격 입력
         {
             lastInputTime = Time.time;
             bufferedAttackType = AttackType.Ranged;
@@ -93,8 +93,8 @@ public class PlayerAttack : MonoBehaviour
         // 입력 유효성 검사
         if (Time.time - lastInputTime > inputBufferTime) return;
 
-        // 방금 막 공격 명령 내렸으면 잠시 대기
-        if (Time.time - lastExecuteTime < MIN_ATTACK_INTERVAL) return;
+        // 방금 막 공격 명령 내렸으면 잠시 대기, MIN_ATTACK_INTERVAL은 0.1초간 일시적으로 입력 중지
+        if (Time.time - lastExecuteTime < MIN_ATTACK_INTERVAL) return; 
 
         AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
         bool isAttackingNow = stateInfo.IsTag("Attack");
